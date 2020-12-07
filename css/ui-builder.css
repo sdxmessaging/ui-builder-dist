@@ -1,3 +1,112 @@
-input:focus {
+/* Browser style overrides */
+input:focus, textarea:focus, select:focus {
 	outline: none;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+}
+
+.hide-input-clear::-ms-clear {
+	display: none;
+	width: 0;
+	height: 0;
+}
+
+.hide-input-clear::-webkit-search-cancel-button {
+	display: none;
+}
+
+/* ui-builder helper classes */
+
+/* Prevent Safari "optimising" display of vault page lists */
+.safari-bug {
+	-webkit-transform: translate3d(0, 0, 0);
+	transform: translate3d(0, 0, 0);
+}
+
+/* Simple button click ripple effect */
+.ripple {
+	position: relative;
+	overflow: hidden;
+	transform: translate3d(0, 0, 0);
+}
+.ripple:after {
+	content: "";
+	display: block;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	pointer-events: none;
+	background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+	background-repeat: no-repeat;
+	background-position: 50%;
+	transform: scale(10, 10);
+	opacity: 0;
+	transition: transform .5s, opacity 1s;
+}
+.ripple:active:after {
+	transform: scale(0, 0);
+	opacity: 0.3;
+	transition: 0s;
+}
+
+.doc-overlay input {
+	border: none;
+}
+
+/* Simple pulsate animation */
+.pulse {
+	-moz-osx-font-smoothing: grayscale;
+	backface-visibility: hidden;
+	transform: scale(1);
+	animation: 1.2s ease-in-out 0s infinite normal none running pulse-animation;
+}
+@keyframes pulse-animation {
+	from { transform: scale(1); }
+	60% { transform: scale(1.1); }
+	to { transform: scale(1); }
+}
+
+.shake { animation: 0.1s ease-in-out shake-left; }
+@keyframes shake-left { from { left: -0.25rem; } to { left: 0.25rem; } }
+
+/* Fade in/out animations */
+.fade-in { animation: 0.2s linear opacity-in; }
+@keyframes opacity-in { from { opacity: 0 } to { opacity: 1; } }
+.fade-out { animation: 0.2s linear opacity-out; }
+@keyframes opacity-out { from { opacity: 1 } to { opacity: 0; } }
+
+/* Dialog sliding animations */
+.notify-top-in { animation: 0.5s linear top-in; }
+@keyframes top-in { from { top: -100%; } to { top: 0; } }
+.notify-top-out { animation: 0.5s linear top-out; }
+@keyframes top-out { from { top: 0; } to { top: -100%; } }
+
+.notify-right-in { animation: 0.5s linear right-in; }
+@keyframes right-in { from { right: -100%; } to { right: 0.5rem; } }
+.notify-right-out { animation: 0.5s linear right-out; }
+@keyframes right-out { from { right: 0.5rem; } to { right: -100%; } }
+
+.notify-bottom-in { animation: 0.5s linear bottom-in; }
+@keyframes bottom-in { from { bottom: -100%; } to { bottom: 0; } }
+.notify-bottom-out { animation: 0.5s linear bottom-out; }
+@keyframes bottom-out { from { bottom: 0; } to { bottom: -100%; }}
+
+.notify-left-in { animation: 0.5s linear left-in; }
+@keyframes left-in { from { left: -100%; } to { left: 0.5rem; } }
+.notify-left-out { animation: 0.5s linear left-out; }
+@keyframes left-out { from { left: 0.5rem; } to { left: -100%; } }
+
+/* Utility classes not present in Tachyons.css */
+.flex-shrink-0 {
+	flex-shrink: 0;
+}
+
+.arrow:hover {
+	cursor: default;
+}
+
+.sticky {
+	position: sticky;
 }
