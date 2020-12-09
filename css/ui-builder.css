@@ -99,10 +99,6 @@ input:focus, textarea:focus, select:focus {
 @keyframes left-out { from { left: 0.5rem; } to { left: -100%; } }
 
 /* Utility classes not present in Tachyons.css */
-.flex-shrink-0 {
-	flex-shrink: 0;
-}
-
 .arrow:hover {
 	cursor: default;
 }
