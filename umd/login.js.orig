@@ -3964,7 +3964,7 @@
       // Apply theme to ui-widgets
       uiWidgets.updateTheme({
           icon: "fas",
-          lblCol: colors().text.default,
+          lblCol: colors().default.color,
           inpHgt: b$1.inputHeight.class,
           inpBrd: theme().uiInput + " " + b$1.inputFocus.class,
           // TODO Apply the bss responsive class as btnBg -
@@ -4481,7 +4481,7 @@
                       disabled: type === "email" /* Email */ ? !this.emailValid() : !this.mobileValid()
                   }),
                   onePanel ? m__default['default']("span.pv2.f6.pointer", {
-                      class: colors().text.default,
+                      class: colors().default.color,
                       onclick: onToggle
                   }, returnLinkText) : null
               ])
@@ -4682,7 +4682,7 @@
                       : "mb2 mb0-l mh1-l")
               }, [
                   minimal ? null : m__default['default'](".f3.f2-l.fw5.mv3.mv4-l", {
-                      class: colors().text.default
+                      class: colors().default.color
                   }, m__default['default'].trust(title)),
                   lines
                       ? lodash__default['default'].map(lines, function (line) {
@@ -4718,7 +4718,7 @@
                       }), 
                       // Show reset form (onePanel layout only)
                       onePanel && reset ? m__default['default']("span.pv2.nt2.fr.f6.pointer", {
-                          class: colors().text.default,
+                          class: colors().default.color,
                           onclick: function () { return _this.toggleHelp = true; }
                       }, helpLinkText) : null)
                   ]),
@@ -4732,7 +4732,7 @@
                       : "mh1-l")
               }, [
                   minimal ? null : m__default['default'](".f3.f2-l.fw5.mv3.mv4-l", {
-                      class: colors().text.default
+                      class: colors().default.color
                   }, m__default['default'].trust(helpTitle)),
                   lodash__default['default'].map(helpLines, function (line) { return m__default['default']("p.f5", m__default['default'].trust(line)); }),
                   reset ? m__default['default'](PasswordReset, {
@@ -5488,7 +5488,7 @@
       }
       Header.prototype.view = function (_a) {
           var text = _a.attrs.data.text;
-          return m__default['default'](".f3.f2-l.fw5.mv3.mv4-l", { class: colors().text.default }, text);
+          return m__default['default'](".f3.f2-l.fw5.mv3.mv4-l", { class: colors().default.color }, text);
       };
       return Header;
   }());

@@ -1,4 +1,5 @@
 /* Browser style overrides */
+
 input:focus, textarea:focus, select:focus {
 	outline: none;
 	-webkit-box-shadow: none;
