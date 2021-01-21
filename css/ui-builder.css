@@ -79,25 +79,25 @@ input:focus, textarea:focus, select:focus {
 @keyframes opacity-out { from { opacity: 1 } to { opacity: 0; } }
 
 /* Dialog sliding animations */
-.notify-top-in { animation: 0.5s linear top-in; }
-@keyframes top-in { from { top: -100%; } to { top: 0; } }
-.notify-top-out { animation: 0.5s linear top-out; }
-@keyframes top-out { from { top: 0; } to { top: -100%; } }
+.notify-top-in { animation: 0.2s linear top-in; }
+@keyframes top-in { from { transform: translateY(-100%); } to { transform: translateY(0%); } }
+.notify-top-out { animation: 0.2s linear top-out; }
+@keyframes top-out { from { transform: translateY(0%); } to { transform: translateY(-100%); } }
 
-.notify-right-in { animation: 0.5s linear right-in; }
-@keyframes right-in { from { right: -100%; } to { right: 0.5rem; } }
-.notify-right-out { animation: 0.5s linear right-out; }
-@keyframes right-out { from { right: 0.5rem; } to { right: -100%; } }
+.notify-right-in { animation: 0.2s linear right-in; }
+@keyframes right-in { from { transform: translateX(100%); } to { transform: translateX(0%); } }
+.notify-right-out { animation: 0.2s linear right-out; }
+@keyframes right-out { from { transform: translateX(0%); } to { transform: translateX(100%); } }
 
-.notify-bottom-in { animation: 0.5s linear bottom-in; }
-@keyframes bottom-in { from { bottom: -100%; } to { bottom: 0; } }
-.notify-bottom-out { animation: 0.5s linear bottom-out; }
-@keyframes bottom-out { from { bottom: 0; } to { bottom: -100%; }}
+.notify-bottom-in { animation: 0.2s linear bottom-in; }
+@keyframes bottom-in { from { transform: translateY(100%); } to { transform: translateY(0%); } }
+.notify-bottom-out { animation: 0.2s linear bottom-out; }
+@keyframes bottom-out { from { transform: translateY(0%); } to { transform: translateY(100%); }}
 
-.notify-left-in { animation: 0.5s linear left-in; }
-@keyframes left-in { from { left: -100%; } to { left: 0.5rem; } }
-.notify-left-out { animation: 0.5s linear left-out; }
-@keyframes left-out { from { left: 0.5rem; } to { left: -100%; } }
+.notify-left-in { animation: 0.2s linear left-in; }
+@keyframes left-in { from { transform: translateX(-100%); } to { transform: translateX(0%); } }
+.notify-left-out { animation: 0.2s linear left-out; }
+@keyframes left-out { from { transform: translateX(0%); } to { transform: translateX(-100%); } }
 
 /* Utility classes not present in Tachyons.css */
 .arrow:hover {
