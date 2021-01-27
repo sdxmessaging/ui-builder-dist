@@ -26,9 +26,9 @@ input:focus, textarea:focus, select:focus {
 
 /* Simple button click ripple effect */
 .ripple {
-	position: relative;
-	overflow: hidden;
-	transform: translate3d(0, 0, 0);
+	position: relative !important;
+	overflow: hidden !important;
+	transform: translate3d(0, 0, 0) !important;
 }
 .ripple:after {
 	content: "";
