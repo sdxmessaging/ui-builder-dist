@@ -1,1 +1,10514 @@
-(function(e,t){typeof exports==="object"&&typeof module!=="undefined"?t(exports,require("lodash"),require("mithril"),require("mithril/stream"),require("jss"),require("@sdxmessaging/ui-widgets"),require("pusher-js"),require("js-sha256"),require("pdfjs-dist")):typeof define==="function"&&define.amd?define(["exports","lodash","mithril","mithril/stream","jss","@sdxmessaging/ui-widgets","pusher-js","js-sha256","pdfjs-dist"],t):(e=typeof globalThis!=="undefined"?globalThis:e||self,t(e.uiBuilder={},e._,e.m,e.m.stream,e.jss,e.uiWidgets,e.Pusher,e.sha256,e.pdfjsLib))})(this,(function(e,t,r,a,n,i,o,u,l){"use strict";function s(e){return e&&typeof e==="object"&&"default"in e?e:{default:e}}var d=s(t);var c=s(r);var f=s(a);var p=s(n);var m=s(o);function h(e){if(e===null||e===true||e===false){return NaN}var t=Number(e);if(isNaN(t)){return t}return t<0?Math.ceil(t):Math.floor(t)}function v(e,t){if(t.length<e){throw new TypeError(e+" argument"+(e>1?"s":"")+" required, but only "+t.length+" present")}}function g(e){v(1,arguments);var t=Object.prototype.toString.call(e);if(e instanceof Date||typeof e==="object"&&t==="[object Date]"){return new Date(e.getTime())}else if(typeof e==="number"||t==="[object Number]"){return new Date(e)}else{if((typeof e==="string"||t==="[object String]")&&typeof console!=="undefined"){console.warn("Starting with v2.0.0-beta.1 date-fns doesn't accept strings as date arguments. Please use `parseISO` to parse strings. See: https://git.io/fjule");console.warn((new Error).stack)}return new Date(NaN)}}function y(e,t){v(2,arguments);var r=g(e);var a=h(t);if(isNaN(a)){return new Date(NaN)}if(!a){return r}r.setDate(r.getDate()+a);return r}function b(e,t){v(2,arguments);var r=g(e);var a=h(t);if(isNaN(a)){return new Date(NaN)}if(!a){return r}var n=r.getDate();var i=new Date(r.getTime());i.setMonth(r.getMonth()+a+1,0);var o=i.getDate();if(n>=o){return i}else{r.setFullYear(i.getFullYear(),i.getMonth(),n);return r}}function w(e,t){v(2,arguments);if(!t||typeof t!=="object")return new Date(NaN);var r="years"in t?h(t.years):0;var a="months"in t?h(t.months):0;var n="weeks"in t?h(t.weeks):0;var i="days"in t?h(t.days):0;var o="hours"in t?h(t.hours):0;var u="minutes"in t?h(t.minutes):0;var l="seconds"in t?h(t.seconds):0;var s=g(e);var d=a||r?b(s,a+r*12):s;var c=i||n?y(d,i+n*7):d;var f=u+o*60;var p=l+f*60;var m=p*1e3;var w=new Date(c.getTime()+m);return w}function x(e,t){v(2,arguments);var r=g(e).getTime();var a=h(t);return new Date(r+a)}var C=6e4;function I(e){return e.getTime()%C}function k(e){var t=new Date(e.getTime());var r=Math.ceil(t.getTimezoneOffset());t.setSeconds(0,0);var a=r>0;var n=a?(C+I(t))%C:I(t);return r*C+n}function L(e){v(1,arguments);var t=g(e);t.setHours(0,0,0,0);return t}function D(e){v(1,arguments);var t=g(e);return!isNaN(t)}function P(e,t){v(2,arguments);var r=L(e);var a=L(t);return r.getTime()===a.getTime()}var T={lessThanXSeconds:{one:"less than a second",other:"less than {{count}} seconds"},xSeconds:{one:"1 second",other:"{{count}} seconds"},halfAMinute:"half a minute",lessThanXMinutes:{one:"less than a minute",other:"less than {{count}} minutes"},xMinutes:{one:"1 minute",other:"{{count}} minutes"},aboutXHours:{one:"about 1 hour",other:"about {{count}} hours"},xHours:{one:"1 hour",other:"{{count}} hours"},xDays:{one:"1 day",other:"{{count}} days"},aboutXWeeks:{one:"about 1 week",other:"about {{count}} weeks"},xWeeks:{one:"1 week",other:"{{count}} weeks"},aboutXMonths:{one:"about 1 month",other:"about {{count}} months"},xMonths:{one:"1 month",other:"{{count}} months"},aboutXYears:{one:"about 1 year",other:"about {{count}} years"},xYears:{one:"1 year",other:"{{count}} years"},overXYears:{one:"over 1 year",other:"over {{count}} years"},almostXYears:{one:"almost 1 year",other:"almost {{count}} years"}};function W(e,t,r){r=r||{};var a;if(typeof T[e]==="string"){a=T[e]}else if(t===1){a=T[e].one}else{a=T[e].other.replace("{{count}}",t)}if(r.addSuffix){if(r.comparison>0){return"in "+a}else{return a+" ago"}}return a}function B(e){return function(t){var r=t||{};var a=r.width?String(r.width):e.defaultWidth;var n=e.formats[a]||e.formats[e.defaultWidth];return n}}var S={full:"EEEE, MMMM do, y",long:"MMMM do, y",medium:"MMM d, y",short:"MM/dd/yyyy"};var M={full:"h:mm:ss a zzzz",long:"h:mm:ss a z",medium:"h:mm:ss a",short:"h:mm a"};var N={full:"{{date}} 'at' {{time}}",long:"{{date}} 'at' {{time}}",medium:"{{date}}, {{time}}",short:"{{date}}, {{time}}"};var H={date:B({formats:S,defaultWidth:"full"}),time:B({formats:M,defaultWidth:"full"}),dateTime:B({formats:N,defaultWidth:"full"})};var _={lastWeek:"'last' eeee 'at' p",yesterday:"'yesterday at' p",today:"'today at' p",tomorrow:"'tomorrow at' p",nextWeek:"eeee 'at' p",other:"P"};function A(e,t,r,a){return _[e]}function F(e){return function(t,r){var a=r||{};var n=a.context?String(a.context):"standalone";var i;if(n==="formatting"&&e.formattingValues){var o=e.defaultFormattingWidth||e.defaultWidth;var u=a.width?String(a.width):o;i=e.formattingValues[u]||e.formattingValues[o]}else{var l=e.defaultWidth;var s=a.width?String(a.width):e.defaultWidth;i=e.values[s]||e.values[l]}var d=e.argumentCallback?e.argumentCallback(t):t;return i[d]}}var E={narrow:["B","A"],abbreviated:["BC","AD"],wide:["Before Christ","Anno Domini"]};var R={narrow:["1","2","3","4"],abbreviated:["Q1","Q2","Q3","Q4"],wide:["1st quarter","2nd quarter","3rd quarter","4th quarter"]};var U={narrow:["J","F","M","A","M","J","J","A","S","O","N","D"],abbreviated:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],wide:["January","February","March","April","May","June","July","August","September","October","November","December"]};var O={narrow:["S","M","T","W","T","F","S"],short:["Su","Mo","Tu","We","Th","Fr","Sa"],abbreviated:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],wide:["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]};var j={narrow:{am:"a",pm:"p",midnight:"mi",noon:"n",morning:"morning",afternoon:"afternoon",evening:"evening",night:"night"},abbreviated:{am:"AM",pm:"PM",midnight:"midnight",noon:"noon",morning:"morning",afternoon:"afternoon",evening:"evening",night:"night"},wide:{am:"a.m.",pm:"p.m.",midnight:"midnight",noon:"noon",morning:"morning",afternoon:"afternoon",evening:"evening",night:"night"}};var z={narrow:{am:"a",pm:"p",midnight:"mi",noon:"n",morning:"in the morning",afternoon:"in the afternoon",evening:"in the evening",night:"at night"},abbreviated:{am:"AM",pm:"PM",midnight:"midnight",noon:"noon",morning:"in the morning",afternoon:"in the afternoon",evening:"in the evening",night:"at night"},wide:{am:"a.m.",pm:"p.m.",midnight:"midnight",noon:"noon",morning:"in the morning",afternoon:"in the afternoon",evening:"in the evening",night:"at night"}};function q(e,t){var r=Number(e);var a=r%100;if(a>20||a<10){switch(a%10){case 1:return r+"st";case 2:return r+"nd";case 3:return r+"rd"}}return r+"th"}var G={ordinalNumber:q,era:F({values:E,defaultWidth:"wide"}),quarter:F({values:R,defaultWidth:"wide",argumentCallback:function(e){return Number(e)-1}}),month:F({values:U,defaultWidth:"wide"}),day:F({values:O,defaultWidth:"wide"}),dayPeriod:F({values:j,defaultWidth:"wide",formattingValues:z,defaultFormattingWidth:"wide"})};function V(e){return function(t,r){var a=String(t);var n=r||{};var i=a.match(e.matchPattern);if(!i){return null}var o=i[0];var u=a.match(e.parsePattern);if(!u){return null}var l=e.valueCallback?e.valueCallback(u[0]):u[0];l=n.valueCallback?n.valueCallback(l):l;return{value:l,rest:a.slice(o.length)}}}function Y(e){return function(t,r){var a=String(t);var n=r||{};var i=n.width;var o=i&&e.matchPatterns[i]||e.matchPatterns[e.defaultMatchWidth];var u=a.match(o);if(!u){return null}var l=u[0];var s=i&&e.parsePatterns[i]||e.parsePatterns[e.defaultParseWidth];var d;if(Object.prototype.toString.call(s)==="[object Array]"){d=Z(s,(function(e){return e.test(l)}))}else{d=Q(s,(function(e){return e.test(l)}))}d=e.valueCallback?e.valueCallback(d):d;d=n.valueCallback?n.valueCallback(d):d;return{value:d,rest:a.slice(l.length)}}}function Q(e,t){for(var r in e){if(e.hasOwnProperty(r)&&t(e[r])){return r}}}function Z(e,t){for(var r=0;r<e.length;r++){if(t(e[r])){return r}}}var X=/^(\d+)(th|st|nd|rd)?/i;var J=/\d+/i;var $={narrow:/^(b|a)/i,abbreviated:/^(b\.?\s?c\.?|b\.?\s?c\.?\s?e\.?|a\.?\s?d\.?|c\.?\s?e\.?)/i,wide:/^(before christ|before common era|anno domini|common era)/i};var K={any:[/^b/i,/^(a|c)/i]};var ee={narrow:/^[1234]/i,abbreviated:/^q[1234]/i,wide:/^[1234](th|st|nd|rd)? quarter/i};var te={any:[/1/i,/2/i,/3/i,/4/i]};var re={narrow:/^[jfmasond]/i,abbreviated:/^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i,wide:/^(january|february|march|april|may|june|july|august|september|october|november|december)/i};var ae={narrow:[/^j/i,/^f/i,/^m/i,/^a/i,/^m/i,/^j/i,/^j/i,/^a/i,/^s/i,/^o/i,/^n/i,/^d/i],any:[/^ja/i,/^f/i,/^mar/i,/^ap/i,/^may/i,/^jun/i,/^jul/i,/^au/i,/^s/i,/^o/i,/^n/i,/^d/i]};var ne={narrow:/^[smtwf]/i,short:/^(su|mo|tu|we|th|fr|sa)/i,abbreviated:/^(sun|mon|tue|wed|thu|fri|sat)/i,wide:/^(sunday|monday|tuesday|wednesday|thursday|friday|saturday)/i};var ie={narrow:[/^s/i,/^m/i,/^t/i,/^w/i,/^t/i,/^f/i,/^s/i],any:[/^su/i,/^m/i,/^tu/i,/^w/i,/^th/i,/^f/i,/^sa/i]};var oe={narrow:/^(a|p|mi|n|(in the|at) (morning|afternoon|evening|night))/i,any:/^([ap]\.?\s?m\.?|midnight|noon|(in the|at) (morning|afternoon|evening|night))/i};var ue={any:{am:/^a/i,pm:/^p/i,midnight:/^mi/i,noon:/^no/i,morning:/morning/i,afternoon:/afternoon/i,evening:/evening/i,night:/night/i}};var le={ordinalNumber:V({matchPattern:X,parsePattern:J,valueCallback:function(e){return parseInt(e,10)}}),era:Y({matchPatterns:$,defaultMatchWidth:"wide",parsePatterns:K,defaultParseWidth:"any"}),quarter:Y({matchPatterns:ee,defaultMatchWidth:"wide",parsePatterns:te,defaultParseWidth:"any",valueCallback:function(e){return e+1}}),month:Y({matchPatterns:re,defaultMatchWidth:"wide",parsePatterns:ae,defaultParseWidth:"any"}),day:Y({matchPatterns:ne,defaultMatchWidth:"wide",parsePatterns:ie,defaultParseWidth:"any"}),dayPeriod:Y({matchPatterns:oe,defaultMatchWidth:"any",parsePatterns:ue,defaultParseWidth:"any"})};var se={code:"en-US",formatDistance:W,formatLong:H,formatRelative:A,localize:G,match:le,options:{weekStartsOn:0,firstWeekContainsDate:1}};function de(e,t){v(2,arguments);var r=h(t);return x(e,-r)}function ce(e,t){var r=e<0?"-":"";var a=Math.abs(e).toString();while(a.length<t){a="0"+a}return r+a}var fe={y:function(e,t){var r=e.getUTCFullYear();var a=r>0?r:1-r;return ce(t==="yy"?a%100:a,t.length)},M:function(e,t){var r=e.getUTCMonth();return t==="M"?String(r+1):ce(r+1,2)},d:function(e,t){return ce(e.getUTCDate(),t.length)},a:function(e,t){var r=e.getUTCHours()/12>=1?"pm":"am";switch(t){case"a":case"aa":case"aaa":return r.toUpperCase();case"aaaaa":return r[0];case"aaaa":default:return r==="am"?"a.m.":"p.m."}},h:function(e,t){return ce(e.getUTCHours()%12||12,t.length)},H:function(e,t){return ce(e.getUTCHours(),t.length)},m:function(e,t){return ce(e.getUTCMinutes(),t.length)},s:function(e,t){return ce(e.getUTCSeconds(),t.length)},S:function(e,t){var r=t.length;var a=e.getUTCMilliseconds();var n=Math.floor(a*Math.pow(10,r-3));return ce(n,t.length)}};var pe=864e5;function me(e){v(1,arguments);var t=g(e);var r=t.getTime();t.setUTCMonth(0,1);t.setUTCHours(0,0,0,0);var a=t.getTime();var n=r-a;return Math.floor(n/pe)+1}function he(e){v(1,arguments);var t=1;var r=g(e);var a=r.getUTCDay();var n=(a<t?7:0)+a-t;r.setUTCDate(r.getUTCDate()-n);r.setUTCHours(0,0,0,0);return r}function ve(e){v(1,arguments);var t=g(e);var r=t.getUTCFullYear();var a=new Date(0);a.setUTCFullYear(r+1,0,4);a.setUTCHours(0,0,0,0);var n=he(a);var i=new Date(0);i.setUTCFullYear(r,0,4);i.setUTCHours(0,0,0,0);var o=he(i);if(t.getTime()>=n.getTime()){return r+1}else if(t.getTime()>=o.getTime()){return r}else{return r-1}}function ge(e){v(1,arguments);var t=ve(e);var r=new Date(0);r.setUTCFullYear(t,0,4);r.setUTCHours(0,0,0,0);var a=he(r);return a}var ye=6048e5;function be(e){v(1,arguments);var t=g(e);var r=he(t).getTime()-ge(t).getTime();return Math.round(r/ye)+1}function we(e,t){v(1,arguments);var r=t||{};var a=r.locale;var n=a&&a.options&&a.options.weekStartsOn;var i=n==null?0:h(n);var o=r.weekStartsOn==null?i:h(r.weekStartsOn);if(!(o>=0&&o<=6)){throw new RangeError("weekStartsOn must be between 0 and 6 inclusively")}var u=g(e);var l=u.getUTCDay();var s=(l<o?7:0)+l-o;u.setUTCDate(u.getUTCDate()-s);u.setUTCHours(0,0,0,0);return u}function xe(e,t){v(1,arguments);var r=g(e,t);var a=r.getUTCFullYear();var n=t||{};var i=n.locale;var o=i&&i.options&&i.options.firstWeekContainsDate;var u=o==null?1:h(o);var l=n.firstWeekContainsDate==null?u:h(n.firstWeekContainsDate);if(!(l>=1&&l<=7)){throw new RangeError("firstWeekContainsDate must be between 1 and 7 inclusively")}var s=new Date(0);s.setUTCFullYear(a+1,0,l);s.setUTCHours(0,0,0,0);var d=we(s,t);var c=new Date(0);c.setUTCFullYear(a,0,l);c.setUTCHours(0,0,0,0);var f=we(c,t);if(r.getTime()>=d.getTime()){return a+1}else if(r.getTime()>=f.getTime()){return a}else{return a-1}}function Ce(e,t){v(1,arguments);var r=t||{};var a=r.locale;var n=a&&a.options&&a.options.firstWeekContainsDate;var i=n==null?1:h(n);var o=r.firstWeekContainsDate==null?i:h(r.firstWeekContainsDate);var u=xe(e,t);var l=new Date(0);l.setUTCFullYear(u,0,o);l.setUTCHours(0,0,0,0);var s=we(l,t);return s}var Ie=6048e5;function ke(e,t){v(1,arguments);var r=g(e);var a=we(r,t).getTime()-Ce(r,t).getTime();return Math.round(a/Ie)+1}var Le={am:"am",pm:"pm",midnight:"midnight",noon:"noon",morning:"morning",afternoon:"afternoon",evening:"evening",night:"night"};var De={G:function(e,t,r){var a=e.getUTCFullYear()>0?1:0;switch(t){case"G":case"GG":case"GGG":return r.era(a,{width:"abbreviated"});case"GGGGG":return r.era(a,{width:"narrow"});case"GGGG":default:return r.era(a,{width:"wide"})}},y:function(e,t,r){if(t==="yo"){var a=e.getUTCFullYear();var n=a>0?a:1-a;return r.ordinalNumber(n,{unit:"year"})}return fe.y(e,t)},Y:function(e,t,r,a){var n=xe(e,a);var i=n>0?n:1-n;if(t==="YY"){var o=i%100;return ce(o,2)}if(t==="Yo"){return r.ordinalNumber(i,{unit:"year"})}return ce(i,t.length)},R:function(e,t){var r=ve(e);return ce(r,t.length)},u:function(e,t){var r=e.getUTCFullYear();return ce(r,t.length)},Q:function(e,t,r){var a=Math.ceil((e.getUTCMonth()+1)/3);switch(t){case"Q":return String(a);case"QQ":return ce(a,2);case"Qo":return r.ordinalNumber(a,{unit:"quarter"});case"QQQ":return r.quarter(a,{width:"abbreviated",context:"formatting"});case"QQQQQ":return r.quarter(a,{width:"narrow",context:"formatting"});case"QQQQ":default:return r.quarter(a,{width:"wide",context:"formatting"})}},q:function(e,t,r){var a=Math.ceil((e.getUTCMonth()+1)/3);switch(t){case"q":return String(a);case"qq":return ce(a,2);case"qo":return r.ordinalNumber(a,{unit:"quarter"});case"qqq":return r.quarter(a,{width:"abbreviated",context:"standalone"});case"qqqqq":return r.quarter(a,{width:"narrow",context:"standalone"});case"qqqq":default:return r.quarter(a,{width:"wide",context:"standalone"})}},M:function(e,t,r){var a=e.getUTCMonth();switch(t){case"M":case"MM":return fe.M(e,t);case"Mo":return r.ordinalNumber(a+1,{unit:"month"});case"MMM":return r.month(a,{width:"abbreviated",context:"formatting"});case"MMMMM":return r.month(a,{width:"narrow",context:"formatting"});case"MMMM":default:return r.month(a,{width:"wide",context:"formatting"})}},L:function(e,t,r){var a=e.getUTCMonth();switch(t){case"L":return String(a+1);case"LL":return ce(a+1,2);case"Lo":return r.ordinalNumber(a+1,{unit:"month"});case"LLL":return r.month(a,{width:"abbreviated",context:"standalone"});case"LLLLL":return r.month(a,{width:"narrow",context:"standalone"});case"LLLL":default:return r.month(a,{width:"wide",context:"standalone"})}},w:function(e,t,r,a){var n=ke(e,a);if(t==="wo"){return r.ordinalNumber(n,{unit:"week"})}return ce(n,t.length)},I:function(e,t,r){var a=be(e);if(t==="Io"){return r.ordinalNumber(a,{unit:"week"})}return ce(a,t.length)},d:function(e,t,r){if(t==="do"){return r.ordinalNumber(e.getUTCDate(),{unit:"date"})}return fe.d(e,t)},D:function(e,t,r){var a=me(e);if(t==="Do"){return r.ordinalNumber(a,{unit:"dayOfYear"})}return ce(a,t.length)},E:function(e,t,r){var a=e.getUTCDay();switch(t){case"E":case"EE":case"EEE":return r.day(a,{width:"abbreviated",context:"formatting"});case"EEEEE":return r.day(a,{width:"narrow",context:"formatting"});case"EEEEEE":return r.day(a,{width:"short",context:"formatting"});case"EEEE":default:return r.day(a,{width:"wide",context:"formatting"})}},e:function(e,t,r,a){var n=e.getUTCDay();var i=(n-a.weekStartsOn+8)%7||7;switch(t){case"e":return String(i);case"ee":return ce(i,2);case"eo":return r.ordinalNumber(i,{unit:"day"});case"eee":return r.day(n,{width:"abbreviated",context:"formatting"});case"eeeee":return r.day(n,{width:"narrow",context:"formatting"});case"eeeeee":return r.day(n,{width:"short",context:"formatting"});case"eeee":default:return r.day(n,{width:"wide",context:"formatting"})}},c:function(e,t,r,a){var n=e.getUTCDay();var i=(n-a.weekStartsOn+8)%7||7;switch(t){case"c":return String(i);case"cc":return ce(i,t.length);case"co":return r.ordinalNumber(i,{unit:"day"});case"ccc":return r.day(n,{width:"abbreviated",context:"standalone"});case"ccccc":return r.day(n,{width:"narrow",context:"standalone"});case"cccccc":return r.day(n,{width:"short",context:"standalone"});case"cccc":default:return r.day(n,{width:"wide",context:"standalone"})}},i:function(e,t,r){var a=e.getUTCDay();var n=a===0?7:a;switch(t){case"i":return String(n);case"ii":return ce(n,t.length);case"io":return r.ordinalNumber(n,{unit:"day"});case"iii":return r.day(a,{width:"abbreviated",context:"formatting"});case"iiiii":return r.day(a,{width:"narrow",context:"formatting"});case"iiiiii":return r.day(a,{width:"short",context:"formatting"});case"iiii":default:return r.day(a,{width:"wide",context:"formatting"})}},a:function(e,t,r){var a=e.getUTCHours();var n=a/12>=1?"pm":"am";switch(t){case"a":case"aa":case"aaa":return r.dayPeriod(n,{width:"abbreviated",context:"formatting"});case"aaaaa":return r.dayPeriod(n,{width:"narrow",context:"formatting"});case"aaaa":default:return r.dayPeriod(n,{width:"wide",context:"formatting"})}},b:function(e,t,r){var a=e.getUTCHours();var n;if(a===12){n=Le.noon}else if(a===0){n=Le.midnight}else{n=a/12>=1?"pm":"am"}switch(t){case"b":case"bb":case"bbb":return r.dayPeriod(n,{width:"abbreviated",context:"formatting"});case"bbbbb":return r.dayPeriod(n,{width:"narrow",context:"formatting"});case"bbbb":default:return r.dayPeriod(n,{width:"wide",context:"formatting"})}},B:function(e,t,r){var a=e.getUTCHours();var n;if(a>=17){n=Le.evening}else if(a>=12){n=Le.afternoon}else if(a>=4){n=Le.morning}else{n=Le.night}switch(t){case"B":case"BB":case"BBB":return r.dayPeriod(n,{width:"abbreviated",context:"formatting"});case"BBBBB":return r.dayPeriod(n,{width:"narrow",context:"formatting"});case"BBBB":default:return r.dayPeriod(n,{width:"wide",context:"formatting"})}},h:function(e,t,r){if(t==="ho"){var a=e.getUTCHours()%12;if(a===0)a=12;return r.ordinalNumber(a,{unit:"hour"})}return fe.h(e,t)},H:function(e,t,r){if(t==="Ho"){return r.ordinalNumber(e.getUTCHours(),{unit:"hour"})}return fe.H(e,t)},K:function(e,t,r){var a=e.getUTCHours()%12;if(t==="Ko"){return r.ordinalNumber(a,{unit:"hour"})}return ce(a,t.length)},k:function(e,t,r){var a=e.getUTCHours();if(a===0)a=24;if(t==="ko"){return r.ordinalNumber(a,{unit:"hour"})}return ce(a,t.length)},m:function(e,t,r){if(t==="mo"){return r.ordinalNumber(e.getUTCMinutes(),{unit:"minute"})}return fe.m(e,t)},s:function(e,t,r){if(t==="so"){return r.ordinalNumber(e.getUTCSeconds(),{unit:"second"})}return fe.s(e,t)},S:function(e,t){return fe.S(e,t)},X:function(e,t,r,a){var n=a._originalDate||e;var i=n.getTimezoneOffset();if(i===0){return"Z"}switch(t){case"X":return Te(i);case"XXXX":case"XX":return We(i);case"XXXXX":case"XXX":default:return We(i,":")}},x:function(e,t,r,a){var n=a._originalDate||e;var i=n.getTimezoneOffset();switch(t){case"x":return Te(i);case"xxxx":case"xx":return We(i);case"xxxxx":case"xxx":default:return We(i,":")}},O:function(e,t,r,a){var n=a._originalDate||e;var i=n.getTimezoneOffset();switch(t){case"O":case"OO":case"OOO":return"GMT"+Pe(i,":");case"OOOO":default:return"GMT"+We(i,":")}},z:function(e,t,r,a){var n=a._originalDate||e;var i=n.getTimezoneOffset();switch(t){case"z":case"zz":case"zzz":return"GMT"+Pe(i,":");case"zzzz":default:return"GMT"+We(i,":")}},t:function(e,t,r,a){var n=a._originalDate||e;var i=Math.floor(n.getTime()/1e3);return ce(i,t.length)},T:function(e,t,r,a){var n=a._originalDate||e;var i=n.getTime();return ce(i,t.length)}};function Pe(e,t){var r=e>0?"-":"+";var a=Math.abs(e);var n=Math.floor(a/60);var i=a%60;if(i===0){return r+String(n)}var o=t||"";return r+String(n)+o+ce(i,2)}function Te(e,t){if(e%60===0){var r=e>0?"-":"+";return r+ce(Math.abs(e)/60,2)}return We(e,t)}function We(e,t){var r=t||"";var a=e>0?"-":"+";var n=Math.abs(e);var i=ce(Math.floor(n/60),2);var o=ce(n%60,2);return a+i+r+o}function Be(e,t){switch(e){case"P":return t.date({width:"short"});case"PP":return t.date({width:"medium"});case"PPP":return t.date({width:"long"});case"PPPP":default:return t.date({width:"full"})}}function Se(e,t){switch(e){case"p":return t.time({width:"short"});case"pp":return t.time({width:"medium"});case"ppp":return t.time({width:"long"});case"pppp":default:return t.time({width:"full"})}}function Me(e,t){var r=e.match(/(P+)(p+)?/);var a=r[1];var n=r[2];if(!n){return Be(e,t)}var i;switch(a){case"P":i=t.dateTime({width:"short"});break;case"PP":i=t.dateTime({width:"medium"});break;case"PPP":i=t.dateTime({width:"long"});break;case"PPPP":default:i=t.dateTime({width:"full"});break}return i.replace("{{date}}",Be(a,t)).replace("{{time}}",Se(n,t))}var Ne={p:Se,P:Me};var He=["D","DD"];var _e=["YY","YYYY"];function Ae(e){return He.indexOf(e)!==-1}function Fe(e){return _e.indexOf(e)!==-1}function Ee(e,t,r){if(e==="YYYY"){throw new RangeError("Use `yyyy` instead of `YYYY` (in `".concat(t,"`) for formatting years to the input `").concat(r,"`; see: https://git.io/fxCyr"))}else if(e==="YY"){throw new RangeError("Use `yy` instead of `YY` (in `".concat(t,"`) for formatting years to the input `").concat(r,"`; see: https://git.io/fxCyr"))}else if(e==="D"){throw new RangeError("Use `d` instead of `D` (in `".concat(t,"`) for formatting days of the month to the input `").concat(r,"`; see: https://git.io/fxCyr"))}else if(e==="DD"){throw new RangeError("Use `dd` instead of `DD` (in `".concat(t,"`) for formatting days of the month to the input `").concat(r,"`; see: https://git.io/fxCyr"))}}var Re=/[yYQqMLwIdDecihHKkms]o|(\w)\1*|''|'(''|[^'])+('|$)|./g;var Ue=/P+p+|P+|p+|''|'(''|[^'])+('|$)|./g;var Oe=/^'([^]*?)'?$/;var je=/''/g;var ze=/[a-zA-Z]/;function qe(e,t,r){v(2,arguments);var a=String(t);var n=r||{};var i=n.locale||se;var o=i.options&&i.options.firstWeekContainsDate;var u=o==null?1:h(o);var l=n.firstWeekContainsDate==null?u:h(n.firstWeekContainsDate);if(!(l>=1&&l<=7)){throw new RangeError("firstWeekContainsDate must be between 1 and 7 inclusively")}var s=i.options&&i.options.weekStartsOn;var d=s==null?0:h(s);var c=n.weekStartsOn==null?d:h(n.weekStartsOn);if(!(c>=0&&c<=6)){throw new RangeError("weekStartsOn must be between 0 and 6 inclusively")}if(!i.localize){throw new RangeError("locale must contain localize property")}if(!i.formatLong){throw new RangeError("locale must contain formatLong property")}var f=g(e);if(!D(f)){throw new RangeError("Invalid time value")}var p=k(f);var m=de(f,p);var y={firstWeekContainsDate:l,weekStartsOn:c,locale:i,_originalDate:f};var b=a.match(Ue).map((function(e){var t=e[0];if(t==="p"||t==="P"){var r=Ne[t];return r(e,i.formatLong,y)}return e})).join("").match(Re).map((function(r){if(r==="''"){return"'"}var a=r[0];if(a==="'"){return Ge(r)}var o=De[a];if(o){if(!n.useAdditionalWeekYearTokens&&Fe(r)){Ee(r,t,e)}if(!n.useAdditionalDayOfYearTokens&&Ae(r)){Ee(r,t,e)}return o(m,r,i.localize,y)}if(a.match(ze)){throw new RangeError("Format string contains an unescaped latin alphabet character `"+a+"`")}return r})).join("");return b}function Ge(e){return e.match(Oe)[1].replace(je,"'")}function Ve(e,t){v(2,arguments);var r=h(t);return y(e,-r)}function Ye(e){v(1,arguments);return P(e,Date.now())}function Qe(e){v(1,arguments);return P(e,y(Date.now(),1))}function Ze(e){v(1,arguments);return P(e,Ve(Date.now(),1))}var Xe=36e5;var Je=6e4;var $e=2;var Ke={dateTimeDelimiter:/[T ]/,timeZoneDelimiter:/[Z ]/i,timezone:/([Z+-].*)$/};var et=/^-?(?:(\d{3})|(\d{2})(?:-?(\d{2}))?|W(\d{2})(?:-?(\d{1}))?|)$/;var tt=/^(\d{2}(?:[.,]\d*)?)(?::?(\d{2}(?:[.,]\d*)?))?(?::?(\d{2}(?:[.,]\d*)?))?$/;var rt=/^([+-])(\d{2})(?::?(\d{2}))?$/;function at(e,t){v(1,arguments);var r=t||{};var a=r.additionalDigits==null?$e:h(r.additionalDigits);if(a!==2&&a!==1&&a!==0){throw new RangeError("additionalDigits must be 0, 1 or 2")}if(!(typeof e==="string"||Object.prototype.toString.call(e)==="[object String]")){return new Date(NaN)}var n=nt(e);var i;if(n.date){var o=it(n.date,a);i=ot(o.restDateString,o.year)}if(isNaN(i)||!i){return new Date(NaN)}var u=i.getTime();var l=0;var s;if(n.time){l=lt(n.time);if(isNaN(l)||l===null){return new Date(NaN)}}if(n.timezone){s=dt(n.timezone);if(isNaN(s)){return new Date(NaN)}}else{var d=new Date(u+l);var c=new Date(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate(),d.getUTCHours(),d.getUTCMinutes(),d.getUTCSeconds(),d.getUTCMilliseconds());c.setFullYear(d.getUTCFullYear());return c}return new Date(u+l+s)}function nt(e){var t={};var r=e.split(Ke.dateTimeDelimiter);var a;if(r.length>2){return t}if(/:/.test(r[0])){t.date=null;a=r[0]}else{t.date=r[0];a=r[1];if(Ke.timeZoneDelimiter.test(t.date)){t.date=e.split(Ke.timeZoneDelimiter)[0];a=e.substr(t.date.length,e.length)}}if(a){var n=Ke.timezone.exec(a);if(n){t.time=a.replace(n[1],"");t.timezone=n[1]}else{t.time=a}}return t}function it(e,t){var r=new RegExp("^(?:(\\d{4}|[+-]\\d{"+(4+t)+"})|(\\d{2}|[+-]\\d{"+(2+t)+"})$)");var a=e.match(r);if(!a)return{year:null};var n=a[1]&&parseInt(a[1]);var i=a[2]&&parseInt(a[2]);return{year:i==null?n:i*100,restDateString:e.slice((a[1]||a[2]).length)}}function ot(e,t){if(t===null)return null;var r=e.match(et);if(!r)return null;var a=!!r[4];var n=ut(r[1]);var i=ut(r[2])-1;var o=ut(r[3]);var u=ut(r[4]);var l=ut(r[5])-1;if(a){if(!vt(t,u,l)){return new Date(NaN)}return ct(t,u,l)}else{var s=new Date(0);if(!mt(t,i,o)||!ht(t,n)){return new Date(NaN)}s.setUTCFullYear(t,i,Math.max(n,o));return s}}function ut(e){return e?parseInt(e):1}function lt(e){var t=e.match(tt);if(!t)return null;var r=st(t[1]);var a=st(t[2]);var n=st(t[3]);if(!gt(r,a,n)){return NaN}return r*Xe+a*Je+n*1e3}function st(e){return e&&parseFloat(e.replace(",","."))||0}function dt(e){if(e==="Z")return 0;var t=e.match(rt);if(!t)return 0;var r=t[1]==="+"?-1:1;var a=parseInt(t[2]);var n=t[3]&&parseInt(t[3])||0;if(!yt(a,n)){return NaN}return r*(a*Xe+n*Je)}function ct(e,t,r){var a=new Date(0);a.setUTCFullYear(e,0,4);var n=a.getUTCDay()||7;var i=(t-1)*7+r+1-n;a.setUTCDate(a.getUTCDate()+i);return a}var ft=[31,null,31,30,31,30,31,31,30,31,30,31];function pt(e){return e%400===0||e%4===0&&e%100}function mt(e,t,r){return t>=0&&t<=11&&r>=1&&r<=(ft[t]||(pt(e)?29:28))}function ht(e,t){return t>=1&&t<=(pt(e)?366:365)}function vt(e,t,r){return t>=1&&t<=53&&r>=0&&r<=6}function gt(e,t,r){if(e===24){return t===0&&r===0}return r>=0&&r<60&&t>=0&&t<60&&e>=0&&e<25}function yt(e,t){return t>=0&&t<=59}var bt={full:"EEEE, d MMMM yyyy",long:"d MMMM yyyy",medium:"d MMM yyyy",short:"dd/MM/yyyy"};var wt={full:"HH:mm:ss zzzz",long:"HH:mm:ss z",medium:"HH:mm:ss",short:"HH:mm"};var xt={full:"{{date}} 'at' {{time}}",long:"{{date}} 'at' {{time}}",medium:"{{date}}, {{time}}",short:"{{date}}, {{time}}"};var Ct={date:B({formats:bt,defaultWidth:"full"}),time:B({formats:wt,defaultWidth:"full"}),dateTime:B({formats:xt,defaultWidth:"full"})};var It={code:"en-GB",formatDistance:W,formatLong:Ct,formatRelative:A,localize:G,match:le,options:{weekStartsOn:1,firstWeekContainsDate:4}};var kt=["after","before","first-line","first-letter","selection"];var Lt=["active","checked","disabled","empty","enabled","first-child","first-of-type","focus","hover","in-range","invalid","last-child","last-of-type","link","not","only-of-type","only-child","optional","out-of-range","read-only","read-write","required","root","target","valid","visited"];var Dt=["nth-child","nth-last-child","nth-last-of-type","nth-of-type"];var Pt={"-space-":" ","space-":" ","-dot-":" .","dot-":" .","-chevron-":" >","chevron-":" >","-hash-":" #","hash-":" #"};function Tt(){function e(e,t){var r=function(e){var t=d["default"].find(Dt,(function(t){return e.search(t)!==-1}));if(t){var r=e.slice(t.length+1);return":"+e.slice(0,t.length)+"("+r+")"}return e};var a=function(e){return d["default"].reduce(d["default"].entries(Pt),(function(t,r){var a=r[0],n=r[1];var i=e.search(a);t=!t?e:t;if(i!==-1){t=t.replace(a,n)}return t}),"")};var n=function(e){kt.forEach((function(t){return e=e.replace(t,"::"+t)}));Lt.forEach((function(t){return e=e.replace(t,":"+t)}));e=r(e);return""+t+e};var i=a(e);return n(i)}function t(t,r,a){if(r.type!=="style")return t;var n=r;var i=n.options.parent;d["default"].forEach(t,(function(r,a){if(typeof r!=="string"&&typeof r==="object"){var o=e(a,n.selector);i.addRule(o,r,{selector:o});delete t[a]}}));return t}return{onProcessStyle:t}}var Wt={uiTableHeader:"ag-header",uiTableHeaderCell:"ag-header-cell"};function Bt(){function e(e,t,r){if(t.type!=="style")return e;if(t.id&&Wt[t.id.replace(/(-\d+)*/g,"")]&&r){var a=d["default"].reduce(d["default"].entries(t.style),(function(e,t){var r=t[0],a=t[1];e[r]=a+" !important";return e}),{});var n=r.addRule(Wt[t.id.replace(/(-\d+)*/g,"")],a,{selector:"."+Wt[t.id.replace(/(-\d+)*/g,"")]});n.id=Wt[t.id]}return e}return{onProcessStyle:e}}function St(e){var t=d["default"].assign({repeat:2},e);var r=Array(t.repeat).join(":not(#\\20)");return{onProcessRule:function(e,t){var a=e.options.parent;if(t.options.increaseSpecificity===false||e.type!=="style"||a&&a.type==="keyframes"||e.selectorText.search(":not(#\\20)")!==-1)return;e.selectorText=r+e.selectorText}}}var Mt=!!window.MSInputMethodContext&&!!document.documentMode;function Nt(){return window.matchMedia("only screen and (max-width: 360px)").matches}function Ht(){return window.matchMedia("only screen and (max-width: 768px)").matches}function _t(e,t){return d["default"].find(e,d["default"].matches(t))}function At(e,t){return d["default"].find(e,d["default"].matches({_id:t}))}function Ft(e,t,r){return f["default"].lift((function(e,t){return At(e,t)||r}),e,t)}function Et(e,t){return d["default"].filter(e,d["default"].matches(t))}function Rt(e,t){return d["default"].remove(e,d["default"].matches(t))}function Ut(e,t){var r=t.tags;return d["default"].some(e,(function(e){return d["default"].some(r,e)}))}function Ot(e,t){var r=t.tags;return d["default"].every(e,(function(e){return d["default"].some(r,e)}))}function jt(e,t,r){if(r===void 0){r=false}if(t.length===0){return e}var a=d["default"].partial(r?Ot:Ut,t);return d["default"].filter(e,(function(t){if(a(t)){var r=t;return r.hideEmpty?jt(e,r.content,r.contentAll).length>0:true}return false}))}function zt(e){var t=e.readonly,r=e.disabled;return!(t||r)}function qt(e){return Boolean(d["default"].isArray(e)?e.length:e)}function Gt(e){if(e<1e3){return e+" bytes"}else if(e<1e6){return d["default"].round(e/1e3)+"Kb"}else{return d["default"].round(e/1e6)+"Mb"}}function Vt(e,t){if(t===void 0){t="P"}return qe(e,t,{locale:It})}function Yt(e,t){if(t===void 0){t="HH:mm"}return Vt(e,t)}function Qt(e){if(Ze(e)){return"Yesterday"}else if(Ye(e)){return"Today"}else if(Qe(e)){return"Tomorrow"}else{return Vt(e)}}function Zt(e){try{return e?Qt(at(e).valueOf()):"-"}catch(e){return"-"}}function Xt(e){try{return e?Yt(at(e).valueOf()):"-"}catch(e){return"-"}}function Jt(e,t,r){if(r){return e.label}var a=e.props;return t.length===1?a[t[0]]:d["default"](t).map((function(e){return a[e]})).compact().value().join(" ")}function $t(e){return e}var Kt={"application/zip":{icon:"fal fa-file-archive",ext:".zip"},"application/pdf":{icon:"fal fa-file-pdf",ext:".pdf"},"application/vnd.openxmlformats-officedocument.wordprocessingml.document":{icon:"fal fa-file-word",ext:".docx"},"application/msword":{icon:"fal fa-file-word",ext:".doc"},"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":{icon:"fal fa-file-excel",ext:".xlsx"},"application/vnd.ms-excel":{icon:"fal fa-file-excel",ext:".xls"},"application/vnd.openxmlformats-officedocument.presentationml.presentation":{icon:"fal fa-file-powerpoint",ext:".pptx"},"application/vnd.ms-powerpoint":{icon:"fal fa-file-powerpoint",ext:".ppt"},"image/jpeg":{icon:"fal fa-file-image",ext:".jpeg"},"image/png":{icon:"fal fa-file-image",ext:".png"},"image/gif":{icon:"fal fa-file-image",ext:".gif"},"image/tiff":{icon:"fal fa-file-image",ext:".tiff"},"audio/mpeg":{icon:"fal fa-file-audio",ext:".mp3"},"video/mpeg":{icon:"fal fa-file-video",ext:".mpeg"},"video/quicktime":{icon:"fal fa-file-video",ext:".mov"},"video/x-msvideo":{icon:"fal fa-file-video",ext:".avi"}};function er(e){if(Kt.hasOwnProperty(e)){return Kt[e].icon}else{return"fal fa-file-alt"}}function tr(e){if(Kt.hasOwnProperty(e)){return Kt[e].ext}else{return""}}function rr(e,t){if(t==="size"){return Gt(e.size)}else if(t==="lastModified"){return Qt(e.lastModified)}else if(t==="type"){return c["default"]("i.fal.fa-fw",{title:e.type,class:er(e.type)})}else{return e[t]}}function ar(e,t){return d["default"].map(Et(e,{prop:t}),(function(e){var t=e._id,r=e.name;return{guid:t,name:r,path:e.remoteUrl}}))}function nr(e,t){var r=t.id;return f["default"](ar(e,r))}function ir(e,t){return d["default"].get(e,t)}function or(e,t){var r=t.id;var a=ir(e,r);return a?f["default"](a):f["default"]()}var ur="@media screen and (min-width:30em)";var lr="@media screen and (min-width:30em) and (max-width: 60em)";var sr="@media screen and (min-width:60em)";p["default"].use(Tt(),Bt());function dr(e){return d["default"].reduce(e,(function(e,t,r){e[d["default"].kebabCase(r)]=t;return e}),{})}function cr(e,t){var r,a,n;var i=e.style,o=e.styleNS,u=e.styleM,l=e.styleL,s=e.classes,d=e.key,c=d===void 0?"unnamed":d;var f=t?t:p["default"].createStyleSheet({});var m=[];var h;if(i){h=f.addRule(c,dr(i));if(h.id)m.push(h.id)}if(o){h=f.addRule(ur,(r={},r[c]=dr(o),r));h=h.getRule(c);if(h.id)m.push(h.id)}if(u){h=f.addRule(lr,(a={},a[c]=dr(u),a));h=h.getRule(c);if(h.id)m.push(h.id)}if(l){h=f.addRule(sr,(n={},n[c]=dr(l),n));h=h.getRule(c);if(h.id)m.push(h.id)}if(m.length&&!t){f.attach()}if(s){m.push(s)}return m.join(" ")}var fr=n.create({plugins:[Bt(),Tt(),St()]});var pr=function(){function e(e){var t=this;this._classes={};this.uiSheet=fr.createStyleSheet({});d["default"].map(e,(function(e,r){t._classes[r]=cr(d["default"].assign({key:r,increaseSpecificity:true},e),t.uiSheet)}));this.uiSheet.attach()}Object.defineProperty(e.prototype,"classes",{get:function(){return this._classes},enumerable:false,configurable:true});return e}();function mr(e){return d["default"].compact(e).join(" ")}function hr(e){if(d["default"].isArray(e)){return d["default"].filter(e).length}return e}function vr(e){switch(e){case"default":return"alt";case"alt":return"default";case"altLighter":return"lighter";case"altDarker":return"darker";case"darker":return"altDarker";case"lighter":return"altLighter";case"warn":return"neutral";case"error":return"neutral";default:return"neutral"}}var gr={};function yr(e,t){if(e in gr){throw new Error("Component "+e+" is already registered")}else{gr[e]=t}}function br(e){var t=e.type,r=e.data,a=e.style,n=e.styleNS,i=e.styleM,o=e.styleL,u=e.classes;var l=cr({style:a,styleNS:n,styleM:i,styleL:o,classes:u});if(t in gr){return c["default"](gr[t],{type:t,data:r,classes:l})}else{return c["default"]("span","Unknown component type: "+t)}}function wr(e){return d["default"].map(e,(function(e){return br(e)}))}var xr,Cr;var Ir=(xr={},xr["label"]=i.Label,xr["trusted"]=i.TextareaInput,xr["hidden"]=i.BaseInput,xr["text"]=i.BaseInput,xr["password"]=i.PasswordInput,xr["search"]=i.BaseInput,xr["date"]=i.BaseInput,xr["time"]=i.BaseInput,xr["datetime-local"]=i.BaseInput,xr["dateInput"]=i.DateInput,xr["cardDate"]=i.CardDateInput,xr["number"]=i.BaseInput,xr["range"]=i.BaseInput,xr["email"]=i.BaseInput,xr["url"]=i.BaseInput,xr["tel"]=i.BaseInput,xr["color"]=i.BaseInput,xr["currency"]=i.CurrencyInput,xr["textarea"]=i.TextareaInput,xr["checkbox"]=i.CheckboxInput,xr["toggle"]=i.ToggleInput,xr["select"]=i.SelectInput,xr["radio"]=i.RadioInput,xr);var kr=(Cr={},Cr["fileMulti"]=i.FileMulti,Cr["file"]=i.FileSelect,Cr["imageMulti"]=i.ImageMulti,Cr["image"]=i.ImageSelect,Cr["sign"]=i.SignBuilder,Cr);var Lr={};d["default"].forEach(Ir,(function(e,t){return Lr[t]=1}));d["default"].forEach(kr,(function(e,t){return Lr[t]=2}));function Dr(e){if(kr.hasOwnProperty(e)){return kr[e]}else{return kr["file"]}}function Pr(e){if(Ir.hasOwnProperty(e)){return Ir[e]}else{return Ir["text"]}}function Tr(e,t){return e===2?Dr(t):e===1?Pr(t):undefined}function Wr(e){if(e===void 0){e="text"}return Lr[e]||3}var Br=/^ {0,}[0-9]{2}\/[0-9]{2}\/[0-9]{4} {0,}$/;var Sr=/^ {0,}(([gG][iI][rR] {0,}0[aA]{2})|((([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y]?[0-9][0-9]?)|(([a-pr-uwyzA-PR-UWYZ][0-9][a-hjkstuwA-HJKSTUW])|([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y][0-9][abehmnprv-yABEHMNPRV-Y]))) {0,}[0-9][abd-hjlnp-uw-zABD-HJLNP-UW-Z]{2})) {0,}$/;var Mr={default:function(e){return e},"date-format":function(e){return e.map((function(e){return e?Vt(Number(e)):""}))},"dateStr-format":function(e){return e.map((function(e){return e?Vt(new Date(String(e)).valueOf()):""}))},"date-format-month":function(e){return e.map((function(e){return e?Vt(Number(e),"dd MMMM yyyy"):""}))},"date-endofday":function(e){return e.map((function(e){return e?w(new Date(e),{hours:23,minutes:59,seconds:59}).toISOString():""}))},upper:function(e){return e.map((function(e){return String(e).toUpperCase()}))},lower:function(e){return e.map((function(e){return String(e).toLowerCase()}))},snake:function(e){return e.map((function(e){return d["default"].snakeCase(String(e))}))},trunc:function(e){return e.map((function(e){return d["default"].truncate(String(e),{length:15})}))},"remove-whitespace":function(e){return e.map((function(e){return e?d["default"].replace(String(e),/\s/g,""):""}))},boolean:function(e){return e.map((function(e){return Boolean(e)}))},strLength:function(e){return e.map((function(e){return e?String(e).length>0:false}))},"strLength-6":function(e){return e.map((function(e){return e?String(e).length===6:false}))},"test-dob":function(e){return e.map((function(e){return e?Br.test(String(e)):false}))},"test-postcode":function(e){return e.map((function(e){return e?Sr.test(String(e)):false}))}};function Nr(e,t){if(Mr.hasOwnProperty(e)){return Mr[e](t)}else{return Mr["default"](t)}}function Hr(e,t){if(!Mr.hasOwnProperty(e)){Mr[e]=t}}var _r={default:function(e){return e.map((function(e){return d["default"].map(e,(function(e){var t=e.name;return t})).join()}))},"file-name":function(e){return e.map((function(e){return d["default"].map(e,(function(e){var t=e.file;return t?t.name:""})).join()}))},"file-type":function(e){return e.map((function(e){return d["default"].map(e,(function(e){var t=e.file;return t?t.type:""})).join()}))},"file-size":function(e){return e.map((function(e){return d["default"].map(e,(function(e){var t=e.file;return t?t.size:""})).join()}))},"file-lastmodified":function(e){return e.map((function(e){return d["default"].map(e,(function(e){var t=e.file;return t?t.lastModified:""})).join()}))},path:function(e){return e.map((function(e){return d["default"].map(e,(function(e){var t=e.path;return t})).join()}))},dataUrl:function(e){return e.map((function(e){return d["default"].map(e,(function(e){var t=e.dataUrl;return t?t:""})).join()}))}};function Ar(e,t){if(_r.hasOwnProperty(e)){return _r[e](t)}else{return _r["default"](t)}}function Fr(e,t){if(!_r.hasOwnProperty(e)){_r[e]=t}}var Er={default:function(e){return f["default"].merge(e).map((function(e){return e.join()}))},"join-space":function(e){return f["default"].merge(e).map((function(e){return e.join(" ")}))},"join-newline":function(e){return f["default"].merge(e).map((function(e){return e.join("\n")}))},"join-underscore":function(e){return f["default"].merge(e).map((function(e){return e.join("_")}))},sum:function(e){return f["default"].merge(e).map((function(e){return d["default"].reduce(e,(function(e,t){var r=Number.parseInt(String(t));return d["default"].isNaN(r)?e:e+r}),0)}))},product:function(e){return f["default"].merge(e).map((function(e){return d["default"].reduce(e,(function(e,t){var r=Number.parseInt(String(t));return d["default"].isNaN(r)?0:e*r}),1)}))},and:function(e){return f["default"].merge(e).map((function(e){return d["default"].reduce(e,(function(e,t){return e?t:0}),true)}))},or:function(e){return f["default"].merge(e).map((function(e){return d["default"].reduce(e,(function(e,t){return e||t?t:e}),0)}))}};function Rr(e,t){if(Er.hasOwnProperty(e)){return Er[e](t)}else{return Er["default"](t)}}function Ur(e,t){if(!Er.hasOwnProperty(e)){Er[e]=t}}function Or(e,t){return d["default"].map(d["default"].compact(d["default"].at(e,t)),(function(e){var t=e.value;return t}))}function jr(e,t,r){return d["default"].max(d["default"].map(t,(function(t){var a=d["default"].find(r,d["default"].matches({key:t}));return a&&a.computed?jr(e+1,a.computed.keys,r):e})))||0}function zr(e){return d["default"].sortBy(e,(function(t){return jr(0,t.computed.keys,e)}))}function qr(e){var t=d["default"].groupBy(e,(function(e){return"computed"in e&&e.computed?"c":"b"}));var r=t,a="b",n=r[a],i="c",o=r[i];var u={};d["default"].reduce(n,(function(e,t){var r=t.key,a=t.fileValue,n=t.input;var i=n?Wr(n.type):3;if(i===1){e[r]={type:i,value:f["default"]()}}else if(i===2){var o=f["default"]([]);e[r]={type:i,value:Ar(a||"default",o),files:o}}return e}),u);var l=zr(o);d["default"].reduce(l,(function(e,t){var r=t.key,a=t.computed,n=a.keys,i=a.map,o=i===void 0?"default":i,u=a.merge,l=u===void 0?"default":u;var s;if(n.length>1){var d=Or(e,n);s=Rr(l,d)}else if(n.length===1){s=Or(e,n)[0]}if(s){e[r]={type:1,value:Nr(o,s)}}return e}),u);return{fields:d["default"](e).filter((function(e){return"input"in e})).map((function(e){var t=e.key,r=e.group,a=e.input,n=e.data;var i=u[t];var o=i.type;return{key:t,group:r,input:a,type:o,data:n,widget:Tr(o,a.type||"text"),value:i.value,files:i.type===2?i.files:undefined}})).value(),streamMap:u}}function Gr(e,t){return t?d["default"].assign({},e,t):e}function Vr(e,t){var r=e.type,a=e.input,n=e.widget,i=e.value,o=e.files;if(r===2&&a&&n&&o){return c["default"](n,{field:Gr(a,t),value:o})}else if(r===1&&a&&n&&i){return c["default"](n,{field:Gr(a,t),value:i})}return null}(function(e){e["center"]="center";e["top"]="top";e["topRight"]="topRight";e["topLeft"]="topLeft";e["bottom"]="bottom";e["bottomRight"]="bottomRight";e["bottomLeft"]="bottomLeft"})(e.DialogPosition||(e.DialogPosition={}));(function(e){e["notification"]="notification";e["confirm"]="confirm";e["login"]="login";e["feedback"]="feedback"})(e.DialogType||(e.DialogType={}));var Yr=f["default"]();Yr.map((function(e){var t=e.uiWidgets;i.updateConfig({signFont:"Caveat",stampBtnClass:"pulse",stampBtnContext:"alt"});if(t){i.updateConfig(t)}}));var Qr=f["default"]();function Zr(e){Qr(e);r.redraw()}function Xr(e){Zr({message:String(e.message),context:"error"})}var Jr;(function(e){e["list"]="list";e["root"]="root";e["single"]="single";e["new"]="new";e["view"]="view";e["edit"]="edit";e["comp"]="comp";e["pdf"]="pdf";e["default"]="default"})(Jr||(Jr={}));var $r=f["default"]({});var Kr=f["default"](Jr.default);var ea=f["default"].lift((function(e,t){var r=t.routes||{};return d["default"].assign({},t,r[e])}),Kr,$r);function ta(e){var t=e.company,r=t===void 0?"":t,a=e.copyright,n=a===void 0?"":a,i=e.tel,o=i===void 0?"":i,u=e.email,l=u===void 0?"":u,s=e.address,d=s===void 0?"":s,c=e.poweredBy,f=e.header,p=f===void 0?[{type:0},{type:7}]:f,m=e.subheader,h=m===void 0?[]:m,v=e.footer,g=v===void 0?[{type:9},{type:0},{type:8},{type:0},{type:10},{type:6}]:v,y=e.routes,b=y===void 0?{}:y;$r({company:r,copyright:n,tel:o,email:l,address:d,poweredBy:c,header:p,subheader:h,footer:g,routes:b})}ta({});function ra(){var e=Yr().brandingPath;return e?r.request(e).then((function(e){if(e.header&&!d["default"].isArray(e.header)){var t=e.header;e.header=[{type:15,logo:t.lhs},{type:0},{type:15,logo:t.rhs},{type:7}]}ta(e)})).catch(d["default"].noop):Promise.resolve()}var aa=p["default"].createStyleSheet({});var na=function(){function e(e){this.key=e.key;this.background=e.background;this.color=e.color;this._style={background:e.background,color:e.color};this._classes={background:cr({key:e.key,style:{background:e.background}},aa),color:cr({key:e.key,style:{color:e.color}},aa)}}Object.defineProperty(e.prototype,"style",{get:function(){return d["default"].assign({},this._style)},enumerable:false,configurable:true});Object.defineProperty(e.prototype,"classes",{get:function(){return this._classes},enumerable:false,configurable:true});return e}();var ia=function(){function e(){this._body=new na({key:"body_colors",background:"linear-gradient(232deg, rgba(119, 171, 203, 0.4) 0%, rgba(255,255,255,1) 58%, rgba(255,255,255,1) 67%, rgba(119, 173, 206, 0.6) 100%)",color:"#333333"});this._default=new na({key:"default_colors",background:"#fff",color:"#6db0ec"});this._lighter=new na({key:"lighter_colors",background:"#fff",color:"#9bc6ec"});this._darker=new na({key:"darker_colors",background:"#efefef",color:"#3372bc"});this._alt=new na({key:"alt_colors",background:"#6db0ef",color:"#fff"});this._altLighter=new na({key:"altLighter_colors",background:"#9bc6ec",color:"#333333"});this._altDarker=new na({key:"altDarker_colors",background:"#3372bc",color:"#fff"});this._error=new na({key:"error_colors",background:"#ED5d5d",color:"#fff"});this._warn=new na({key:"warn_colors",background:"#ff925c",color:"#fff"});this._neutral=new na({key:"neutral_colors",background:"#fff",color:"#333333"})}e.prototype.getContextClasses=function(e){return this[e].classes.background+" "+this[e].classes.color};e.prototype.update=function(e){if("body"in e)this.body=new na(d["default"].assign({},this._body,e.body));if("default"in e)this.default=new na(d["default"].assign({},this._default,e.default));if("lighter"in e)this.lighter=new na(d["default"].assign({},this._lighter,e.lighter));if("darker"in e)this.darker=new na(d["default"].assign({},this._darker,e.darker));if("alt"in e)this.alt=new na(d["default"].assign({},this._alt,e.alt));if("altDarker"in e)this.altDarker=new na(d["default"].assign({},this._altDarker,e.altDarker));if("altLighter"in e)this.altLighter=new na(d["default"].assign({},this._altLighter,e.altLighter));if("error"in e)this.error=new na(d["default"].assign({},this._error,e.error));if("warn"in e)this.warn=new na(d["default"].assign({},this._warn,e.warn));if("neutral"in e)this.neutral=new na(d["default"].assign({},this._neutral,e.neutral));aa.attach()};Object.defineProperty(e.prototype,"body",{get:function(){return this._body},set:function(e){this._body=e},enumerable:false,configurable:true});Object.defineProperty(e.prototype,"default",{get:function(){return this._default},set:function(e){this._default=e},enumerable:false,configurable:true});Object.defineProperty(e.prototype,"lighter",{get:function(){return this._lighter},set:function(e){this._lighter=e},enumerable:false,configurable:true});Object.defineProperty(e.prototype,"darker",{get:function(){return this._darker},set:function(e){this._darker=e},enumerable:false,configurable:true});Object.defineProperty(e.prototype,"alt",{get:function(){return this._alt},set:function(e){this._alt=e},enumerable:false,configurable:true});Object.defineProperty(e.prototype,"altLighter",{get:function(){return this._altLighter},set:function(e){this._altLighter=e},enumerable:false,configurable:true});Object.defineProperty(e.prototype,"altDarker",{get:function(){return this._altDarker},set:function(e){this._altDarker=e},enumerable:false,configurable:true});Object.defineProperty(e.prototype,"error",{get:function(){return this._error},set:function(e){this._error=e},enumerable:false,configurable:true});Object.defineProperty(e.prototype,"warn",{get:function(){return this._warn},set:function(e){this._warn=e},enumerable:false,configurable:true});Object.defineProperty(e.prototype,"neutral",{get:function(){return this._neutral},set:function(e){this._neutral=e},enumerable:false,configurable:true});return e}();var oa=f["default"](new ia);var ua=f["default"]({});function la(){var e=Yr().profilePath;return e?r.request(e).then(ua).catch(d["default"].noop):Promise.resolve()}function sa(e,t){return d["default"].reduce(e,(function(e,r,a){e[a]=cr(d["default"].assign({key:a},r),t);return e}),{})}function da(){return{uiInputWrapper:{classes:"mb2",style:{focus:{"border-color":oa().lighter.color},background:"#efefef",padding:".3rem",margin:"10px 0px"}},uiInput:{classes:"bn fw2"},uiInputFieldset:{classes:"mb2"},uiInputLabel:{},uiRadioButton:{},uiRadioButtonChecked:{}}}function ca(){return{uiLayout:{style:{background:"transparent"}},uiPostContentWrapper:{classes:"flex flex-wrap items-center flex-column w-100"},uiPreContentWrapper:{classes:"flex flex-wrap items-center flex-column w-100"}}}function fa(){return{uiCardGroup:{classes:"flex flex-wrap justify-center pa2"},uiCardWrapper:{style:{color:oa().alt.color,background:oa().alt.background,borderRadius:"10px",boxShadow:"3px 2px 11px lightgrey",width:"13rem",height:"13rem"},classes:"flex flex-column"},uiCardHeader:{classes:"flex-auto",style:{fontSize:"1.25rem",textAlign:"center",fontWeight:"300"}},uiCardContentWrapper:{style:{justifyContent:"center","hover-space-img":{transform:"scale(1.05)"}}},uiCardSubheading:{classes:"ma2 pv1 ph2 flex items-center",style:{fontSize:"1.25rem"}},uiCardIcon:{classes:"fal fa-fw fa-4x ma2",style:{fontSize:"3rem"}},uiCardImage:{classes:"img ma2",style:{transition:"transform 0.1s ease-in-out"}},uiCardCounter:{classes:"top-0 right-0",style:{fontWeight:"600",background:"#f7931c",color:"white",padding:"0.3rem 0.5rem",borderRadius:"24px",marginTop:"-0.45rem",marginRight:"-0.55rem"}},uiCardContextNeutral:{style:oa().neutral.style},uiCardContextDefault:{style:oa().default.style},uiCardContextWarn:{style:oa().warn.style},uiCardContextError:{style:oa().error.style}}}function pa(){return{uiCustomHeader:{},uiHeaderWrapper:{style:{maxWidth:"100%",background:"white",boxShadow:"2px 2px 5px #ebf0f5"}},uiHeader:{style:oa().default.style},uiSubheader:{style:{height:"3rem",color:oa().default.color,background:"transparent"}},uiFooter:{style:{maxWidth:"100%",height:"3rem",boxShadow:"0px 0px 2px 2px #ebf0f5",background:"white"}}}}function ma(){return{uiPanel:{},uiPanelHeader:{style:{color:oa().default.color,background:"transparent"}},uiPanelSubheader:{},uiPanelHeaderButton:{}}}function ha(){return{uiLoginResetReturn:{},uiLoginResetHeader:{},uiLoginWrapper:{classes:"pa2",style:{width:"100%"}},uiLogin:{classes:"measure-wide center",style:{padding:"2rem",border:"2px solid #dcdedf",borderRadius:"10px",marginTop:"3rem",boxShadow:"1px 1px 6px #80808036"}},uiLoginInputWrapper:{style:{border:"2px solid #dcdedf",borderRadius:"5px",margin:"10px 0px"}},uiLoginForm:{},uiLoginButtonWrapper:{classes:"justify-between"},uiLoginButton:{style:oa().alt.style},uiLoginInput:{},uiLoginFormInputWrapper:{},uiLoginLines:{},uiHelpInputWrapper:{},uiHelpInputLines:{},uiLoginInputFieldset:{},uiLoginInputLabel:{},uiLoginHeader:{},uiLoginResetButton:{},uiLoginHelpHeader:{style:{alignSelf:"center"}},uiLoginPostLines:{}}}function va(){return{uiTable:{style:{}},uiTableHeader:{classes:"flex-auto",style:{color:oa().alt.color,background:oa().alt.background,fontWeight:"400"}},uiTableHeaderCell:{style:{color:oa().alt.color,fontWeight:"400"}},uiTableHeaderRowCell:{},uiTableRow:{},uiTableRowCell:{},uiTableItem:{},uiTableItemRow:{},uiTableItemIcon:{},uiTableItemDate:{},uiTableItemTime:{},uiTableItemTitle:{},uiTableItemType:{},uiTableItemSize:{}}}function ga(){return{uiNavButton:{},uiButton:{classes:"shadow-4 ma2",style:{color:oa().default.color,background:oa().default.background,padding:".5rem 2rem",fontWeight:"300",border:"unset",borderRadius:"5px",outline:"none",hover:{"box-shadow":"0 0 0.125rem 0 silver"}}},uiButtonAlt:{classes:"shadow-4 ma2",style:oa().alt.style},uiButtonInfo:{},uiButtonDefault:{style:oa().default.style},uiButtonWarn:{style:oa().warn.style},uiButtonError:{style:oa().error.style},uiButtonNeutral:{style:oa().neutral.style}}}function ya(){return{uiDialogContextAlt:{style:oa().alt.style},uiDialogContextDefault:{style:oa().default.style},uiDialogContextNeutral:{style:oa().neutral.style},uiDialogContextWarn:{style:oa().warn.style},uiDialogContextError:{style:oa().error.style},uiDialogWrapper:{style:{borderRadius:"10px",overflow:"hidden"}},uiDialogLoginWrapper:{style:{position:"relative",minHeight:"20%",animationIterationCount:"3"}},uiDialogNotificationWrapper:{style:{borderRadius:"10px",pointerEvents:"auto",boxShadow:"0px 3px 3px -2px rgba(0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0.14), 0px 1px 8px 0px rgba(0,0,0,0.12)"}},uiDialogIcon:{},uiDialogTitle:{},uiDialogText:{},uiDialogButtonWrapper:{style:{position:"relative",justifySelf:"flex-end"}},uiDialogFeedbackWrapper:{style:{background:oa().default.background}},uiDialogFeedbackTitle:{style:{color:oa().default.color}},uiDialogFeedbackLabel:{},uiDialogFeedbackButtonWrapper:{style:{backgroundColor:"#c7c7c7",position:"relative",justifySelf:"flex-end"}},uiDialogLinkButton:{style:{background:"unset"}},uiDialogCancelButton:{classes:"mr2"},uiDialogConfirmButton:{classes:"mr2"}}}function ba(){return{uiNavbarCopyright:{},uiNavbarImage:{},uiNavbarLink:{},uiNavbarLogout:{style:{height:"2rem",padding:"0rem 1rem",borderRadius:"5px",marginBottom:"auto",marginTop:"auto"}},uiNavbarLogoutIcon:{style:{color:"inherit"}},uiNavbarLogoutLabel:{style:{color:"inherit"}},uiNavbarName:{},uiNavbarNameVersion:{},uiNavbarPoweredBy:{},uiNavbarProgress:{},uiNavbarSalutation:{},uiNavbarText:{},uiNavbarVersion:{}}}function wa(){return{uiActionCardContent:{},uiActionCardWrapper:{classes:"pa3",style:{width:"100%",height:"100%"}},uiActionCardInnerWrapper:{style:{display:"flex",alignContent:"space-evenly",width:"100%"},styleNS:{width:"75%"}},uiActionCardButton:{style:{maxWidth:"35%"}},uiActionCardHeader:{style:{margin:"unset",flex:"unset",minWidth:"unset",minheight:"unset",textAlign:"left"}},uiActionCardImage:{},uiActionCardImageWrapper:{style:{width:"0px",visibility:"hidden"},styleNS:{width:"25%",visibility:"visible"}},uiActionCardLines:{style:{background:"unset",color:"white"}}}}function xa(){return{uiItemListTitleIcon:{},uiItemListAccordionIcon:{style:{fontSize:"1.5rem"}},uiItemListTitle:{style:{fontSize:"1.5rem",fontWeight:"300"}},uiItemListGroupLabel:{},uiItemListAccordionTitleWrapper:{style:{marginBottom:"1rem"}},uiItemListAccordionWrapper:{classes:"flex flex-column items-left",style:{transition:"height 0.5s ease 0.1s",overflow:"hidden",width:"100%",border:"1px solid grey",padding:"0px 1rem"}},uiItemListContainer:{classes:"flex flex-column flex-auto overflow-x-hidden overflow-y-auto"},uiItemTableContainer:{classes:"flex-auto overflow-x-hidden overflow-y-auto pa2"},uiItemTableIcon:{},uiItemTableInfo:{},uiItemTableInfoIcon:{},uiItemTableRow:{},uiItemTableHeader:{},uiItemTableHeaderMarker:{},uiItemTableHeaderDate:{},uiItemTableHeaderDocumentName:{},uiItemTableHeaderIcon:{},uiItemTableHeaderSize:{},uiItemGridContainer:{classes:"flex-auto overflow-x-hidden overflow-y-auto"},uiItemRowWrapper:{classes:"flex flex-column flex-row-ns ma2 pv2 bb b--black-20"},uiItemRowInnerWrapper:{classes:"flex-auto flex flex-row items-center pointer",style:{color:"black"}},uiItemRowHeaderWrapper:{classes:"flex-auto"},uiItemRowActions:{classes:"flex flex-wrap items-center justify-end pl2 nl1 nr1"},uiItemButtonsWrapper:{},uiItemButtonsInnerWrapper:{},uiItemActionButton:{classes:"pa1 mr2"},uiItemIcon:{},uiItemHeading:{},uiItemSubheading:{classes:"flex flex-wrap nr1 nb1 nl1 f6 ws-normal",style:{color:oa().default.color}},uiItemEditWrapper:{},uiItemEditHeader:{},uiItemEditIcon:{},uiItemEditLabel:{},uiItemEditButton:{},uiItemEditFormWrapper:{},uiItemViewWrapper:{},uiItemViewRowWrapper:{},uiItemViewIcon:{},uiItemViewField:{},uiCategoryItemWrapper:{},uiCategoryItemIcon:{},uiCategoryItemLabel:{},uiCategoryItemMarker:{},uiCategoryItemArrow:{}}}function Ca(){return{uiPdfFieldOverlay:{style:{background:oa().darker.background}},uiPdfTopBar:{style:oa().alt.style},uiPdfBackButton:{},uiPdfZoomInButton:{},uiPdfZoomOutButton:{},uiPdfDownloadButton:{},uiPdfPanel:{style:{background:"#777777"}},uiPdfBottomBar:{style:oa().alt.style},uiPdfSubheader:{style:oa().alt.style},uiPdfStartButton:{style:oa().alt.style}}}function Ia(){return{uiDataCardGridWrapper:{classes:"flex flex-column",style:{padding:"0 1rem"},styleNS:{padding:"0 2rem"}},uiDataCardCategoryLabel:{style:{marginLeft:"auto",borderRadius:"1rem",padding:"0.3rem 1rem",alignSelf:"center",textTransform:"uppercase",fontWeight:"300"}},uiDataCardHeader:{style:{fontWeight:"400",fontSize:"2rem"}},uiDataCardHeaderWrapper:{classes:"flex flex-row",style:{marginBottom:"1rem"}},uiDataCardSectionItemLabel:{style:{fontWeight:"300",marginRight:"1rem",minWidth:"9rem"}},uiDataCardSectionItemValue:{style:{opacity:"0.9",fontWeight:"200",marginBottom:"0.5rem"}},uiDataCardSectionItemWrapper:{style:{display:"inline",marginBottom:"0.5rem"},styleNS:{display:"flex",flexDirection:"row"},styleM:{display:"flex",flexDirection:"row"}},uiDataCardSectionLabel:{style:{fontWeight:"500",marginBottom:"0.5rem",textTransform:"uppercase",fontSize:"0.8rem"}},uiDataCardSectionWrapper:{style:{marginBottom:"2rem"}},uiDataCardWrapper:{classes:"flex-shrink-0 self-center",style:{borderRadius:"10px",boxShadow:"0px 0px 2px 2px #ebf0f5",padding:"2rem",fontSize:"1rem",maxWidth:"60rem",margin:"2rem",width:"100%",height:"unset",background:"white"}},uiDataCardButton:{style:{marginLeft:"auto"}}}}function ka(){return{uiBlockLinesWrapper:{}}}function La(){return{uiIcon:{style:{color:oa().default.color}}}}function Da(){return{uiSearchBoxWrapper:{},uiSearchBoxIcon:{style:{color:oa().default.color}},uiSearchBoxInput:{},uiSearchBoxClearIcon:{style:{color:oa().default.color}}}}function Pa(){return{uiProgressFlowWrapper:{},uiProgressFlowStepWrapper:{style:{margin:"1rem"}},uiProgressFlowArrowWrapper:{style:{position:"relative",top:"4rem",height:"4rem"},styleNS:{width:"4rem"}},uiProgressFlowArrow:{style:{height:"100%",width:"4rem",transform:"rotate(90deg)",fill:oa().default.color},styleNS:{transform:"rotate(0deg)"}},uiProgressCardIndicator:{style:{position:"relative",height:"3.6rem",width:"5rem",borderRadius:"50%",border:"solid 1px white"}},uiProgressCardWrapper:{style:{textAlign:"center",padding:"1rem 0 1rem 1rem"}},uiProgressCardOuterWrapper:{},uiProgressCardSubheading:{style:{textAlign:"start",fontWeight:"200",opacity:"0.8"}},uiProgressCardHeading:{style:{textAlign:"start",fontWeight:"600",fontSize:"1.25rem",textTransform:"uppercase"}},uiProgressCardWarn:{style:{color:"#5a5a5a",background:"#f9ceba"}},uiProgressCardWaiting:{style:{color:"#5a5a5a",background:"#f9ceba"}},uiProgressCardError:{style:{color:"#5a5a5a",background:"#f5b7b8"}},uiProgressCardComplete:{style:{color:"#5a5a5a",background:"#d1e6c7"}},uiProgressCardIncomplete:{style:{color:"#5a5a5a",background:"#bfdbf1"}},uiProgressCardIconWarn:{style:{color:oa().warn.color,background:oa().warn.background,boxShadow:"0px 0px 0px 2px "+oa().warn.background}},uiProgressCardIconWaiting:{style:{color:oa().warn.color,background:oa().warn.background,boxShadow:"0px 0px 0px 2px "+oa().warn.background}},uiProgressCardIconError:{style:{color:oa().error.color,background:oa().error.background,boxShadow:"0px 0px 0px 2px "+oa().error.background}},uiProgressCardIconComplete:{style:{color:"#fff",background:"#94c47d",boxShadow:"0px 0px 0px 2px #94c47d"}},uiProgressCardIconIncomplete:{style:{color:"#fff",background:"#70acdf",boxShadow:"0px 0px 0px 2px #70acdf"}}}}function Ta(){function e(e){return d["default"].assign({style:{}},e)}return{body:{style:oa().body.style},uiCardGroup:e(fa().uiCardGroup),uiCardCounter:e(fa().uiCardCounter),uiCardHeader:e(fa().uiCardHeader),uiCardIcon:e(fa().uiCardIcon),uiCardImage:e(fa().uiCardImage),uiCardSubheading:e(fa().uiCardSubheading),uiCardWrapper:e(fa().uiCardWrapper),uiCardContentWrapper:e(fa().uiCardContentWrapper),uiCardContextDefault:e(fa().uiCardContextDefault),uiCardContextError:e(fa().uiCardContextError),uiCardContextNeutral:e(fa().uiCardContextNeutral),uiCardContextWarn:e(fa().uiCardContextWarn),uiButton:e(ga().uiButton),uiNavButton:e(ga().uiNavButton),uiButtonAlt:e(ga().uiButtonAlt),uiButtonError:e(ga().uiButtonError),uiButtonInfo:e(ga().uiButtonInfo),uiButtonWarn:e(ga().uiButtonWarn),uiButtonNeutral:e(ga().uiButtonNeutral),uiIcon:e(La().uiIcon),uiInputWrapper:e(da().uiInputWrapper),uiInput:e(da().uiInput),uiInputLabel:e(da().uiInputLabel),uiInputFieldset:e(da().uiInputFieldset),uiRadioButton:e(da().uiRadioButton),uiRadioButtonChecked:e(da().uiRadioButtonChecked),uiLayout:e(ca().uiLayout),uiPostContentWrapper:e(ca().uiPostContentWrapper),uiPreContentWrapper:e(ca().uiPreContentWrapper),uiHeaderWrapper:e(pa().uiHeaderWrapper),uiHeader:e(pa().uiHeader),uiCustomHeader:e(pa().uiCustomHeader),uiSubheader:e(pa().uiSubheader),uiFooter:e(pa().uiFooter),uiPanel:e(ma().uiPanel),uiPanelHeader:e(ma().uiPanelHeader),uiPanelSubheader:e(ma().uiPanelSubheader),uiPanelHeaderButton:e(ma().uiPanelHeaderButton),uiHelpInputLines:e(ha().uiHelpInputLines),uiHelpInputWrapper:e(ha().uiHelpInputWrapper),uiLogin:e(ha().uiLogin),uiLoginHeader:e(ha().uiLoginHeader),uiLoginButton:e(ha().uiLoginButton),uiLoginResetButton:e(ha().uiLoginResetButton),uiLoginButtonWrapper:e(ha().uiLoginButtonWrapper),uiLoginForm:e(ha().uiLoginForm),uiLoginFormInputWrapper:e(ha().uiLoginFormInputWrapper),uiLoginInput:e(ha().uiLoginInput),uiLoginInputWrapper:e(ha().uiLoginInputWrapper),uiLoginLines:e(ha().uiLoginLines),uiLoginPostLines:e(ha().uiLoginPostLines),uiLoginWrapper:e(ha().uiLoginWrapper),uiLoginInputFieldset:e(ha().uiLoginInputFieldset),uiLoginInputLabel:e(ha().uiLoginInputLabel),uiLoginResetHeader:e(ha().uiLoginResetHeader),uiLoginResetReturn:e(ha().uiLoginResetReturn),uiTable:e(va().uiTable),uiTableHeader:e(va().uiTableHeader),uiTableHeaderCell:e(va().uiTableHeaderCell),uiTableRow:e(va().uiTableRow),uiTableRowCell:e(va().uiTableRowCell),uiTableItem:e(va().uiTableItem),uiTableItemDate:e(va().uiTableItemDate),uiTableItemIcon:e(va().uiTableItemIcon),uiTableItemRow:e(va().uiTableItemRow),uiTableItemSize:e(va().uiTableItemSize),uiTableItemTime:e(va().uiTableItemTime),uiTableItemTitle:e(va().uiTableItemTitle),uiTableItemType:e(va().uiTableItemType),uiDialogButtonWrapper:e(ya().uiDialogButtonWrapper),uiDialogCancelButton:e(ya().uiDialogCancelButton),uiDialogConfirmButton:e(ya().uiDialogConfirmButton),uiDialogContextDefault:e(ya().uiDialogContextDefault),uiDialogContextAlt:e(ya().uiDialogContextAlt),uiDialogContextError:e(ya().uiDialogContextError),uiDialogContextNeutral:e(ya().uiDialogContextNeutral),uiDialogContextWarn:e(ya().uiDialogContextWarn),uiDialogFeedbackButtonWrapper:e(ya().uiDialogFeedbackButtonWrapper),uiDialogFeedbackTitle:e(ya().uiDialogFeedbackTitle),uiDialogFeedbackSubTitle:e(ya().uiDialogFeedbackTitle),uiDialogFeedbackLabel:e(ya().uiDialogFeedbackLabel),uiDialogFeedbackWrapper:e(ya().uiDialogFeedbackWrapper),uiDialogLinkButton:e(ya().uiDialogLinkButton),uiDialogLoginWrapper:e(ya().uiDialogLoginWrapper),uiDialogNotificationWrapper:e(ya().uiDialogNotificationWrapper),uiDialogText:e(ya().uiDialogText),uiDialogIcon:e(ya().uiDialogIcon),uiDialogTitle:e(ya().uiDialogTitle),uiDialogWrapper:e(ya().uiDialogWrapper),uiNavbarCopyright:e(ba().uiNavbarCopyright),uiNavbarImage:e(ba().uiNavbarImage),uiNavbarLink:e(ba().uiNavbarLink),uiNavbarLogout:e(ba().uiNavbarLogout),uiNavbarLogoutIcon:e(ba().uiNavbarLogoutIcon),uiNavbarLogoutLabel:e(ba().uiNavbarLogoutLabel),uiNavbarName:e(ba().uiNavbarName),uiNavbarNameVersion:e(ba().uiNavbarNameVersion),uiNavbarPoweredBy:e(ba().uiNavbarPoweredBy),uiNavbarProgress:e(ba().uiNavbarProgress),uiNavbarSalutation:e(ba().uiNavbarSalutation),uiNavbarText:e(ba().uiNavbarText),uiNavbarVersion:e(ba().uiNavbarVersion),uiProgressFlowArrowWrapper:e(Pa().uiProgressFlowArrowWrapper),uiProgressFlowArrow:e(Pa().uiProgressFlowArrow),uiProgressFlowStepWrapper:e(Pa().uiProgressFlowStepWrapper),uiProgressFlowWrapper:e(Pa().uiProgressFlowWrapper),uiProgressCardIndicator:e(Pa().uiProgressCardIndicator),uiProgressCardHeading:e(Pa().uiProgressCardHeading),uiProgressCardSubheading:e(Pa().uiProgressCardSubheading),uiProgressCardOuterWrapper:e(Pa().uiProgressCardOuterWrapper),uiProgressCardWrapper:e(Pa().uiProgressCardWrapper),uiProgressCardComplete:e(Pa().uiProgressCardComplete),uiProgressCardError:e(Pa().uiProgressCardError),uiProgressCardIncomplete:e(Pa().uiProgressCardIncomplete),uiProgressCardWarn:e(Pa().uiProgressCardWarn),uiProgressCardWaiting:e(Pa().uiProgressCardWaiting),uiProgressCardIconComplete:e(Pa().uiProgressCardIconComplete),uiProgressCardIconError:e(Pa().uiProgressCardIconError),uiProgressCardIconIncomplete:e(Pa().uiProgressCardIconIncomplete),uiProgressCardIconWaiting:e(Pa().uiProgressCardIconWaiting),uiProgressCardIconWarn:e(Pa().uiProgressCardIconWarn),uiActionCardButton:e(wa().uiActionCardButton),uiActionCardContent:e(wa().uiActionCardContent),uiActionCardHeader:e(wa().uiActionCardHeader),uiActionCardImage:e(wa().uiActionCardImage),uiActionCardImageWrapper:e(wa().uiActionCardImageWrapper),uiActionCardInnerWrapper:e(wa().uiActionCardInnerWrapper),uiActionCardLines:e(wa().uiActionCardLines),uiActionCardWrapper:e(wa().uiActionCardWrapper),uiDataCardCategoryLabel:e(Ia().uiDataCardCategoryLabel),uiDataCardGridWrapper:e(Ia().uiDataCardGridWrapper),uiDataCardHeader:e(Ia().uiDataCardHeader),uiDataCardHeaderWrapper:e(Ia().uiDataCardHeaderWrapper),uiDataCardSectionItemLabel:e(Ia().uiDataCardSectionItemLabel),uiDataCardSectionItemValue:e(Ia().uiDataCardSectionItemValue),uiDataCardSectionItemWrapper:e(Ia().uiDataCardSectionItemWrapper),uiDataCardSectionLabel:e(Ia().uiDataCardSectionLabel),uiDataCardSectionWrapper:e(Ia().uiDataCardSectionWrapper),uiDataCardWrapper:e(Ia().uiDataCardWrapper),uiDataCardButton:e(Ia().uiDataCardButton),uiItemActionButton:e(xa().uiItemActionButton),uiItemButtonsInnerWrapper:e(xa().uiItemButtonsInnerWrapper),uiItemButtonsWrapper:e(xa().uiItemButtonsWrapper),uiItemGridContainer:e(xa().uiItemGridContainer),uiItemHeading:e(xa().uiItemHeading),uiItemIcon:e(xa().uiItemIcon),uiItemListAccordionIcon:e(xa().uiItemListAccordionIcon),uiItemListTitle:e(xa().uiItemListTitle),uiItemListTitleIcon:e(xa().uiItemListTitleIcon),uiItemListGroupLabel:e(xa().uiItemListGroupLabel),uiItemListAccordionTitleWrapper:e(xa().uiItemListAccordionTitleWrapper),uiItemListAccordionWrapper:e(xa().uiItemListAccordionWrapper),uiItemListContainer:e(xa().uiItemListContainer),uiItemRowActions:e(xa().uiItemRowActions),uiItemRowHeaderWrapper:e(xa().uiItemRowHeaderWrapper),uiItemRowInnerWrapper:e(xa().uiItemRowInnerWrapper),uiItemRowWrapper:e(xa().uiItemRowWrapper),uiItemSubheading:e(xa().uiItemSubheading),uiItemTableContainer:e(xa().uiItemTableContainer),uiItemTableInfo:e(xa().uiItemTableInfo),uiItemTableHeader:e(xa().uiItemTableHeader),uiItemTableHeaderDate:e(xa().uiItemTableHeaderDate),uiItemTableHeaderDocumentName:e(xa().uiItemTableHeaderDocumentName),uiItemTableHeaderIcon:e(xa().uiItemTableHeaderIcon),uiItemTableHeaderMarker:e(xa().uiItemTableHeaderMarker),uiItemTableHeaderSize:e(xa().uiItemTableHeaderSize),uiItemTableIcon:e(xa().uiItemTableIcon),uiItemTableInfoIcon:e(xa().uiItemTableInfoIcon),uiItemTableRow:e(xa().uiItemTableRow),uiItemEditButton:e(xa().uiItemEditButton),uiItemEditFormWrapper:e(xa().uiItemEditFormWrapper),uiItemEditHeader:e(xa().uiItemEditHeader),uiItemEditIcon:e(xa().uiItemEditIcon),uiItemEditLabel:e(xa().uiItemEditLabel),uiItemEditWrapper:e(xa().uiItemEditWrapper),uiItemViewRowWrapper:e(xa().uiItemViewRowWrapper),uiItemViewWrapper:e(xa().uiItemViewWrapper),uiItemViewIcon:e(xa().uiItemViewIcon),uiItemViewField:e(xa().uiItemViewField),uiCategoryItemIcon:e(xa().uiCategoryItemIcon),uiCategoryItemLabel:e(xa().uiCategoryItemLabel),uiCategoryItemWrapper:e(xa().uiCategoryItemWrapper),uiCategoryItemArrow:e(xa().uiCategoryItemArrow),uiCategoryItemMarker:e(xa().uiCategoryItemMarker),uiPdfPanel:e(Ca().uiPdfPanel),uiPdfBottomBar:e(Ca().uiPdfBottomBar),uiPdfStartButton:e(Ca().uiPdfStartButton),uiPdfFieldOverlay:e(Ca().uiPdfFieldOverlay),uiPdfTopBar:e(Ca().uiPdfTopBar),uiPdfBackButton:e(Ca().uiPdfBackButton),uiPdfDownloadButton:e(Ca().uiPdfDownloadButton),uiPdfZoomInButton:e(Ca().uiPdfZoomInButton),uiPdfZoomOutButton:e(Ca().uiPdfZoomOutButton),uiPdfSubheader:e(Ca().uiPdfSubheader),uiBlockLinesWrapper:e(ka().uiBlockLinesWrapper),uiSearchBoxIcon:e(Da().uiSearchBoxIcon),uiSearchBoxClearIcon:e(Da().uiSearchBoxClearIcon),uiSearchBoxInput:e(Da().uiSearchBoxInput),uiSearchBoxWrapper:e(Da().uiSearchBoxWrapper),uiDisabled:{style:{filter:"grayscale(0.9)",opacity:"0.4"}}}}var Wa=f["default"]();function Ba(e){var t;oa().update(e.colors||{});var r=d["default"].reduce(Ta(),(function(t,r,a){var n=a;if(e[n]){t[n]=d["default"].merge(r,e[n])}else{t[n]=r}return t}),{});var a=p["default"].createStyleSheet({});Wa(sa(r,a));a.attach();var n=Wa().body;(t=document.getElementById("page"))===null||t===void 0?void 0:t.classList.add(n)}function Sa(){var e=Yr().themePath;return e?r.request(e).then((function(e){Ba(e);Na()})).catch(Ma):Ma()}function Ma(){Ba({});Na();return Promise.resolve()}function Na(){i.updateClasses({inputWrapper:Wa().uiInputWrapper,input:Wa().uiInput,label:Wa().uiInputLabel,button:"ripple",navButton:"ripple",radio:Wa().uiRadioButton,radioChecked:Wa().uiRadioButtonChecked});i.updateButtonContext({default:Wa().uiButton,alt:mr([Wa().uiButtonAlt,Wa().uiButton]),neutral:mr([Wa().uiButtonNeutral,Wa().uiButton]),info:mr([Wa().uiButtonInfo,Wa().uiButton]),warn:mr([Wa().uiButtonWarn,Wa().uiButton]),error:mr([Wa().uiButtonError,Wa().uiButton])})}var Ha=f["default"]();function _a(){Ha({height:window.innerHeight,width:window.innerWidth})}function Aa(){_a();r.redraw()}window.addEventListener("resize",d["default"].debounce(Aa,250));_a();var Fa="/root/list?noreturn=true";function Ea(){r.route.set(Fa)}function Ra(){history.back()}function Ua(e){var t=e.url;window.location.href=t}function Oa(){window.location.reload()}function ja(){return Boolean(r.route.param("noreturn"))}function za(e){return d["default"].head(e.files)}function qa(e,t,a,n){if(t==="open"){var i=e;var o=za(i);if(o&&o.remoteUrl){window.location.href=o.remoteUrl}var u=d["default"].get(i.props,"url");if(typeof u==="string"){window.location.href=u}return}if(t==="pdf"){var o=za(e);if(Mt||o&&o.type.indexOf("pdf")===-1){qa(e,"open",a,n);return}}if(a){r.route.set("/:itemGuid/:action/:actionGuid",{itemGuid:e._id,action:t,actionGuid:a},n);return}r.route.set("/:itemGuid/:action",{itemGuid:e._id,action:t},n)}function Ga(e,t,r){var a=e.action;qa(t,a,undefined,r)}function Va(e,t){qa(e,"edit",undefined,t)}function Ya(e,t){var a=e._id;r.route.set("/:modelGuid/new",{modelGuid:a},t)}function Qa(){return new Promise((function(t){return Qr({title:"Your session has expired",message:"Please login again to continue",context:"warn",type:e.DialogType.login,login:{onSuccess:t}})}))}function Za(e){return new Promise((function(t,a){r.request(e).then(t).catch((function(r){if(r.code===440){Qa().then((function(){return t(Xa(e))}))}else{a(r)}}))}))}function Xa(e,t){if(typeof e==="string"){return Za(d["default"].extend(t,{url:e}))}else{return Za(e)}}function Ja(e,t){var a=Yr().auth;if(a&&a.reset){var n=a.reset,i=n.username,o=n.endpoint;var u=new FormData;u.append("username",i);u.append("password",e);return r.request({method:"POST",url:o,body:u}).then((function(){return Qr({message:"We have sent your new PIN to "+t,duration:2e3})})).catch((function(e){return Xr(e)}))}else{return Promise.resolve(Xr(new Error("No authentication configuration")))}}var $a={actionCardConfirm:function(t){return Qr(d["default"].assign(t,{type:e.DialogType.confirm,cancelButton:t.cancelButton,confirmButton:d["default"].assign({onclick:function(){window.open(t.href,t.target)}},t.confirmButton)}))},dialog:function(e){return Qr(e)},openWindow:function(e){return window.open(e.href,e.target)}};function Ka(e){return $a[e.type](e.props)}var en=function(){function e(){}e.prototype.oninit=function(e){var t=e.attrs.data.applyTheme;if(t){this.themeHandler=new pr(t)}};e.prototype.view=function(e){var t;var r=e.attrs.data,a=r.src,n=r.header,o=r.lines,u=r.linesAsList,l=r.buttonLabel,s=r.buttonIcon,f=r.href,p=r.target,m=p===void 0?"_self":p,h=r.confirm,v=r.buttonContext,g=r.context;g=g||"alt";var y=(t=this.themeHandler)===null||t===void 0?void 0:t.classes;var b=function(){return window.open(f,m)};return c["default"](".flex.items-center.justify-center.w-100.overflow-hidden.ma3",{class:mr([y===null||y===void 0?void 0:y.uiActionCardWrapper,Wa().uiActionCardWrapper,Wa().uiCardWrapper,oa().getContextClasses(g)])},c["default"](".flex.w-100.h-100.pa2",c["default"](".flex.flex-column.h-100.mr4",{class:mr([y===null||y===void 0?void 0:y.uiActionCardInnerWrapper,Wa().uiActionCardInnerWrapper])},c["default"]("h4.w-100.flex-auto",{class:mr([y===null||y===void 0?void 0:y.uiActionCardHeader,Wa().uiActionCardHeader,Wa().uiCardHeader])},n),c["default"](".w-100.flex-auto",br({type:"sdx-blockLines",data:u?{blockSelector:"ul",lines:d["default"].map(o,(function(e){return{selector:"li",child:e}}))}:{lines:o}})),f||l?c["default"](i.Button,{classes:mr([y===null||y===void 0?void 0:y.uiActionCardButton,Wa().uiActionCardButton]),label:l,icon:s,context:v||vr(g),onclick:function(){return h?Ka({type:"actionCardConfirm",props:{icon:h.icon,title:h.title,message:h.message,confirmButton:h.confirmButton,cancelButton:h.cancelButton,href:f,target:m}}):b()}}):null),a?c["default"](".flex.justify-center.items-center",{class:mr([y===null||y===void 0?void 0:y.uiActionCardImageWrapper,Wa().uiActionCardImageWrapper])},c["default"]("img",{class:mr([y===null||y===void 0?void 0:y.uiActionCardImage,Wa().uiActionCardImage]),src:a})):null))};return e}();function tn(e){if(typeof e==="string"){return c["default"]("p",e)}else if(e.hasOwnProperty("selector")){var t=e;return c["default"](t.selector,t.content)}else{var r=e;return c["default"]("a.link.mv2.pa2.bn.br2.w-40.tc.dim.pointer",{href:r.href,class:mr([Wa().uiButton])},r.text)}}var rn=function(){function e(){}e.prototype.view=function(e){var t=e.attrs.data;return c["default"](".ph4",d["default"].map(t,(function(e){return tn(e)})))};return e}();var an=function(){function e(){}e.prototype.view=function(e){var t=e.attrs.data,r=t.text,a=t.key,n=a===void 0?"sdx-header":a,i=t.style,o=i===void 0?{}:i,u=t.styleNS,l=u===void 0?{}:u,s=t.styleM,d=s===void 0?{}:s,f=t.styleL,p=f===void 0?{}:f,m=t.classes,h=m===void 0?"":m;return c["default"](".f3.f2-l.fw5.mv3.mv4-l",{class:mr([cr({key:n,classes:h,style:o,styleNS:l,styleL:p,styleM:d}),Wa().uiCustomHeader,oa().default.color])},r)};return e}();var nn=function(){function e(){}e.prototype.oninit=function(e){var t=e.attrs.data.applyTheme;if(t){this.themeHandler=new pr(t)}};e.prototype.view=function(e){var t;var r=e.attrs.data,a=r.lines,n=a===void 0?[]:a,i=r.blockSelector,o=i===void 0?"div":i;var u=(t=this.themeHandler)===null||t===void 0?void 0:t.classes;return c["default"](o,{class:mr([u===null||u===void 0?void 0:u.uiBlockLinesWrapper,Wa().uiBlockLinesWrapper])},typeof n==="string"?c["default"]("p",n):d["default"].map(n,(function(e){if(typeof e==="string"){return c["default"]("p",c["default"].trust(e))}else{return c["default"](e.selector,{class:mr([e.classes,e.colorSelector?oa()[e.colorSelector].color:"",e.bgColorSelector?oa()[e.bgColorSelector].background:""])},c["default"].trust(e.child))}})))};return e}();var on=function(){function e(){}e.prototype.view=function(e){var t=e.attrs.data,r=t.children,a=t.style,n=t.styleNS,i=t.styleM,o=t.styleL,u=t.classes,l=t.key;var s=cr({key:l,style:a,styleNS:n,styleM:i,styleL:o,classes:u});return c["default"]("div",{class:s},d["default"].map(r,(function(e){return typeof e==="string"?e:br(e)})))};return e}();var un=function(){function e(){}e.prototype.view=function(e){var t=e.attrs,r=t.itemLabel,a=t.value,n=t.overwrite,i=t.context;return c["default"]("div",{class:mr([Wa().uiDataCardSectionItemWrapper])},c["default"]("span",{class:mr([n===null||n===void 0?void 0:n.uiDataCardSectionItemLabel,Wa().uiDataCardSectionItemLabel,!i||i==="default"?oa().body.classes.color:oa().getContextClasses(i)])},r),typeof a==="string"?c["default"]("div",{class:mr([n===null||n===void 0?void 0:n.uiDataCardSectionItemValue,Wa().uiDataCardSectionItemValue,!i||i==="default"?oa().body.classes.color:oa().getContextClasses(i)])},a):c["default"]("div",d["default"].map(a,(function(e){return c["default"]("div",{class:mr([n===null||n===void 0?void 0:n.uiDataCardSectionItemValue,Wa().uiDataCardSectionItemValue,!i||i==="default"?oa().body.classes.color:oa().getContextClasses(i)])},e)}))))};return e}();var ln=function(){function e(){}e.prototype.view=function(e){var t=e.attrs,r=t.dataMap,a=t.keys,n=t.label,i=t.overwrite,o=t.context;return c["default"]("div",{class:mr([i===null||i===void 0?void 0:i.uiDataCardSectionWrapper,Wa().uiDataCardSectionWrapper])},n?c["default"]("div",{class:mr([i===null||i===void 0?void 0:i.uiDataCardSectionLabel,Wa().uiDataCardSectionLabel,o?oa().getContextClasses(o):""])},n):null,d["default"].map(a,(function(e){if(!r[e]){console.error("Valid dataMap keys are - ",a);console.error("dataCard key "+e+" doesn't exist on your dataMap -- do you have typo?");return null}var t=r[e],n=t[0],u=t[1];return c["default"](un,{itemLabel:n,value:u,overwrite:i,context:o})})))};return e}();var sn=function(){function e(){this.getDisplayComponents=function(e){var t=e.displayType,r=e.context,a=e.detailed,n=e.overview,i=e.overwrite,o=e.dataMap;if(t==="detailed"){return a?d["default"].map(a,(function(e){var t=e.label,a=e.keys;return c["default"](ln,{dataMap:o,keys:a,label:t,overwrite:i,context:r})})):d["default"].map(o,(function(e){var t=e[0],a=e[1];return c["default"](un,{overwrite:i,itemLabel:t,value:a,context:r})}))}else{return n?c["default"](ln,{dataMap:o,keys:n,label:"",overwrite:i,context:r}):d["default"].map(o,(function(e){var t=e[0],a=e[1];return c["default"](un,{overwrite:i,itemLabel:t,value:a,context:r})}))}}}e.prototype.oninit=function(e){var t=e.attrs.data;if(t===null||t===void 0?void 0:t.applyTheme){this.themeHandler=new pr(t===null||t===void 0?void 0:t.applyTheme)}};e.prototype.view=function(e){var t;var r=e.attrs.data;var a=r.pre,n=r.post,o=r.dataMap,u=r.displayType,l=r.config,s=l===void 0?{}:l,f=r.onclick,p=r.header,m=r.categoryLabel,h=r.button,v=r.context,g=v===void 0?"default":v,y=r.buttonContext;var b=s.detailed,w=s.overview;var x=(t=this.themeHandler)===null||t===void 0?void 0:t.classes;return c["default"](".flex.flex-column",{class:mr([x===null||x===void 0?void 0:x.uiDataCardWrapper,Wa().uiDataCardWrapper,Wa().uiCardWrapper,oa().getContextClasses(g)]),onclick:function(){if(!h&&f)return f();return null}},p||m?c["default"](".flex.flex-row",{class:mr([x===null||x===void 0?void 0:x.uiDataCardHeaderWrapper,Wa().uiDataCardHeaderWrapper])},[p?c["default"]("span",{class:mr([x===null||x===void 0?void 0:x.uiDataCardHeader,Wa().uiDataCardHeader])},p):null,m?c["default"]("div",{class:mr([x===null||x===void 0?void 0:x.uiDataCardCategoryLabel,Wa().uiDataCardCategoryLabel])},m):null]):null,(a===null||a===void 0?void 0:a.length)?d["default"].map(a,br):null,this.getDisplayComponents({displayType:u,detailed:b,overview:w,overwrite:x,dataMap:o,context:g}),h?c["default"](i.Button,{context:y||vr(g),classes:mr([x===null||x===void 0?void 0:x.uiDataCardButton,Wa().uiDataCardButton]),onclick:function(){if(h.action)return Ka(h.action);if(f)return f();return null},label:h.label,icon:h.icon}):null,(n===null||n===void 0?void 0:n.length)?d["default"].map(n,br):null)};return e}();var dn=function(){function e(){}e.prototype.mergeData=function(e){var t=e.status,r=e.disabled,a=e.onclick,n=e.heading,i=e.subheading,o=e.icons,u=e.stepNumber,l=e.style,s=e.link,c=e.children,f=c===void 0?null:c,p=e.post,m=p===void 0?[]:p;this.data={status:t||"incomplete",disabled:r||false,heading:n||"",subheading:i||"",onclick:a||d["default"].noop,style:l||{},stepNumber:u||"",icons:{complete:(o===null||o===void 0?void 0:o.complete)===undefined?"fas fa-check fa-2x":o===null||o===void 0?void 0:o.complete,incomplete:(o===null||o===void 0?void 0:o.incomplete)||u?"":"fal fa-ellipsis-h fa-2x",error:(o===null||o===void 0?void 0:o.error)===undefined?"fas fa-exclamation fa-2x":o===null||o===void 0?void 0:o.error,warn:(o===null||o===void 0?void 0:o.warn)===undefined?"fas fa-times fa-2x":o===null||o===void 0?void 0:o.warn,waiting:(o===null||o===void 0?void 0:o.waiting)===undefined?"fal fa-hourglass-half fa-2x":o===null||o===void 0?void 0:o.waiting},link:{style:(s===null||s===void 0?void 0:s.style)||{},text:(s===null||s===void 0?void 0:s.text)||"",href:(s===null||s===void 0?void 0:s.href)||"",target:(s===null||s===void 0?void 0:s.target)||"_blank"},post:m,children:f}};e.prototype.getStatusClass=function(e){switch(e){case"complete":return Wa().uiProgressCardComplete;case"warn":return Wa().uiProgressCardWarn;case"waiting":return Wa().uiProgressCardWaiting;case"error":return Wa().uiProgressCardError;default:return Wa().uiProgressCardIncomplete}};e.prototype.getIconStatusClass=function(e){switch(e){case"complete":return Wa().uiProgressCardIconComplete;case"warn":return Wa().uiProgressCardIconWarn;case"waiting":return Wa().uiProgressCardIconWaiting;case"error":return Wa().uiProgressCardIconError;default:return Wa().uiProgressCardIconIncomplete}};e.prototype.statusComp=function(e){var t=e.status,r=e.stepNumber,a=e.icons;var n=t==="incomplete"&&r?{fontSize:"1.5rem",fontWeight:"600",margin:"auto"}:{margin:"auto"};var i=t==="incomplete"||!a[t]?r:"";return c["default"](".flex.items-center.justify-center",{class:mr([Wa().uiProgressCardIndicator,this.getIconStatusClass(t)])},c["default"]("i",{class:a[t]||"",style:n},i))};e.prototype.view=function(e){var t=e.attrs.data;this.mergeData(t);var r=this.data,a=r.status,n=r.style,o=r.onclick,u=r.disabled,l=r.heading,s=r.subheading,f=r.link,p=r.post,m=r.children;return c["default"](".flex.flex-column",{onclick:o,style:d["default"].assign({zIndex:"1"},n),class:mr([Wa().uiCardWrapper,Wa().uiProgressCardWrapper,this.getStatusClass(a),u?Wa().uiDisabled:"pointer"])},c["default"](".flex.flex-row.items-center.w-100",this.statusComp(this.data),c["default"]("div",{style:{borderBottom:"1px solid rgba(0, 0, 0, 0.2)",width:"100%"}})),c["default"](".flex.flex-column.w-100",{style:{marginTop:"2rem",paddingRight:"1rem"}},c["default"](".w-100",{class:Wa().uiProgressCardSubheading},s),c["default"](".w-100",{class:Wa().uiProgressCardHeading},l)),f.href?c["default"](i.ButtonLink,{href:f.href,target:f.target,style:f.style,label:f.text}):null,d["default"].map(p,br),m)};return e}();var cn=function(){function e(){}e.prototype.view=function(e){var t=e.attrs.data;return c["default"](".flex.flex-wrap.items-center",{class:Wa().uiProgressFlowWrapper},t.map((function(e){return c["default"](".flex",{class:Wa().uiProgressFlowStepWrapper},br({type:"sdx-progressCard",data:e}))})))};return e}();function fn(){yr("basic",rn);yr("sdx-actionCard",en);yr("sdx-header",an);yr("sdx-blockLines",nn);yr("sdx-wrapper",on);yr("sdx-dataCard",sn);yr("sdx-progressCard",dn);yr("sdx-progressFlow",cn)}var pn={bind:function(){return null}};function mn(e){var t=e.mock,r=e.apiKey,a=e.cloudChannel,n=e.companyChannel,i=e.userChannel,o=e.applicationChannel,u=e.applicationUserChannel;if(t){return{pusher:{connection:{bind:function(e,t){return setImmediate(t)},unbind:function(){return null}}},cloudChannel:pn,companyChannel:pn,userChannel:pn,applicationChannel:pn,applicationUserChannel:pn}}var l=new m["default"](r,{cluster:"eu"});return{pusher:l,cloudChannel:l.subscribe(a),companyChannel:l.subscribe(n),userChannel:l.subscribe(i),applicationChannel:l.subscribe(o),applicationUserChannel:l.subscribe(u)}}function hn(e){if(d["default"].isString(e)){return r.request(e)}else{return Promise.resolve(e)}}function vn(){return Promise.all([Sa(),ra()])}fn();function gn(e){window.history.replaceState(null,"",window.location.href);var t;return hn(e).then((function(e){Yr(e);t=mn(Yr().pusher);t.applicationUserChannel.bind("reload",Oa);t.applicationUserChannel.bind("redirect",Ua);t.cloudChannel.bind("reloadbranding",vn);t.companyChannel.bind("reloadbranding",vn);t.applicationChannel.bind("reloadbranding",vn);t.applicationUserChannel.bind("notification",Zr);return Promise.all([vn(),new Promise((function(e){t.pusher.connection.bind("connected",(function(){t.pusher.connection.unbind("connected");e()}))})),la()])})).catch(Xr).then((function(){return{application:Yr(),pusher:t}}))}var yn=function(){function e(e){if(e===void 0){e={}}this.complete=f["default"](0);this.total=f["default"](0);this.percent=f["default"].lift((function(e,t){return e?e/t:0}),this.complete,this.total);this.config=e}e.prototype.uploadList=function(e){var t=this;var r=this.config.fileUpload;this.total(0);this.complete(0);if(!r){return[Promise.resolve()]}return d["default"].map(e,(function(e){var a=e[0],n=e[1];t.total(t.total()+1);var i=new FormData;i.append("file",n,n.name);i.append("filename",a);i.append("file_name",n.name);i.append("file_type",n.type);i.append("file_size",String(n.size));i.append("file_lastModified",String(n.lastModified));i.append("guid",a);return Xa({method:"POST",url:r,deserialize:$t,body:i}).then((function(){return t.complete(t.complete()+1)}))}))};e.prototype.canUploadAssets=function(){return Boolean(this.config.assetUpload)};e.prototype.uploadAssets=function(e,t){var r=this;var a=this.config.assetUpload;this.total(0);this.complete(0);if(!a){return[Promise.reject(new Error("No path set"))]}var n=_t(t.content,{ctx:"category"});var o=_t(t.content,{ctx:"subcategory"});if(!n){return[Promise.reject(new Error("Missing category tag"))]}return d["default"].map(e,(function(e){var t=e.file,u=e.name,l=e.type,s=e.size;if(!t){return Promise.resolve()}r.total(r.total()+1);var d=new FormData;d.append("file",t,t.name);d.append("upload_name",i.fileNameExtSplit(u)[0]);d.append("upload_filename",u);d.append("upload_filetype",l);d.append("upload_filesize",s.toString());d.append("upload_origin","customer");d.append("upload_category",n.val);d.append("upload_subcategory",o?o.val:"");d.append("upload_transaction_type","CUSTOMER");d.append("upload_reference","");return Xa({method:"POST",url:a,deserialize:$t,body:d}).then((function(){return r.complete(r.complete()+1)}))}))};e.prototype.getPercent=function(){return this.percent};return e}();function bn(e){try{return JSON.parse(e)}catch(e){return[]}}function wn(e,t){var r=i.fileNameExtSplit(e),a=r[0],n=r[1];if(n){return e}else{return a+tr(t)}}function xn(e){var t=e.id,r=e.uuid,a=e.origin,n=e.href,i=e.url,o=i===void 0?n:i,u=e.date_deposited,l=e.name,s=e.size,c=e.viewed,f=e.filetype,p=e.category,m=e.subcategory,h=e.reference,v=e.actionsjson,g=e.metadata,y=g===void 0?[]:g;var b={_id:r,modelId:"documents",tags:[{ctx:"model",val:"documents"},{ctx:"origin",val:a},{ctx:"category",val:p},{ctx:"subcategory",val:m},{ctx:"reference",val:h},{ctx:"viewed",val:String(c)}],files:[{_id:r,prop:"document-file",remoteUrl:o,name:wn(l,f),size:s,type:f,lastModified:0}],props:{id:t,title:l,date:u,viewed:c},actions:v?bn(v):[]};return d["default"].reduce(y,d["default"].merge,b)}var Cn={_id:"root",modelId:"category",label:"Root",icon:"fal fa-seedling",type:"list",search:false,content:[{ctx:"root",val:"root"}],tags:[]};var In={_id:"unknown",readonly:true,label:"Unknown",icon:"fal fa-undefined",action:"view",fields:[],listType:"basic",search:[],heading:[],subheading:[]};var kn={_id:"category",category:true,readonly:true,label:"Category",icon:"fal fa-filter",action:"list",fields:[],listType:"category",search:[],heading:[],subheading:[]};var Ln={_id:"cdcdcdcd-0000-0000-0000-cdcd0404cdcd",modelId:"unknown",readonly:true,tags:[],files:[],props:{},actions:[]};var Dn={_id:"cdcdcdcd-0000-0000-0000-cdcd0404cdcd",type:"view",label:"Unknown"};function Pn(e,t,r){var a=t._id,n=t.readonly,i=t.icon,o=t.type,u=t.tags,l=t.contentAll,s=t.countContent,c=t.hideEmpty,f=t.search,p=t.sort,m=t.group,h=t.groupConf,v=t.creationContext,g=t.child;var y=r?r._id+"-"+a:a;var b=r?r.content:t.content;var w=jt(e,b,l);return d["default"](w).map((function(e){var t=e.tags;return t?_t(t,{ctx:v}):null})).compact().map((function(e){var t=e.val;return t})).uniq().map((function(e){var t={ctx:v,val:e};var r={_id:y+"-"+e,modelId:"category",readonly:n,label:e,icon:i,type:o,contentAll:true,content:d["default"].concat(b,t),countContent:s?d["default"].concat(b,t,s):undefined,tags:u,hideEmpty:c,search:f,sort:p,group:m,groupConf:h};if(g){var a=d["default"].extend({},r,{content:d["default"].concat(g.tags,t)});var l=d["default"].extend({},g,{tags:a.content,contentAll:true});var x=Pn(w,l,r);return d["default"].concat(x,a)}else{return[r]}})).flatten().value()}var Tn=function(){function e(e){this.src=e;this.stream=f["default"]([])}e.prototype.load=function(){if(this.src.path){return Xa(this.src.path).then(this.stream).catch(d["default"].noop)}else{return Promise.resolve()}};return e}();function Wn(e){return d["default"].reduce(e.fields,(function(e,t){if(t.default){e.props[t.id]=t.default}return e}),{_id:i.guid(),modelId:e._id,readonly:e.readonly,tags:[{ctx:"model",val:e._id}],files:[],props:{},actions:[]})}function Bn(e,t){return d["default"].filter(e,(function(e){var r=e.src.scope;return r===t}))}function Sn(e){var t=Bn(e,"user");return t.length?t[0]:null}function Mn(e,t){return d["default"].map(Et(e,{type:t}),(function(e){return new Tn(e)}))}var Nn=function(){function e(e){var t=this;if(e===void 0){e={}}this.remotePath="./";this.config=e;if(this.config.remotePath){this.remotePath=this.config.remotePath}var r=this.config.sourceList||[];this.modelSources=Mn(r,"model");this.modelList=f["default"].merge(d["default"].map(this.modelSources,(function(e){return e.stream}))).map((function(e){return d["default"].concat([kn],d["default"].flatten(e))}));this.assetSources=Mn(r,"asset");this.assetList=f["default"].merge(d["default"].map(this.assetSources,(function(e){return e.stream}))).map((function(e){return d["default"].map(d["default"].flatten(e),xn)}));this.itemSources=Mn(r,"item");this.itemList=f["default"].merge(d["default"].map(this.itemSources,(function(e){return e.stream}))).map((function(e){return d["default"].map(d["default"].flatten(e),d["default"].bind(t.patchRemoteUrl,t))}));d["default"].bind(this.patchRemoteUrl,this);this.dataList=f["default"].lift((function(e,t){var r=d["default"].concat(e,t);var a=At(r,"root");if(!a){r.push(Cn)}var n=Rt(r,{modelId:"driven"});return d["default"].concat(r,d["default"](n).map((function(e){return Pn(r,e)})).flatten().value())}),this.assetList,this.itemList)}e.prototype.loaded=function(){return this.itemList().length>1};e.prototype.initialLoad=function(){return this.loaded()?Promise.resolve():this.load()};e.prototype.load=function(){return Promise.all([this.loadApplication(),this.loadUser()])};e.prototype.loadApplication=function(){return this.loadScope("application")};e.prototype.loadUser=function(){return this.loadScope("user")};e.prototype.loadScope=function(e){return Promise.all([Promise.all(d["default"].map(Bn(this.modelSources,e),(function(e){return e.load()}))),Promise.all(d["default"].map(Bn(this.assetSources,e),(function(e){return e.load()}))),Promise.all(d["default"].map(Bn(this.itemSources,e),(function(e){return e.load()})))])};e.prototype.updateAssets=function(e){var t=this;var r=Sn(this.assetSources);if(r&&r.src.path){return Xa(r.src.path,{params:e}).then((function(e){return t.addAssets(e)}))}return Promise.resolve(0)};e.prototype.addAssets=function(e){var t=Sn(this.assetSources);if(t){var r=t.stream();var a=0;d["default"].each(e,(function(e){if(_t(r,{uuid:e.uuid})===undefined){++a;r.push(e)}}));t.stream(r);return a}return 0};e.prototype.viewAsset=function(e){var t=e.uuid;var r=Sn(this.assetSources);if(r){var a=r.stream();var n=Rt(a,{uuid:t});if(n.length){var i=n[0];i.viewed=true;a.push(i);r.stream(a)}}};e.prototype.model=function(){return this.modelList};e.prototype.data=function(){return this.dataList};e.prototype.upsertUserItem=function(e){var t=Sn(this.itemSources);if(t){var r=t.stream();Rt(r,{_id:e._id});r.push(e);t.stream(r);return this.saveUserData(t.stream())}else{return Promise.reject(new Error("User item source not found"))}};e.prototype.removeUserItem=function(e){var t=e._id;var r=Sn(this.itemSources);if(r){var a=r.stream();Rt(a,{_id:t});r.stream(a);return this.saveUserData(r.stream())}else{return Promise.reject(new Error("User item source not found"))}};e.prototype.saveUserData=function(e){var t=this.config.itemUpdate;if(!t){return Promise.resolve()}return Xa({method:"POST",url:t,deserialize:$t,body:e})};e.prototype.patchRemoteUrl=function(e){var t=this;var r=e;if(r.files&&r.files.length){return d["default"].assign({},r,{files:d["default"].map(r.files,(function(e){return d["default"].assign({},e,{remoteUrl:e.remoteUrl?e.remoteUrl:""+t.remotePath+e._id})}))})}else{return e}};return e}();var Hn=function(){function e(e,t){this.modelId=f["default"](In._id);this.itemId=f["default"](Ln._id);this.actionId=f["default"](Dn._id);this.pickModel=Ft(e,this.modelId,In);this.pickItem=Ft(t,this.itemId,Ln);this.pickAction=f["default"].lift((function(e,t){return("actions"in e?At(e.actions,t):null)||Dn}),this.pickItem,this.actionId);this.readonly=f["default"].lift((function(e,t){return Boolean(e.readonly||t.readonly)}),this.pickModel,this.pickItem)}e.prototype.selectItem=function(e){this.itemId(e);this.selectModel(this.pickItem().modelId)};e.prototype.getItem=function(){return this.pickItem()};e.prototype.isReadonly=function(){return this.readonly()};e.prototype.isCategory=function(){return this.pickModel().category||false};e.prototype.selectModel=function(e){this.modelId(e)};e.prototype.getModel=function(){return this.pickModel()};e.prototype.selectAction=function(e){this.actionId(e)};e.prototype.getAction=function(){return this.pickAction()};return e}();var _n=function(){function e(e,t,r){this.saving=f["default"](false);this.files=e;this.items=t;this.qry=r}e.prototype.uploadAssets=function(e,t){return this.saveIndicator(Promise.all(this.files.uploadAssets(t,e)))};e.prototype.upsertItem=function(e,t){if(this.qry.isReadonly()){return Promise.reject(new Error("Cannot modify item"))}var r=this.files.uploadList(t);r.push(this.items.upsertUserItem(e));return this.saveIndicator(Promise.all(r))};e.prototype.removeItem=function(e){if(this.qry.isReadonly()){return Promise.reject(new Error("Cannot remove item"))}return this.saveIndicator(this.items.removeUserItem(e))};e.prototype.saveIndicator=function(e){var t=this;this.saving(true);c["default"].redraw();return e.then((function(){return t.saving(false)})).catch((function(e){t.saving(false);throw e}))};return e}();var An;(function(e){e["HEADER"]="header";e["FOOTER"]="footer";e["SUBHEADER"]="subheader"})(An||(An={}));var Fn;(function(e){e["SMALL"]="small";e["LARGE"]="large";e["DEFAULT"]="default"})(Fn||(Fn={}));function En(e){if(e===void 0){e="default"}switch(e){case"error":return Wa().uiDialogContextError;case"warn":return Wa().uiDialogContextWarn;case"neutral":return Wa().uiDialogContextNeutral;case"alt":return Wa().uiDialogContextAlt;default:return Wa().uiDialogContextDefault}}function Rn(t){switch(t){case e.DialogPosition.center:return"fade-in";case e.DialogPosition.top:return"notify-top-in";case e.DialogPosition.bottom:return"notify-bottom-in";case e.DialogPosition.topLeft:return"notify-left-in";case e.DialogPosition.bottomLeft:return"notify-left-in";case e.DialogPosition.topRight:return"notify-right-in";case e.DialogPosition.bottomRight:return"notify-right-in";default:return"notify-top-in"}}function Un(t){switch(t){case e.DialogPosition.center:return"fade-out";case e.DialogPosition.top:return"notify-top-out";case e.DialogPosition.bottom:return"notify-bottom-out";case e.DialogPosition.topLeft:return"notify-left-out";case e.DialogPosition.bottomLeft:return"notify-left-out";case e.DialogPosition.topRight:return"notify-right-out";case e.DialogPosition.bottomRight:return"notify-right-out";default:return"notify-top-out"}}function On(t){switch(t){case e.DialogPosition.center:return".mw-90-pa2.w-50-ns.w-100.tc";case e.DialogPosition.top:return".br4.p3.z-max.w-50-ns.w-100.f5.tc.pointer";case e.DialogPosition.bottom:return".br4.p3.z-max.w-50-ns.w-100.f5.tc.pointer";case e.DialogPosition.topLeft:return".pa2.pointer.z-max.w-30-ns.w-100.tc";case e.DialogPosition.topRight:return".pa2.pointer.z-max.w-30-ns.w-100.tc";case e.DialogPosition.bottomLeft:return".pa2.pointer.z-max.w-30-ns.w-100.tc";case e.DialogPosition.bottomRight:return".pointer.z-max.w-30-ns.w-100.tc";default:return".br4.p3.z-max.w-50-ns.w-100.f5.tc.pointer"}}function jn(t){var r=t.context,a=r===void 0?"alt":r,n=t.buttonContext,i=t.type,o=i===void 0?e.DialogType.notification:i,u=t.message,l=u===void 0?"":u,s=t.duration,d=t.position,c=d===void 0?e.DialogPosition.top:d,f=t.icon,p=f===void 0?"":f,m=t.title,h=m===void 0?"":m,v=t.subTitle,g=v===void 0?"":v,y=t.confirmButton,b=y===void 0?{}:y,w=t.cancelButton,x=w===void 0?{}:w,C=t.submitButton,I=C===void 0?{}:C,k=t.priority,L=k===void 0?false:k,D=t.login,P=t.applyTheme,T=P===void 0?{}:P,W=t.useProfile,B=W===void 0?null:W,S=t.postUrl,M=S===void 0?null:S;return{context:a,buttonContext:n||vr(a),type:o,message:l,icon:p,title:h,subTitle:g,duration:o===e.DialogType.notification&&s?s:!o||o===e.DialogType.notification?3e3:0,position:c,confirmButton:b,cancelButton:x,submitButton:I,priority:L,login:{onSuccess:(D===null||D===void 0?void 0:D.onSuccess)?D.onSuccess:function(){return null},onFailure:(D===null||D===void 0?void 0:D.onFailure)?D.onFailure:function(){return null}},applyTheme:T,useProfile:B,postUrl:M}}var zn=function(){function t(){this.priorityQueue=[];this.notificationQueue=[];this.confirmQueue=[];this.loginQueue=[];this.queue=[];this.active=f["default"](false);this.visible=f["default"](false)}Object.defineProperty(t.prototype,"config",{get:function(){return this._config},enumerable:false,configurable:true});Object.defineProperty(t.prototype,"getQueue",{get:function(){return this.queue},enumerable:false,configurable:true});Object.defineProperty(t.prototype,"getActiveDialog",{get:function(){return this.activeDialog},enumerable:false,configurable:true});t.prototype.insert=function(t){if(t.priority)this.priorityQueue.push(t);else if(t.type===e.DialogType.notification)this.notificationQueue.push(t);else if(t.type===e.DialogType.confirm)this.confirmQueue.push(t);else if(t.type===e.DialogType.login)this.loginQueue.push(t);else this.notificationQueue.push(t);this.queue=d["default"].concat(this.priorityQueue,this.loginQueue,this.confirmQueue,this.notificationQueue)};t.prototype.next=function(){if(!this.visible()&&!this.active()&&this.queue.length){this.activeDialog=this.queue[0];this._config=jn(this.activeDialog);if(this.activeDialog.priority)this.priorityQueue.shift();else if(this.activeDialog.type===e.DialogType.notification)this.notificationQueue.shift();else if(this.activeDialog.type===e.DialogType.confirm)this.confirmQueue.shift();else if(this.activeDialog.type===e.DialogType.login)this.loginQueue.shift();else this.notificationQueue.shift();this.queue.shift();this.active(true);this.visible(true)}};return t}();var qn=function(){function e(){}e.prototype.onbeforeremove=function(e){var t=e.dom,r=e.attrs.visible;t.classList.remove("fade-in");t.classList.add("fade-out");return new Promise((function(e){t.addEventListener("animationend",(function(){r(false);c["default"].redraw();e()}))}))};e.prototype.view=function(e){var t=e.children;return c["default"](".fixed.w-100.h-100.left-0.top-0.flex.items-center.justify-center.pa3.bg-black-70.z-max",{class:"fade-in",tabIndex:-1},t)};return e}();var Gn=function(){function e(){}e.prototype.oninit=function(e){var t=e.attrs.config.applyTheme;if(t){this.themeHandler=new pr(t)}};e.prototype.view=function(e){var t;var r=e.attrs,a=r.config,n=r.active,o=r.visible;var u=a.context,l=a.buttonContext,s=a.icon,d=a.title,f=a.message,p=a.confirmButton,m=a.cancelButton;var h=(t=this.themeHandler)===null||t===void 0?void 0:t.classes;return n()?c["default"](qn,{visible:o},c["default"](".w-75-ns.mw-90.measure.pa3",{class:mr([h===null||h===void 0?void 0:h.uiDialogWrapper,En(u),Wa().uiDialogWrapper])},[s?c["default"]("i",{class:mr([s,h===null||h===void 0?void 0:h.uiDialogIcon,Wa().uiDialogIcon])}):null,d?c["default"]("h2",{class:mr([h===null||h===void 0?void 0:h.uiDialogTitle,Wa().uiDialogTitle])},d):null,f?br({type:"sdx-blockLines",data:{lines:f,applyTheme:{uiBlockLinesWrapper:{classes:mr([h===null||h===void 0?void 0:h.uiDialogText,Wa().uiDialogText])}}}}):null,c["default"](".flex.items-end.justify-end",{class:mr([h===null||h===void 0?void 0:h.uiDialogButtonWrapper,Wa().uiDialogButtonWrapper])},[c["default"](i.Button,{classes:mr([h===null||h===void 0?void 0:h.uiDialogCancelButton,Wa().uiDialogCancelButton]),label:m.label||"Cancel",icon:m.icon,rightIcon:m.rightIcon,type:"button",context:l,onclick:function(){n(false);if(m.onclick){m.onclick()}c["default"].redraw()}}),p.onclick?c["default"](i.Button,{classes:mr([h===null||h===void 0?void 0:h.uiDialogConfirmButton,Wa().uiDialogConfirmButton]),label:p.label||"Confirm",icon:p.icon,rightIcon:p.rightIcon,type:"button",context:l,onclick:function(){n(false);if(p.onclick){p.onclick()}c["default"].redraw()}}):null])])):null};return e}();var Vn=function(t){switch(t){case e.DialogPosition.bottom:{return".w-100.h-100.pa3.fixed.left-0.top-0.flex.justify-center.items-end.z-max"}case e.DialogPosition.bottomLeft:{return".w-100.h-100.pa3.fixed.left-0.top-0.flex.items-end.z-max"}case e.DialogPosition.bottomRight:{return".w-100.h-100.pa3.fixed.left-0.top-0.flex.flex-row-reverse.items-end.z-max"}case e.DialogPosition.top:{return".w-100.h-100.pa3.fixed.left-0.top-0.flex.justify-center.items-start.z-max"}case e.DialogPosition.topLeft:{return".w-100.h-100.pa3.fixed.left-0.top-0.z-max"}case e.DialogPosition.topRight:{return".w-100.h-100.pa3.fixed.right-0.top-0.flex-row-reverse.z-max"}default:{return".flex.items-center.justify-center.w-100.h-100.pa3.fixed.left-0.top-0.z-max"}}};var Yn=function(){function e(){}e.prototype.view=function(e){var t=this;var r;var a=e.attrs,n=a.config,i=a.active,o=a.visible;var u=n.position,l=n.title,s=n.message,d=n.context,f=n.duration,p=n.applyTheme;if(p){this.themeHandler=new pr(p)}var m=(r=this.themeHandler)===null||r===void 0?void 0:r.classes;if(f&&!this.timeout&&i()){this.timeout=setTimeout((function(){i(false);c["default"].redraw()}),f)}return c["default"](Vn(u),{style:{pointerEvents:"none",backgroundColor:"rgba(0, 0, 0, 0)",tabIndex:-1}},i()?c["default"](On(u),{class:mr([Rn(u),En(d),m===null||m===void 0?void 0:m.uiDialogNotificationWrapper,Wa().uiDialogNotificationWrapper]),onclick:function(){return i(false)},onbeforeremove:function(e){var r=e.dom;r.classList.remove(Rn(u));r.classList.add(Un(u));if(t.timeout){clearTimeout(t.timeout)}t.timeout=null;return new Promise((function(e){r.addEventListener("animationend",(function(){o(false);c["default"].redraw();e()}))}))}},c["default"](".flex-row.center-items.justify-center",l?c["default"]("h4.w-100.pl3.pr3",{class:mr([m===null||m===void 0?void 0:m.uiDialogTitle,Wa().uiDialogTitle])},l):null,s?c["default"]("p.w-100.pa1",{class:mr([m===null||m===void 0?void 0:m.uiDialogText,Wa().uiDialogText])},s):null)):null)};return e}();var Qn=function(){function e(){this.resetId=f["default"]("");this.mobileValid=f["default"]();this.emailValid=f["default"]()}e.prototype.oninit=function(e){var t=e.attrs.reset.hash;this.mobileValid=this.resetId.map((function(e){return t===u.sha256(d["default"].replace(d["default"].toLower(e),/[^0-9]/g,"").slice(-9))}));this.emailValid=this.resetId.map((function(e){return t===u.sha256(d["default"].trim(d["default"].toLower(e)))}))};e.prototype.view=function(e){var t=this;var r=e.attrs,a=r.auth,n=r.reset,o=r.onReset,u=r.onToggle;var l=n.type,s=n.inputLabel,f=n.inputPlaceholder;var p=a.onePanel,m=p===void 0?true:p,h=a.helpBtnText,v=h===void 0?"SEND PIN":h,g=a.helpBtnIcon,y=g===void 0?"":g,b=a.loginFormClass,w=b===void 0?"":b,x=a.loginBtnClass,C=x===void 0?"":x,I=a.returnLinkText,k=I===void 0?"Return":I,L=a.helpInputLines;return c["default"]("form[enctype=multipart/form-data]",{onsubmit:function(e){e.preventDefault();o(l==="email"?d["default"].trim(d["default"].toLower(t.resetId())):d["default"].trim(d["default"].replace(d["default"].toLower(t.resetId()),/[^0-9]/g,"").slice(-9)),t.resetId());t.resetId("")},class:mr([w,Wa().uiLoginForm])},[c["default"]("div",{class:mr([Wa().uiLoginFormInputWrapper])},c["default"](i.BaseInput,{field:d["default"].extend({},{id:"resetpassword",instant:true,uiClass:{wrapper:mr([Wa().uiInputFieldset]),inputWrapper:mr([Wa().uiLoginInputWrapper,Wa().uiInputWrapper]),input:mr(["pa2",Wa().uiLoginInput,Wa().uiInput]),label:mr([Wa().uiLoginInputLabel,Wa().uiInputLabel])}},l==="email"?{label:s?s:"EMAIL",type:"email",placeholder:f?f:"Enter e-mail address",inputmode:"email"}:{label:s?s:"MOBILE",type:"tel",placeholder:f?f:"Enter mobile number",inputmode:"numeric",pattern:"[0-9]+"}),value:this.resetId})),L?d["default"].map(L,(function(e){return c["default"]("p.f5",{class:mr([Wa().uiLoginLines])},c["default"].trust(e))})):null,c["default"](".flex.items-center.flex-row-reverse-ns",{class:mr([Wa().uiLoginButtonWrapper])},[c["default"](i.Button,{label:v,type:"submit",rightIcon:y,classes:mr([Wa().uiLoginButton,C]),disabled:l==="email"?!this.emailValid():!this.mobileValid()}),m?c["default"]("span.pv2.f6.pointer",{class:mr([Wa().uiLoginResetReturn,Wa().uiLoginResetButton]),onclick:u},k):null])])};return e}();function Zn(e){var t=e.username,r=e.pinInput;var a=Wa(),n=a.uiLoginInputWrapper,i=a.uiLoginInput,o=a.uiInput,u=a.uiInputWrapper,l=a.uiLoginInputFieldset,s=a.uiInputFieldset,d=a.uiLoginInputLabel,c=a.uiInputLabel;var f=[{key:"username",input:{id:"username",type:"hidden",readonly:true}}];if(e.type==="dobPostcode"){var p=e.dobLabel,m=p===void 0?"DOB":p,h=e.dobPlaceholder,v=h===void 0?"DOB e.g. 23/02/1973":h,g=e.postcodeLabel,y=g===void 0?"Postcode":g,b=e.postcodePlaceholder,w=b===void 0?"Postcode e.g. AB12 3CD":b;f.push({key:"dob",input:{id:"dob",label:m,type:"dateInput",placeholder:v,title:v,required:true,uiClass:{wrapper:mr([l,s]),inputWrapper:mr([n,u]),input:mr(["pa2",i,o]),label:mr([d,c])}}});f.push(r?{key:"pin",input:{id:"pin",label:y,type:"password",placeholder:w,title:w,pattern:"[0-9]*",inputmode:"numeric",required:true,instant:true,uiClass:{wrapper:mr([l,s]),inputWrapper:mr([n,u]),input:mr(["pa2",i,o]),label:mr([d,c])}}}:{key:"postcode",input:{id:"postcode",label:y,type:"text",placeholder:w,title:w,required:true,instant:true,uiClass:{wrapper:mr([l,s]),inputWrapper:mr([n,u]),input:mr(["pa2",i,o]),label:mr([d,c])}}});f.push({key:"dob-format",computed:{keys:["dob"],map:"dateStr-format"}});f.push({key:"dob-valid",computed:{keys:["dob-format"],map:"test-dob"}});if(r){f.push({key:"pin-valid",computed:{keys:["pin"],map:"strLength-6"}})}else{f.push({key:"postcode-remove-whitespace",computed:{keys:["postcode"],map:"remove-whitespace"}});f.push({key:"postcode-upper",computed:{keys:["postcode-remove-whitespace"],map:"upper"}});f.push({key:"postcode-valid",computed:{keys:["postcode-upper"],map:"test-postcode"}})}f.push({key:"form-valid",computed:{keys:["dob-valid",r?"pin-valid":"postcode-valid"],merge:"and"}});f.push({key:"password",input:{id:"password",type:"hidden",autocomplete:"off",readonly:true},computed:{keys:["dob-format",r?"pin":"postcode-upper"],merge:"join-underscore"}})}else{var x=e.passwordLabel,C=x===void 0?"PASSWORD":x,I=e.passwordPlaceholder,k=I===void 0?"PASSWORD":I;f.push(r?{key:"password",input:{id:"password",label:C,type:"password",placeholder:k,autocomplete:"current-password",pattern:"[0-9]+",inputmode:"numeric",required:true,instant:true,uiClass:{wrapper:mr([l,s]),inputWrapper:mr([n,u]),input:mr(["pa2",i,o]),label:mr([d,c])}}}:{key:"password",input:{id:"password",label:C,type:"password",placeholder:k,autocomplete:"current-password",required:true,instant:true,uiClass:{wrapper:mr([l,s]),inputWrapper:mr([n,u]),input:mr(["pa2",i,o]),label:mr([d,c])}}});f.push({key:"form-valid",computed:{keys:["password"],map:r?"strLength-6":"strLength"}})}var L=qr(f);L.streamMap["username"].value(t);return L}function Xn(e,t){return function(a){a.preventDefault();r.request({method:"POST",url:e,body:new FormData(a.target),deserialize:$t}).then(t.onSuccess).catch(t.onFailure)}}var Jn=function(){function e(){this.toggleHelp=false}e.prototype.oninit=function(e){var t=e.attrs.auth;this.form=Zn(t)};e.prototype.view=function(e){var t=this;var r=e.attrs,a=r.auth,n=r.config,o=r.minimal;var u=a.endpoint,l=a.onePanel,s=l===void 0?true:l,f=a.title,p=a.lines,m=a.postLines,h=m===void 0?[]:m,v=a.helpTitle,g=a.helpLines,y=a.postHelpLines,b=y===void 0?[]:y,w=a.loginFormClass,x=w===void 0?"":w,C=a.loginBtnText,I=C===void 0?"Login":C,k=a.loginBtnIcon,L=k===void 0?"":k,D=a.loginBtnClass,P=D===void 0?"":D,T=a.reset,W=a.helpLinkText,B=W===void 0?"Trouble logging in?":W;return c["default"](".flex.flex-column",{class:(s?"":"flex-row-l items-stretch ph1-l")+" "+(o?"":Wa().uiLoginWrapper)},[!this.toggleHelp?c["default"](".flex-column.w-100",{class:mr([Wa().uiLogin])},[o?null:c["default"](".f3.f2-l.fw5",{class:mr([oa().default.color,Wa().uiLoginHeader])},c["default"].trust(f)),p?d["default"].map(p,(function(e){return c["default"]("p.f5",{class:mr([Wa().uiLoginLines])},c["default"].trust(e))})):null,c["default"]("form[enctype=multipart/form-data][method=post][accept=utf-8].w-100 "+(o?"":".justify-between"),{action:u,class:mr([x,Wa().uiLoginForm]),onsubmit:n?Xn(u,n):undefined},[c["default"]("div",{class:mr([Wa().uiLoginFormInputWrapper])},d["default"].map(this.form.fields,Vr)),o?null:d["default"].map(h,(function(e){return c["default"]("p.f5",{class:mr([Wa().uiLoginPostLines])},c["default"].trust(e))})),c["default"](".flex.items-center "+(o?".flex-column":".flex-row-reverse-ns.flex-column"),{class:mr([Wa().uiLoginButtonWrapper])},c["default"](i.Button,{label:I,type:"submit",rightIcon:L,classes:mr([Wa().uiLoginButton,Wa().uiButton,P]),disabled:Boolean(!this.form.streamMap["form-valid"].value())}),s&&T?c["default"]("span.pv2.nt2.fr.f6.pointer",{class:mr([Wa().uiLoginResetButton]),onclick:function(){return t.toggleHelp=true}},B):null)])]):null,!s||this.toggleHelp?c["default"](".flex-column.w-100",{class:mr([Wa().uiLogin])},[o?null:c["default"](".f3.f2-l.fw5.mv3.mv4-l",{class:mr([Wa().uiLoginResetHeader,Wa().uiLoginHeader])},c["default"].trust(v)),d["default"].map(g,(function(e){return c["default"]("p.f5",c["default"].trust(e))})),T?c["default"](Qn,{auth:a,reset:T,onReset:function(e,r){t.toggleHelp=false;Ja(e,r)},onToggle:function(){return t.toggleHelp=false}}):null,d["default"].map(b,(function(e){return c["default"]("p.f5",c["default"].trust(e))}))]):null])};return e}();var $n=function(){function e(){this.shake=false}e.prototype.oninit=function(e){var t=this;var r=e.attrs,a=r.active,n=r.config,i=n.login,o=n.applyTheme;if(o){this.themeHandler=new pr(o)}this.loginSuccess=function(){a(false);return i.onSuccess()};this.loginFailure=function(){t.shake=true;t.failMessage="Invalid credentials - please try again";return i.onFailure()}};e.prototype.onupdate=function(){if(this.shake){this.shake=false}};e.prototype.view=function(e){var t;var r=e.attrs,a=r.config,n=r.active,i=r.visible;var o=a.context,u=a.title,l=a.message;var s=Yr().auth;var d=(t=this.themeHandler)===null||t===void 0?void 0:t.classes;return n()?c["default"](qn,{visible:i},c["default"](".measure-wide.pa3",{class:mr([Wa().uiDialogLoginWrapper,Wa().uiDialogWrapper,En(o),this.shake?"shake":""])},c["default"](".pa2",[c["default"]("h2.w-100",{class:mr([d===null||d===void 0?void 0:d.uiDialogTitle,o==="default"?Wa().uiDialogTitle:En(o)])},u),c["default"]("p.tc",{class:this.failMessage?"red":""},this.failMessage?this.failMessage:l)]),s?c["default"](Jn,{auth:s,config:{onSuccess:this.loginSuccess,onFailure:this.loginFailure},minimal:true}):null)):null};return e}();var Kn=function(){function t(){}t.prototype.oninit=function(e){var t=e.attrs.config,r=t.applyTheme,a=t.useProfile;var n=a?a():ua()||{},i=n.email,o=i===void 0?"":i,u=n.mobile,l=u===void 0?"":u;var s={wrapper:mr([Wa().uiInputFieldset]),inputWrapper:mr(["ba b--light-gray mb2",Wa().uiInputWrapper]),input:mr([Wa().uiInput]),label:mr([Wa().uiInputLabel])};this.feedbackFormFields=qr([{key:"feedback",group:"feedback",input:{id:"feedback",type:"textarea",required:true,uiClass:s}},{key:"email",group:"email",input:{id:"email",type:"email",required:true,uiClass:s}},{key:"phone_number",group:"phone_number",input:{id:"phone_number",type:"tel",required:true,uiClass:s}}]);if(o){this.feedbackFormFields.streamMap["email"].value(o)}if(l){this.feedbackFormFields.streamMap["phone_number"].value(l)}if(r){this.themeHandler=new pr(r)}};t.prototype.view=function(t){var r=this;var a;var n=t.attrs,o=n.config,u=n.active,l=n.visible;var s=o.title,f=o.subTitle,p=o.cancelButton,m=o.submitButton,h=o.postUrl;var v=(a=this.themeHandler)===null||a===void 0?void 0:a.classes;var g=d["default"].groupBy(this.feedbackFormFields?this.feedbackFormFields.fields:[],"group");return u()?c["default"](qn,{visible:l},c["default"](".w-75-ns.mw-90.measure",{class:mr([v===null||v===void 0?void 0:v.uiDialogFeedbackWrapper,v===null||v===void 0?void 0:v.uiDialogWrapper,Wa().uiDialogFeedbackWrapper,Wa().uiDialogWrapper])},[c["default"](".pa3",[c["default"]("h2.w-100.tc",{class:mr([v===null||v===void 0?void 0:v.uiDialogFeedbackTitle,Wa().uiDialogFeedbackTitle])},s),c["default"]("h5.w-100.tc",{class:mr([v===null||v===void 0?void 0:v.uiDialogFeedbackSubTitle,Wa().uiDialogFeedbackSubTitle])},f),c["default"]("p.f6.b.pt3.mv1",{class:mr([v===null||v===void 0?void 0:v.uiDialogFeedbackLabel,Wa().uiDialogFeedbackLabel])},"Feedback"),c["default"]("p.f6.pt1.ma0",d["default"].map(g["feedback"],Vr)),c["default"]("p.f6.b.pt3.mv1",{class:mr([v===null||v===void 0?void 0:v.uiDialogFeedbackLabel,Wa().uiDialogFeedbackLabel])},"Email Address"),c["default"]("p.f6.ma0","We may need to contact you if we need more information on the feedback you have provided."),c["default"]("p.f6.pt1.ma0",d["default"].map(g["email"],Vr)),c["default"]("p.f6.b.pt3.mv1",{class:mr([v===null||v===void 0?void 0:v.uiDialogFeedbackLabel,Wa().uiDialogFeedbackLabel])},"Phone Number"),c["default"]("p.f6.pt1.ma0",d["default"].map(g["phone_number"],Vr))]),c["default"](".flex.flex-column.w-100.items-center.pa3",{class:mr([Wa().uiDialogFeedbackButtonWrapper,v===null||v===void 0?void 0:v.uiDialogText,Wa().uiDialogButtonWrapper])},[c["default"](i.Button,{classes:mr([v===null||v===void 0?void 0:v.uiDialogConfirmButton,Wa().uiDialogConfirmButton]),label:m.label||"Confirm",type:"button",onclick:function(){if(h){c["default"].request({url:h,method:"POST",body:{dialogFeedbackEmail:r.feedbackFormFields.streamMap["email"].value(),dialogFeedbackPhone:r.feedbackFormFields.streamMap["phone_number"].value(),dialogFeedbackText:r.feedbackFormFields.streamMap["feedback"].value()}}).then((function(){Qr({message:"Thank you for your feedback",position:e.DialogPosition.center,priority:true});u(false)})).catch((function(){u(false);Qr({type:e.DialogType.notification,position:e.DialogPosition.center,context:"error",duration:0,title:"Sorry!",message:"You're feedback failed to send, please try again later."})}))}else{u(false)}if(m.onclick){m.onclick()}c["default"].redraw()}}),c["default"]("span.dim.pointer.pa1.underline",{class:mr([Wa().uiDialogLinkButton,v===null||v===void 0?void 0:v.uiDialogLinkButton]),onclick:function(){u(false);if(p.onclick){p.onclick()}}},"Back")])])):null};return t}();var ei=function(){function t(){this.dialogHandler=new zn}t.prototype.oninit=function(e){var t=this;var r=e.attrs.useStream;var a=r?r:Qr;a.map((function(e){return t.dialogHandler.insert(e)}))};t.prototype.onbeforeupdate=function(){this.dialogHandler.next()};t.prototype.view=function(){var t=this.dialogHandler,r=t.active,a=t.visible,n=t.config;if(n){switch(n.type){case e.DialogType.notification:return c["default"](Yn,{config:n,active:r,visible:a});case e.DialogType.confirm:return c["default"](Gn,{config:n,active:r,visible:a});case e.DialogType.login:return c["default"]($n,{config:n,active:r,visible:a});case e.DialogType.feedback:return c["default"](Kn,{config:n,active:r,visible:a});default:return c["default"](Yn,{config:n,active:r,visible:a})}}return null};return t}();var ti=function(){function e(){}e.prototype.view=function(e){var t=e.attrs.classes;var r=ea().copyright;var a=Yr().version;return c["default"]("span.ma2.f7",{class:mr([t,Wa().uiNavbarCopyright]),title:a},r?[c["default"].trust("&copy; "),r]:null)};return e}();var ri=function(){function e(){}e.prototype.view=function(e){var t=e.attrs,r=t.src,a=t.classes,n=t.height,i=t.width,o=t.link,u=t.linkToVaultRoot;return r?c["default"]("img",{src:r,onclick:function(){var e;if(o===null||o===void 0?void 0:o.href){window.open(o.href,o.target||"_self")}if(u){window.open((e=Yr().auth)===null||e===void 0?void 0:e.endpoint,(o===null||o===void 0?void 0:o.target)||"_self")}},class:mr([(o===null||o===void 0?void 0:o.href)?"pointer":"",a,Wa().uiNavbarImage]),height:n,width:i}):null};return e}();var ai=function(){function e(){}e.prototype.view=function(e){var t=e.attrs,r=t.classes,a=t.href,n=t.textContent;return c["default"]("a.link.mh2.flex.self-stretch.items-center",{class:mr([r,Wa().uiNavbarLink]),href:a},n)};return e}();function ni(e){return(e*100).toFixed(0)+"%"}function ii(e){switch(e){case Fn.SMALL:return"flex dn-l";case Fn.LARGE:return"dn flex-l";default:return"flex"}}function oi(e,t){var r=!(Yr().auth&&t);return d["default"].reject(e,d["default"].matches({hideLogout:r}))}function ui(e){c["default"].request(e).then(Oa)}var li=function(){function e(){}e.prototype.view=function(e){var t=e.attrs,r=t.classes,a=t.size;var n=Yr().auth;var i=n.logoutPath,o=n.logoutLabel,u=o===void 0?"Logout":o,l=n.logoutIcon,s=l===void 0?"fal fa-sign-out-alt":l;return c["default"]("span.mh2.self-stretch.items-center.pointer",{class:mr([r,ii(a),Wa().uiNavbarLogout,"ripple"]),onclick:function(){return ui(i)}},[u?c["default"]("span.mr2",{class:mr([Wa().uiNavbarLogoutLabel])},u):null,c["default"]("i.fal.fa-fw.fw4[aria-hidden=true]"+(u?"":".fal.fa-2x"),{class:mr([Wa().uiNavbarLogoutIcon,s])})])};return e}();var si=function(){function e(){}e.prototype.view=function(e){var t=e.attrs,r=t.classes,a=t.textContent;return c["default"]("span.ma2",{class:mr([r,Wa().uiNavbarText])},a)};return e}();var di=function(){function e(){}e.prototype.view=function(e){var t=e.attrs.classes;var r=ea().poweredBy,a=r===void 0?{src:"https://cloud.sdxmessaging.com/resources/sdx/poweredby.svg",title:"Powered by Secure Digital Exchange Limited",href:"https://www.sdxmessaging.com/"}:r;return c["default"]("a.link.ma2.h-75[target=_blank][rel=noreferrer noopener]",{href:a.href},c["default"]("img.w-100.h-100.mw3.mw4-l.o-80",{class:mr([t,Wa().uiNavbarPoweredBy]),src:a.src,title:a.title}))};return e}();var ci=function(){function e(){}e.prototype.view=function(e){var t=e.attrs,r=t.saving,a=t.progress,n=t.classes;var i=r?r():false;var o=i&&a?a():0;return c["default"]("span.ma2.f3",{class:mr([o?undefined:"dn",n,Wa().uiNavbarProgress])},[ni(o),c["default"]("i.ma2.f3.fal.fa-spinner",{class:i?"fa-spin":"dn"})])};return e}();var fi=function(){function e(){}e.prototype.view=function(e){var t=e.attrs.classes;var r=Yr().version;return c["default"]("span.ma2.f7",{class:mr([t,Wa().uiNavbarVersion])},r)};return e}();var pi=function(){function e(){}e.prototype.view=function(e){var t=e.attrs.classes;var r=Yr().name;return c["default"]("span.ma2.f7",{class:mr([t,Wa().uiNavbarName])},r)};return e}();var mi=function(){function e(){}e.prototype.view=function(e){var t=e.attrs,r=t.classes,a=t.salutation;var n=ua(),i=n.firstName,o=n.lastName;var u=d["default"].assign({pre:"Welcome, ",showFirstName:true,showLastName:false,post:"!"},a);var l=u.showFirstName,s=u.showLastName,f=u.pre,p=u.post;return c["default"]("span.ma2",{class:mr([r,Wa().uiNavbarSalutation])},""+f+(l?i:"")+(l&&s?" ":"")+(s?o:"")+p)};return e}();var hi=function(){function e(){}e.prototype.view=function(e){var t=e.attrs;var r=t.navList,a=t.saving,n=t.progress,i=t.logout;var o=Yr().auth;return d["default"].map(r,(function(e){var t=""+cr(e);if(e.type===0)return c["default"](".center",{classes:t});else if(e.type===1)return c["default"]("span",{classes:t},"|");else if(e.type===8)return c["default"](ti,{classes:t});else if(e.type===9)return c["default"](di,{classes:t});else if(e.type===10)return c["default"](ci,{saving:a,progress:n,classes:t});else if(e.type===11)return c["default"](fi,{classes:t});else if(e.type===12)return c["default"](pi,{classes:t});else if(e.type===13)return c["default"](pi,{classes:t});else if(e.type===14){return c["default"](mi,{salutation:e.salutation,classes:t})}else if(e.type===2){var r=e.src,u=e.height,l=e.width,s=e.link,d=e.linkToVaultRoot;return c["default"](ri,{src:r,height:u,width:l,classes:t,link:s,linkToVaultRoot:d})}else if(e.type===3){var f=e.text;return c["default"](si,{textContent:f,classes:t})}else if(e.type===4){var f=e.text,p=e.href;return c["default"](ai,{href:p,textContent:f,classes:t})}else if(e.type===5||e.type===7||e.type===6){var m=Fn.DEFAULT;if(e.type===5)m=Fn.DEFAULT;if(e.type===7)m=Fn.LARGE;if(e.type===6)m=Fn.SMALL;return o&&i?c["default"](li,{size:m,classes:t}):null}return br(e)}))};return e}();var vi=function(){function e(){}e.prototype.view=function(e){var t=e.attrs,r=t.type,a=t.saving,n=t.progress,i=t.logout;if(r===An.HEADER){var o=oi(ea().header||[],i);return o.length?c["default"](hi,{saving:a,progress:n,logout:i,navList:o}):null}else if(r===An.FOOTER){var o=oi(ea().footer||[],i);return o.length?c["default"](hi,{saving:a,progress:n,logout:i,navList:o}):null}else if(r===An.SUBHEADER){var o=oi(ea().subheader||[],i);return o.length?c["default"](".flex.items-center.self-center.w-100.flex-shrink-0",{class:mr([Wa().uiSubheader])},c["default"](hi,{saving:a,progress:n,logout:i,navList:o})):null}return null};return e}();var gi=function(){function e(){}e.prototype.view=function(e){var t=e.attrs,r=t.saving,a=t.progress,n=t.fullScreen,i=t.responsiveHeader,o=t.responsiveFooter,u=t.logout,l=u===void 0?true:u,s=t.header,d=t.footer,f=e.children;var p=oi(ea().footer||[],l).length>0;var m=oi(ea().header||[],l).length>0;var h=oi(ea().subheader||[],l).length>0;var v=n?{"max-width":"unset"}:{};return[c["default"](ei),m?c["default"](".flex.items-center.justify-center.z-1",{class:mr([Wa().uiHeaderWrapper])},c["default"]("nav.items-center.self-center.w-100.z-1.h3.flex-shrink-0",{class:mr([Wa().uiHeader,i?"dn flex-l":"flex"]),style:v},s?s:c["default"](vi,{type:An.HEADER,saving:r,progress:a,logout:l}))):null,c["default"]("main.flex-auto.flex.flex-column.self-center.w-100.h-100.overflow-x-hidden",{class:mr([Wa().uiLayout]),style:v},h?c["default"](vi,{type:An.SUBHEADER,saving:r,progress:a,logout:l}):null,f),p?c["default"](".flex.items-center.justify-center.z-1",c["default"]("nav.w-100.items-center.flex-shrink-0",{class:mr([Wa().uiFooter,o?"dn flex-l":"flex"]),style:v},d?d:c["default"](vi,{type:An.FOOTER,saving:r,progress:a,logout:l}))):null]};return e}();var yi=function(){function e(){}e.prototype.view=function(e){var t=e.attrs,r=t.header,a=t.headerClass,n=t.subheader,i=t.subheaderClass,o=t.content,u=t.footer;return[hr(r)?c["default"](".flex.justify-between.items-center.flex-shrink-0",{class:mr([a,Wa().uiPanelHeader])},r):null,hr(n)?c["default"](".flex-shrink-0",{class:mr([Wa().uiPanelSubheader,i])},n):null,o,u]};return e}();var bi=function(){function e(){}e.prototype.view=function(e){var t=e.attrs,r=t.action,a=t.item;var n=r.comp;return c["default"](yi,{header:[ja()?null:c["default"](i.NavButton,{label:a.returnButtonLabel||"Return",icon:a.returnButtonIcon||"fal fa-chevron-left nl2",classes:mr(["dim",Wa().uiPanelHeaderButton]),onclick:Ra})],content:c["default"](".flex-auto.overflow-x-hidden.overflow-y-auto.safari-bug",n?br(n):c["default"]("span.ma3.db.truncate",{class:oa().default.classes.color},"No Component Found"))})};return e}();function wi(e,t,r){return{onmatch:function(r){var a=r.itemGuid;Kr(Jr.comp);return e.initialLoad().then((function(){t.selectItem(a);var e=t.getItem();var r=e.actions||[];var n=_t(r,{type:"comp"});if(n){t.selectAction(n._id)}else{Ea()}}))},render:function(){return c["default"](gi,r,c["default"](bi,{modelList:e.model()(),itemList:e.data(),model:t.getModel(),item:t.getItem(),action:t.getAction()}))}}}function xi(e,t,r){return{onmatch:function(r){var a=r.itemGuid,n=r.actionGuid;Kr(Jr.comp);return e.initialLoad().then((function(){t.selectItem(a);t.selectAction(n)}))},render:function(){return c["default"](gi,r,c["default"](bi,{modelList:e.model()(),itemList:e.data(),model:t.getModel(),item:t.getItem(),action:t.getAction()}))}}}function Ci(e,t){return d["default"].extend({},e,{uiClass:t})}function Ii(e){var t=e.fields;var r=d["default"].map(t,(function(e){return{key:e.id,input:Wr(e.type)===2?Ci(e,{input:"",wrapper:"mb2"}):Ci(e,{input:"pa2",wrapper:"mb2 bb b--black-20"})}}));return qr(r)}function ki(e,t,r){var a=r.fields;d["default"].forEach(a,(function(r){var a=r.id;var n=d["default"].find(e.fields,d["default"].matches({key:a}));if(n){var i=n.type,o=n.value,u=n.files;if(i===1&&o){o(ir(t.props,a))}else if(i===2&&u){u(ar(t.files,a))}}}))}function Li(e){var t=[];var r={};d["default"].forEach(e.fields,(function(e){var a=e.type,n=e.input,i=e.value,o=e.files;if(n&&i){var u=n.id;if(a===1){if(!d["default"].isUndefined(i())){d["default"].set(r,u,i())}}else if(a===2&&o){d["default"].each(o(),(function(e){if(e){t.push([u,e])}}))}}}));return{files:t,props:r}}var Di=function(){function e(){}e.prototype.view=function(e){var t=e.attrs,r=t.icon,a=t.classes;return typeof r==="string"?c["default"]("i.fal.fa-fw.w2.mr2.tc.flex-shrink-0",{class:mr([r,a,Wa().uiIcon])}):c["default"]("img.img.mw2.mr2",{src:r.src,class:mr([r.imageClass,a,Wa().uiIcon]),height:r.height,width:r.width})};return e}();function Pi(e,t){var r=Li(t),a=r.files,n=r.props;var i=[];var o=d["default"].assign({},e,{files:d["default"](a).map((function(t){var r=t[0],a=t[1],n=a.guid,o=a.name,u=a.file;var l=null;if(u){i.push([n,u]);l={_id:n,prop:r,name:o,size:u.size,type:u.type,lastModified:u.lastModified}}var s=_t(e.files,{_id:n});if(s){if(l){d["default"].merge(s,l)}return s}else{return l}})).compact().value(),props:n});return[o,i]}var Ti=function(){function e(){}e.prototype.oninit=function(e){var t=e.attrs,r=t.item,a=t.model;this.form=Ii(a);ki(this.form,r,a)};e.prototype.view=function(e){var t=this;var r=e.attrs,a=r.model,n=r.item,o=r.isNew,u=r.onCancel,l=r.onSave,s=r.onRemove;return c["default"](yi,{header:[c["default"](i.NavButton,{label:"Cancel",classes:mr(["dim",Wa().uiNavButton]),onclick:u}),c["default"](i.NavButton,{label:"Done",classes:mr(["dim",Wa().uiNavButton]),onclick:function(e){e.redraw=false;var r=document.getElementById("item-editor");if(!r.checkValidity()){var a=document.createElement("button");r.appendChild(a);a.click();r.removeChild(a)}else{t.save(n,l)}}})],content:c["default"](".flex-auto.overflow-x-hidden.overflow-y-auto.pa2.safari-bug",{class:mr([Wa().uiItemEditWrapper])},[o?c["default"](".pv2.mb2.flex.flex-row.bb.b--black-20",{class:mr([Wa().uiItemEditHeader])},[c["default"](Di,{classes:mr([Wa().uiItemEditIcon]),icon:a.icon}),c["default"]("span.truncate",{class:mr([Wa().uiItemEditLabel])},"New "+a.label)]):null,c["default"]("form#item-editor.flex.flex-column",{class:mr([Wa().uiItemEditFormWrapper]),onsubmit:function(){t.save(n,l);return false}},[d["default"].map(this.form.fields,Vr),o?null:c["default"](i.Button,{label:"Delete",icon:"fal fa-trash-alt",classes:mr(["self-end mv2",Wa().uiItemEditButton]),onclick:function(){return s(n)}}),c["default"]("input.dn[type=submit]")]),n.post?c["default"]("div",{class:mr([Wa().uiPostContentWrapper])},wr(n.post)):null])})};e.prototype.save=function(e,t){var r=Pi(e,this.form),a=r[0],n=r[1];t(a,n)};return e}();function Wi(e,t,r,a,n){var i;return{onmatch:function(r){var a=r.itemGuid;Kr(Jr.edit);return e.initialLoad().then((function(){t.selectItem(a);if(t.isCategory()){var r=t.getItem();var n=_t(r.content,{ctx:"model"});if(n){t.selectModel(n.val);var o=_t(e.data()(),{modelId:n.val});i=o?o:Wn(t.getModel());return}}Ra()}))},render:function(){return i?c["default"](gi,r,c["default"](Ti,{modelList:e.model()(),itemList:e.data(),model:t.getModel(),item:i,isNew:true,onCancel:Ra,onSave:a,onRemove:n})):null}}}function Bi(e,t,r,a,n){var i;return{onmatch:function(r){var a=r.modelGuid;Kr(Jr.edit);return e.initialLoad().then((function(){t.selectModel(a);i=Wn(t.getModel())}))},render:function(){return i?c["default"](gi,r,c["default"](Ti,{modelList:e.model()(),itemList:e.data(),model:t.getModel(),item:i,isNew:true,onCancel:Ra,onSave:a,onRemove:n})):null}}}function Si(e,t,r,a,n){return{onmatch:function(r){var a=r.itemGuid;Kr(Jr.edit);return e.initialLoad().then((function(){t.selectItem(a);if(t.isReadonly()){Ga(t.getModel(),t.getItem(),{replace:true})}}))},render:function(){return c["default"](gi,r,c["default"](Ti,{modelList:e.model()(),itemList:e.data(),model:t.getModel(),item:t.getItem(),onCancel:Ra,onSave:a,onRemove:n}))}}}var Mi=function(){function e(){this.id=d["default"].uniqueId("search-")}e.prototype.view=function(e){var t=e.attrs,r=t.placeholder,a=t.searchValue;return c["default"]("form.flex.flex-row.items-center.bg-light-gray",{class:mr([Wa().uiSearchBoxWrapper]),onsubmit:function(){return false}},c["default"]("label.fal.fa-fw.fa-search.w2.pv2.pl2.tc.pointer",{class:mr([Wa().uiSearchBoxIcon,Wa().uiIcon]),for:this.id}),c["default"](i.BaseInput,{field:{id:this.id,label:"",type:"search",uiClass:{wrapper:"pa0 bn flex-auto",input:Wa().uiSearchBoxInput},placeholder:r,instant:true},value:a}),a()?c["default"]("i.fal.fa-fw.fa-times.pa2.tc.pointer.dim",{class:mr([Wa().uiSearchBoxClearIcon]),title:"Reset Search",onclick:function(){return a("")}}):null)};return e}();var Ni=function(){function e(){}e.prototype.view=function(e){var t=e.attrs;var r=t.model,a=t.item;var n=r.icon;return c["default"](".flex-shrink-0",{class:mr([Wa().uiItemRowWrapper])},[c["default"]("div.justify-between",{class:mr([Wa().uiItemRowInnerWrapper]),onclick:function(){return Ga(r,a)}},[c["default"]("div",{class:mr([Wa().uiItemRowHeaderWrapper])},[n?typeof n==="string"?c["default"]("div",{icon:n}):c["default"]("img",{src:n.src,height:n.height,width:n.width}):null,c["default"]("div",{class:mr([Wa().uiItemHeading])},this.heading(t)),this.subheading?c["default"]("div",{class:mr([Wa().uiItemSubheading])},this.subheading(t)):null]),c["default"]("div",{class:mr([Wa().uiItemButtonsWrapper])},c["default"]("div",{class:mr([Wa().uiItemButtonsInnerWrapper])},this.buttons(t)))])])};e.prototype.heading=function(e){var t=e.model,r=e.item;return c["default"]("span.ws-normal.mb1",Jt(r,t.heading,t.category))};e.prototype.subheading=function(e){var t=e.model,r=e.item;var a=Jt(r,t.subheading,t.category);return a?c["default"]("span.f6.ws-normal.silver.ma1",a):null};e.prototype.buttons=function(e){var t=e.item,r=e.model;return d["default"].isArray(r.action)?d["default"].map(r.action,(function(e){return c["default"](i.Button,{label:e.label,classes:e.classes+" "+Wa().uiItemActionButton,icon:e.icon,onclick:function(r){r.stopPropagation();qa(t,e.action)}})})):null};return e}();var Hi=function(){function e(){this.itemCount=f["default"]()}e.prototype.oninit=function(e){var t=e.attrs,r=t.item,a=t.itemList;var n=r,i=n.content,o=n.countContent,u=o===void 0?i:o,l=n.contentAll;this.itemCount=a.map((function(e){return jt(e,u,l).length}))};e.prototype.view=function(e){var t=e.attrs,r=t.model,a=t.item;var n=a,i=n.label,o=n.icon,u=n.type;return c["default"](".flex.items-center.justify-between.ma2.pv2.bb.b--black-20.dim.pointer",{class:mr([Wa().uiCategoryItemWrapper]),onclick:function(){return Ga(r,a)}},[c["default"](".flex.items-center.mr2.truncate",[c["default"](Di,{classes:mr([Wa().uiCategoryItemIcon]),icon:o}),c["default"]("span",{class:mr([Wa().uiCategoryItemLabel])},i)]),this.itemCount()?c["default"](".silver.flex-shrink-0",[u==="single"?c["default"]("i.fal.fa-check",{class:mr([oa().default.color,Wa().uiCategoryItemMarker])}):c["default"]("span",{class:mr([oa().default.color,Wa().uiCategoryItemMarker])},this.itemCount()),c["default"]("i.fal.fa-fw.fa-chevron-right.mh2.flex-shrink-0",{class:mr([oa().default.color,Wa().uiCategoryItemArrow])})]):null])};return e}();var _i=this&&this.__extends||function(){var e=function(t,r){e=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var r in t)if(Object.prototype.hasOwnProperty.call(t,r))e[r]=t[r]};return e(t,r)};return function(t,r){e(t,r);function a(){this.constructor=t}t.prototype=r===null?Object.create(r):(a.prototype=r.prototype,new a)}}();var Ai=function(e){_i(t,e);function t(){return e!==null&&e.apply(this,arguments)||this}t.prototype.subheading=function(t){var r=this;var a=t.item,n=t.model;return[e.prototype.subheading.call(this,t),d["default"].map(a.files,(function(e){return r.fileProperties(e,n)}))]};t.prototype.buttons=function(t){var r=t.item;var a=r.actions||[];return[d["default"].map(a,(function(e){var t=e._id,a=e.type,n=e.label;return c["default"](i.Button,{label:n,classes:Wa().uiItemActionButton,onclick:function(e){e.stopPropagation();qa(r,a,t)}})})),e.prototype.buttons.call(this,t)]};t.prototype.fileProperties=function(e,t){var r=t.fileHeading;return d["default"].map(r,(function(t){var r=t.prop,a=t.classes;return c["default"]("span.ma1",{class:a},rr(e,r))}))};return t}(Ni);var Fi=this&&this.__extends||function(){var e=function(t,r){e=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var r in t)if(Object.prototype.hasOwnProperty.call(t,r))e[r]=t[r]};return e(t,r)};return function(t,r){e(t,r);function a(){this.constructor=t}t.prototype=r===null?Object.create(r):(a.prototype=r.prototype,new a)}}();var Ei=function(e){Fi(t,e);function t(){return e!==null&&e.apply(this,arguments)||this}t.prototype.subheading=function(t){var r=t.model,a=t.item;var n=r.links||[];return[e.prototype.subheading.call(this,t),d["default"].map(n,(function(e){var t=a.props;var n=_t(r.fields,{id:e});var o=t[e];if(n&&o){var u=(n?n.type:null)||"url";var l=i.linkAttrs(u,o).href;return c["default"](".ma1.w-100.measure-narrow-l",{onclick:function(e){return e.stopPropagation()}},c["default"](i.ButtonLink,{label:o,href:l,icon:i.iconMap[u],classes:"db tc truncate"}))}else{return null}}))]};return t}(Ni);var Ri;var Ui=(Ri={},Ri["category"]=Hi,Ri["link"]=Ei,Ri["file"]=Ai,Ri);function Oi(e){var t=e.listType;if(Ui.hasOwnProperty(t)){return Ui[t]}else{return Ni}}function ji(e,t,r){var a=typeof r==="string"?{type:r}:r;switch(a.type){case"heading":return e.map((function(e){return d["default"].sortBy(e,(function(e){var r=t[e.modelId];return r?Jt(e,r.heading,r.category):""}))}));case"props":{var n=a.props,i=n===void 0?[]:n,o=a.desc;return e.map((function(e){var r=d["default"].sortBy(e,(function(e){var r=t[e.modelId];return Jt(e,i,r.category)}));return o?d["default"].reverse(r):r}))}case"ordinal":{var u=a.desc;return e.map((function(e){var t=d["default"].sortBy(e,["ordinal"]);return u?d["default"].reverse(t):t}))}default:return e}}function zi(e){return d["default"].map(d["default"].sortBy(d["default"].keys(e)),(function(t){return{label:t,itemList:e[t]}}))}function qi(e,t,r){switch(r.type){case"model":return e.map((function(e){var r=d["default"].groupBy(e,"modelId");var a=d["default"].sortBy(d["default"].keys(r));return d["default"].map(a,(function(e){var a=t[e];return{label:a?a.label:"Unknown Model",itemList:r[e]}}))}));case"rolodex":return e.map((function(e){return zi(d["default"].groupBy(e,(function(e){var r=t[e.modelId];return r?d["default"].head(String(Jt(e,r.heading,r.category))):"N/A"})))}));case"tags":{var a=r.ctx;return e.map((function(e){return zi(d["default"].groupBy(e,(function(e){var t=e.tags;var r=_t(t,{ctx:a});return r?r.val:"N/A"})))}))}default:return e.map((function(e){return[{label:false,itemList:e}]}))}}var Gi=function(){function e(){this.taggedItemList=f["default"]([]);this.modelMap={};this.filteredItems=f["default"]();this.itemGroups=f["default"]();this.listModels=false;this.createModels=[];this.searchValue=f["default"]("");this.filter=f["default"]();this.minimizeAccordion=f["default"]();this.hideView=false}e.prototype.oninit=function(e){var t=this;var r=e.attrs,a=r.item,n=a.contentAll,i=a.content,o=a.sort,u=o===void 0?"none":o,l=a.group,s=l===void 0?{type:"none"}:l,c=a.accordionMinimized,p=r.modelList,m=r.itemList;if(!d["default"].isArray(i)){return}typeof c==="boolean"?this.minimizeAccordion(c):this.minimizeAccordion(true);this.modelMap=d["default"].keyBy(p,"_id");this.createModels=d["default"](i).filter({ctx:"model"}).map((function(e){var t=e.val;return At(p,t)})).compact().filter((function(e){var t=e.readonly;return!t})).value();this.taggedItemList=m.map((function(e){return jt(e,i,n)}));if(this.taggedItemList().length===1&&this.taggedItemList()[0].hideCategoryView){var h=this.taggedItemList()[0];Ga(this.modelMap[h.modelId],this.taggedItemList()[0]);this.hideView=true}var v=ji(this.taggedItemList,this.modelMap,u);this.filter=this.searchValue.map((function(e){return new RegExp(e,"i")}));this.filteredItems=f["default"].lift((function(e,r){return d["default"].filter(e,(function(e){var a=t.modelMap[e.modelId];return a?r.test(String(Jt(e,a.search,a.category))):false}))}),v,this.filter);this.itemGroups=qi(this.filteredItems,this.modelMap,s)};e.prototype.view=function(e){var t=this;var r=e.attrs.item,a=r.label,n=r.search,o=n===void 0?true:n,u=r.pre,l=r.post,s=r.returnButtonLabel,f=r.returnButtonIcon,p=r.accordion,m=r.title;return this.hideView?null:c["default"](yi,{header:[ja()?null:c["default"](i.NavButton,{label:s||"Return",icon:f||"fal fa-chevron-left nl2",classes:mr(["dim",Wa().uiPanelHeaderButton]),onclick:Ra}),this.createModels.length?this.listModels?c["default"](i.NavButton,{icon:"fal fa-chevron-up nl2",title:"Cancel",classes:mr(["dim",Wa().uiNavButton]),onclick:function(){return t.listModels=false}}):c["default"](i.NavButton,{icon:"fal fa-plus nl2",title:"Create New...",classes:mr(["dim",Wa().uiNavButton]),onclick:function(){return t.createNew()}}):null],subheader:[this.listModels?d["default"].map(this.createModels,(function(e){return c["default"](".ma2.pv2.bb.b--black-20.dim.pointer",{onclick:function(){return Ya(e)}},c["default"](".mr2.truncate",[c["default"](Di,{icon:e.icon}),c["default"]("span","New "+e.label)]))})):null,o?c["default"](Mi,{placeholder:"Search "+a,searchValue:this.searchValue}):null],content:c["default"](".safari-bug",{class:this.contentWrapperClass()},[u?c["default"]("div",{class:mr([Wa().uiPreContentWrapper])},wr(u)):null,this.viewDataCard(e),p?c["default"](".items-center.center-flex",{class:mr([Wa().uiItemListAccordionTitleWrapper])},c["default"](".flex.pointer",{class:mr([Wa().uiItemListAccordionIcon]),onclick:function(){return t.minimizeAccordion(!t.minimizeAccordion())}},c["default"]("div",{class:mr([Wa().uiItemListTitleIcon,this.minimizeAccordion()?"far fa-plus-square mr2":"far fa-minus-square mr2"])}),c["default"]("div",{class:mr([oa().default.color,Wa().uiItemListTitle])},m?m:"")),c["default"]("div",{class:mr([Wa().uiItemListAccordionWrapper]),style:{transition:"height 0.5s ease 0.1s",overflow:"hidden",height:this.minimizeAccordion()?"0px":"100%"}},this.viewContent(e))):m?c["default"]("div",{class:mr([oa().default.color,Wa().uiItemListTitle])},m):null,p?null:this.viewContent(e),l?c["default"]("div",{class:mr([Wa().uiPostContentWrapper])},wr(l)):null])})};e.prototype.contentWrapperClass=function(){return Wa().uiItemListContainer};e.prototype.viewDataCard=function(e){var t=e.attrs.item.dataCard;var r=t?this.modelMap["dataCard"]:null;var a=r&&t?d["default"].filter(r.config,(function(e){return e._id===t.modelId}))[0]:null;return t&&a&&t.dataMap&&Object.keys(t.dataMap).length!==0?br({type:"sdx-dataCard",data:{pre:t.pre,post:t.post,header:t.header,context:t.context,buttonContext:t.buttonContext,categoryLabel:t.categoryLabel,button:t.button,displayType:t.displayType,dataMap:t.dataMap,config:a}}):null};e.prototype.viewContent=function(e){var t=this;var r=e.attrs,a=r.item.label,n=r.modelList,i=r.itemList;return this.taggedItemList().length?this.filteredItems().length?d["default"].map(this.itemGroups(),(function(e){var r=e.label,a=e.itemList;return[r?c["default"]("h4.mh2.mv3.silver",{class:mr([Wa().uiItemListGroupLabel])},r):null,d["default"].map(a,(function(e){var r=t.modelMap[e.modelId];return c["default"](Oi(r),{key:e._id,modelList:n,itemList:i,item:e,model:r})}))]})):c["default"]("span.ma3.db.truncate",{class:oa().default.classes.color},"No matching "+a):c["default"]("span.ma3.db.truncate",{class:oa().default.classes.color},"Use this section to store "+a)};e.prototype.createNew=function(){if(this.createModels.length===1){Ya(this.createModels[0])}else{this.listModels=true}};return e}();var Vi=function(){function e(){var e=this;this.isCategory=false;this.itemCount=f["default"](0);this.headerScale=f["default"](1);this.setHeaderScale=function(){if(e.headerSpan){var t=e.headerSpan.offsetHeight/e.headerSpan.scrollHeight;if(e.headerScale()!==t){e.headerScale(t);c["default"].redraw()}}}}e.prototype.oninit=function(e){var t=e.attrs,r=t.model.category,a=r===void 0?false:r,n=t.item,i=t.itemList;this.isCategory=a;if(this.isCategory){var o=n,u=o.content,l=o.countContent,s=l===void 0?u:l,d=o.contentAll;this.itemCount=i.map((function(e){return jt(e,s,d).length}))}};e.prototype.oncreate=function(e){var t;this.headerSpan=(t=e.dom.firstChild)===null||t===void 0?void 0:t.firstChild;this.setHeaderScale();window.addEventListener("resize",this.setHeaderScale);this.selectHandler=function(t){if(["Enter"," "].includes(t.key)&&document.activeElement===e.dom){Ga(e.attrs.model,e.attrs.item)}};window.addEventListener("keyup",this.selectHandler)};e.prototype.onremove=function(){window.removeEventListener("resize",this.setHeaderScale);if(this.selectHandler){window.removeEventListener("keyup",this.selectHandler)}};e.prototype.view=function(e){var t=e.attrs,r=t.model,a=t.item;var n=a.cardContext||a.context||"alt";var i=this.isCategory?a.label:Jt(a,r.heading,r.category);var o=this.isCategory?a.subheading:Jt(a,r.subheading,r.category);var u=this.isCategory?a.subheadingIcon:null;var l=this.isCategory?a.icon:r.icon;return c["default"]("div.relative.pa2.ma3.f7.f6-ns.f5-l.pointer.flex-shrink-0",{tabIndex:0,ariaLabel:i,title:i,style:a.style,class:mr([Wa().uiCardWrapper,oa().getContextClasses(n)]),onclick:function(){return Ga(r,a)}},[c["default"](".flex.flex-column.items-center.h-100.w-100.overflow-hidden",{class:mr([Wa().uiCardContentWrapper])},c["default"]("span.flex-shrink-0",{class:mr([Wa().uiCardHeader]),style:{maxHeight:typeof l==="string"?"43%":"13%",transformOrigin:"top",transform:"scale("+this.headerScale()+")"}},i),typeof l==="string"?c["default"]("i.flex-shrink-0",{class:mr([Wa().uiCardIcon,l])}):c["default"]("img",{src:l.src,class:mr([Wa().uiCardImage,l.imageClass]),height:l.height,width:l.width}),o?c["default"](".flex-shrink-0",{class:mr([Wa().uiCardSubheading])},c["default"]("span",o),u?c["default"]("i.mh2",{class:u}):null):null),this.itemCount()?c["default"]("span.absolute.tc.f5",{class:mr([Wa().uiCardCounter]),style:{"min-width":"0.65rem"}},this.itemCount()):null])};return e}();var Yi=this&&this.__extends||function(){var e=function(t,r){e=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var r in t)if(Object.prototype.hasOwnProperty.call(t,r))e[r]=t[r]};return e(t,r)};return function(t,r){e(t,r);function a(){this.constructor=t}t.prototype=r===null?Object.create(r):(a.prototype=r.prototype,new a)}}();var Qi=function(e){Yi(t,e);function t(){return e!==null&&e.apply(this,arguments)||this}t.prototype.contentWrapperClass=function(){return Wa().uiItemGridContainer};t.prototype.viewContent=function(e){var t=this;var r=e.attrs,a=r.item.label,n=r.modelList,i=r.itemList;return this.taggedItemList().length?this.filteredItems().length?d["default"].map(this.itemGroups(),(function(e){var r=e.label,a=e.itemList;return[r?c["default"]("h4.mh2.mv3.silver",r):null,c["default"]("div",{class:mr([Wa().uiCardGroup])},d["default"].map(a,(function(e){var r=t.modelMap[e.modelId];return c["default"](Vi,{key:e._id,modelList:n,itemList:i,item:e,model:r})})))]})):c["default"]("span.ma3.db.truncate",{class:oa().default.classes.color},"No matching "+a):c["default"]("span.ma3.db.truncate",{class:oa().default.classes.color},"Use this section to store "+a)};return t}(Gi);function Zi(e){return function(t){var r=t.target.files;var a=e();d["default"].each(r,(function(e){a.push({file:e,_id:i.guid(),prop:"tableUpload",name:e.name,size:e.size,type:e.type,lastModified:e.lastModified})}));e(a)}}function Xi(e,t){return function(){var r=e();Rt(r,{_id:t});e(r)}}function Ji(e,t){return function(r){var a=r.target.value;var n=e();var o=d["default"].findIndex(n,{_id:t});if(o===-1){return}var u=n[o];var l=i.fileNameExtSplit(u.name)[1];u.name=a+l;n.splice(o,1,u);e(n)}}var $i=function(){function e(){this.fileList=f["default"]([])}e.prototype.view=function(e){var t=this;var r=e.attrs,a=r.numCols,n=r.onUpload;var o=this.fileList().length;var u=a-3;return[o?c["default"]("tr.f5.tl",{class:mr([Wa().uiIcon])},c["default"]("td.pa2",{colspan:a},[c["default"]("i.fad.fa-fw.fa-list-ol.mr2"),"Outbox"])):null,o?c["default"]("tr.tl.fw4",{class:mr([Wa().uiTableHeader])},[c["default"]("td.w2.pa1.bb.b--black-10.tc",c["default"]("i.fal.fa-fw.fa-trash-alt.w2")),c["default"]("td.pa1.bb.b--black-10",{colspan:u},"Document"),c["default"]("td.pa1.bb.b--black-10.dn.dtc-l.tc",c["default"]("i.fal.fa-fw.fa-file.w2")),c["default"]("td.pa1.bb.b--black-10.dn.dtc-l","Size")]):null,d["default"].map(this.fileList(),(function(e){return c["default"]("tr",[c["default"]("td.w2.ph1.pv2.bb.b--black-10.tc.dim.pointer",{onclick:Xi(t.fileList,e._id)},c["default"]("i.fal.fa-trash-alt.w2")),c["default"]("td.bb.b--black-10",{colspan:u},c["default"]("input.input-reset.w-100.pl2.pv1.fw2.ba.b--black-10.br2.border-box.dark-gray.bg-washed-yellow[type=text]",{value:i.fileNameExtSplit(e.name)[0],onchange:Ji(t.fileList,e._id)})),c["default"]("td.ph1.pv2.bb.b--black-10.dn.dtc-l.tc",rr(e,"type")),c["default"]("td.ph1.pv2.bb.b--black-10.dn.dtc-l",rr(e,"size"))])})),c["default"]("tr",c["default"]("td.pv3",{colspan:a},c["default"]("label.flex.flex-column.pointer[for=upload]",[c["default"]("input#upload.clip[type=file][multiple=true]",{onchange:Zi(this.fileList)}),c["default"](".pa3.f3.ba.b--dashed.br2",{class:"b--light-silver silver"},[c["default"]("i.fal.fa-file-upload.mr2"),c["default"]("span","Upload Document")])]))),o?c["default"]("tr",c["default"]("td",{colspan:a},c["default"](i.Button,{label:"Upload",icon:"fal fa-upload",classes:"w-100 pa3 br3 f4",onclick:function(){return n(t.fileList()).then((function(){t.fileList([]);c["default"].redraw()}))}}))):null]};return e}();var Ki=function(){function e(){}e.prototype.oncreate=function(e){this.selectHandler=function(t){if(["Enter"," "].includes(t.key)&&document.activeElement===e.dom){Ga(e.attrs.model,e.attrs.item)}};window.addEventListener("keyup",this.selectHandler)};e.prototype.onremove=function(){if(this.selectHandler){window.removeEventListener("keyup",this.selectHandler)}};e.prototype.view=function(e){var t=e.attrs,r=t.item,a=t.model,n=t.file;return c["default"]("tr.pointer",{class:mr([Wa().uiTableItemRow,Wa().uiTableRow]),ariaLabel:r.props.title,tabIndex:0,onclick:function(){return Ga(a,r)}},[c["default"]("td.f7.ph1.pv2.bb.b--black-10.tc",{class:mr([Wa().uiItemTableIcon,Wa().uiIcon])},r.props.viewed?null:c["default"]("i.fas.fa-circle")),c["default"]("td.w4-ns.ph1.pv2.bb.b--black-10",{class:mr([Wa().uiTableItemDate])},Zt(r.props.date)),c["default"]("td.w3-ns.ph1.pv2.bb.b--black-10",{class:mr([Wa().uiTableItemTime])},Xt(r.props.date)),c["default"]("td.ph1.pv2.bb.b--black-10.w-100.mw1.truncate",{class:mr([Wa().uiTableItemTitle])},r.props.title),c["default"]("td.ph1.pv2.bb.b--black-10.dn.dtc-l.tc",{class:mr([Wa().uiTableItemType])},rr(n,"type")),c["default"]("td.ph1.pv2.bb.b--black-10.dn.dtc-l",{class:mr([Wa().uiTableItemSize])},rr(n,"size"))])};return e}();var eo=this&&this.__extends||function(){var e=function(t,r){e=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var r in t)if(Object.prototype.hasOwnProperty.call(t,r))e[r]=t[r]};return e(t,r)};return function(t,r){e(t,r);function a(){this.constructor=t}t.prototype=r===null?Object.create(r):(a.prototype=r.prototype,new a)}}();var to=[{key:"office",label:"Documents Received",direction:"Received",icon:"fad fa-inbox-in"},{key:"customer",label:"Documents Uploaded",direction:"Sent",icon:"fad fa-inbox-out"}];var ro=function(e){eo(t,e);function t(){return e!==null&&e.apply(this,arguments)||this}t.prototype.contentWrapperClass=function(){return Wa().uiItemTableContainer};t.prototype.viewContent=function(e){var t=e.attrs,r=t.item,a=r.label,n=r.groupConf,i=n===void 0?to:n,o=t.onUpload;var u=this.modelMap.documents;if(!u){return c["default"]("span.ma3.db.truncate",{class:oa().default.classes.color},"No Document Model")}var l=6;var s=this.itemGroups();return c["default"]("table.w-100.f5.f4-ns[cellspacing=0]",{class:mr([Wa().uiTable])},this.taggedItemList().length?this.filteredItems().length?d["default"].map(i,(function(e){var t=e.key,r=e.label,a=e.direction,n=e.icon;var i=_t(s,{label:t});var o=i?i.itemList:[];return o.length?[r?c["default"]("tr.f5.tl",{class:mr([Wa().uiItemTableInfo])},c["default"]("td.pa2",{colspan:l},[c["default"]("i.fa-fw.mr2",{class:mr([Wa().uiIcon,Wa().uiItemTableInfoIcon,n])}),r])):null,c["default"]("tr.tl.fw4",{class:mr([Wa().uiTableHeader,Wa().uiItemTableHeader])},[c["default"]("td.w2.pa1.f7.bb.b--black-10.tc",{class:mr([Wa().uiTableHeader,Wa().uiItemTableHeaderMarker])},c["default"]("i.fal.fa-fw.fa-circle")),c["default"]("td.pa1.bb.b--black-10[colspan=2]",{class:mr([Wa().uiTableHeader,Wa().uiItemTableHeaderDate])},"Date "+a),c["default"]("td.pa1.bb.b--black-10",{class:mr([Wa().uiTableHeader,Wa().uiItemTableHeaderDocumentName])},"Document Name"),c["default"]("td.w2.pa1.bb.b--black-10.dn.dtc-l.tc",{class:mr([Wa().uiTableHeader,Wa().uiItemTableHeaderIcon])},c["default"]("i.fal.fa-fw.fa-file")),c["default"]("td.pa1.bb.b--black-10.dn.dtc-l",{class:mr([Wa().uiTableHeader,Wa().uiItemTableHeaderSize])},"Size")]),d["default"].map(o,(function(e){return d["default"].map(e.files,(function(t){return c["default"](Ki,{item:e,model:u,file:t})}))}))]:null})):c["default"]("tr.f4.truncate",c["default"]("td.pa3",{class:oa().default.classes.color,colspan:l},"No matching "+a)):c["default"]("tr.f4.truncate",c["default"]("td.pa3",{class:oa().default.classes.color,colspan:l},"No content in "+a)),o?c["default"]($i,{numCols:l,onUpload:o}):null)};return t}(Gi);var ao=this&&this.__extends||function(){var e=function(t,r){e=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var r in t)if(Object.prototype.hasOwnProperty.call(t,r))e[r]=t[r]};return e(t,r)};return function(t,r){e(t,r);function a(){this.constructor=t}t.prototype=r===null?Object.create(r):(a.prototype=r.prototype,new a)}}();var no=function(e){ao(t,e);function t(){return e!==null&&e.apply(this,arguments)||this}t.prototype.contentWrapperClass=function(){return Wa().uiItemGridContainer};t.prototype.viewDataCard=function(){return null};t.prototype.viewContent=function(e){var t=this;var r=e.attrs.item,a=r.label,n=r.dataCard;var i=n?this.modelMap["dataCard"]:null;var o=i&&n?At(i.config,n.modelId):null;return this.taggedItemList().length?this.filteredItems().length?d["default"].map(this.itemGroups(),(function(e){var r=e.label,a=e.itemList;return[r?c["default"]("h4.mh2.mv3.silver",r):null,c["default"]("div",{class:mr([Wa().uiDataCardGridWrapper])},d["default"].map(a,(function(e){var r,a,u,l,s,d,c,f;var p=t.modelMap[e.modelId];if(i&&n){return br({type:"sdx-dataCard",data:{applyTheme:(r=e.dataCard)===null||r===void 0?void 0:r.applyTheme,pre:n.pre||((a=e.dataCard)===null||a===void 0?void 0:a.pre),post:n.post||((u=e.dataCard)===null||u===void 0?void 0:u.post),header:(l=e.dataCard)===null||l===void 0?void 0:l.header,categoryLabel:(s=e.dataCard)===null||s===void 0?void 0:s.categoryLabel,button:n.button,displayType:n.displayType||"overview",context:(d=e===null||e===void 0?void 0:e.dataCard)===null||d===void 0?void 0:d.context,buttonContext:(c=e===null||e===void 0?void 0:e.dataCard)===null||c===void 0?void 0:c.buttonContext,dataMap:(f=e===null||e===void 0?void 0:e.dataCard)===null||f===void 0?void 0:f.dataMap,config:o,onclick:function(){Ga(p,e)}}})}return null})))]})):c["default"]("span.ma3.db.truncate",{class:oa().default.classes.color},"No matching "+a):c["default"]("span.ma3.db.truncate",{class:oa().default.classes.color},"Use this section to store "+a)};return t}(Gi);function io(e){switch(e){case"grid":return Qi;case"table":return ro;case"dataCard":return no;default:return Gi}}function oo(e,t,r,a){return{onmatch:function(r){var a=r.itemGuid;a==="root"?Kr(Jr.root):Kr(Jr.list);return e.initialLoad().then((function(){return t.selectItem(a)}))},render:function(){if(t.isCategory()){var n=t.getItem();var i=io(n.type);return c["default"](gi,r,c["default"](i,{key:n._id,modelList:e.model()(),itemList:e.data(),item:n,onUpload:a}))}else{return null}}}}var uo,lo;var so=(uo={},uo["label"]=i.BaseText,uo["trusted"]=i.Trusted,uo["text"]=i.BaseText,uo["search"]=i.BaseText,uo["date"]=i.BaseText,uo["number"]=i.BaseText,uo["range"]=i.BaseText,uo["color"]=i.BaseText,uo["email"]=i.Link,uo["tel"]=i.Link,uo["url"]=i.Link,uo["textarea"]=i.BaseText,uo["checkbox"]=i.Checkbox,uo["select"]=i.SelectText,uo["radio"]=i.SelectText,uo);var co=(lo={},lo["fileMulti"]=i.FileList,lo["file"]=i.FileList,lo["imageMulti"]=i.ImageList,lo["image"]=i.ImagePreview,lo["sign"]=i.ImagePreview,lo);function fo(e,t){var r=e.files,a=e.props;var n=t.fields;return d["default"](n).map((function(e){var t=e.type,n=t===void 0?"text":t;if(so.hasOwnProperty(n)){return{component:so[n],attrs:{field:e,value:or(a,e)}}}else if(co.hasOwnProperty(n)){return{component:co[n],attrs:{field:e,value:nr(r,e)}}}else{return null}})).compact().value()}var po=function(){function e(){this.widgetList=[]}e.prototype.oninit=function(e){var t=e.attrs,r=t.item,a=t.model;this.widgetList=fo(r,a)};e.prototype.view=function(e){var t=e.attrs,r=t.model,a=t.item,n=t.readonly,o=t.onReturn,u=t.onEdit;return c["default"](yi,{header:[c["default"](i.NavButton,{label:r.label,icon:"fal fa-chevron-left nl2",classes:mr(["dim",Wa().uiNavButton]),onclick:o}),n?null:c["default"](i.NavButton,{label:"Edit",classes:mr(["dim",Wa().uiNavButton]),onclick:u})],content:c["default"](".flex-auto.overflow-x-hidden.overflow-y-auto.pa2.safari-bug",{class:mr([Wa().uiItemViewWrapper])},[c["default"](".pv2.flex.flex-row.bb.b--black-20",{class:mr([Wa().uiItemViewRowWrapper])},[c["default"](Di,{classes:Wa().uiItemViewIcon,icon:r.icon}),c["default"]("span.truncate",{class:mr([Wa().uiItemViewField])},Jt(a,r.heading,r.category))]),d["default"].map(this.widgetList,(function(e){var t=e.component,r=e.attrs;return c["default"](t,r)})),a.post?c["default"]("div",{class:mr([Wa().uiPostContentWrapper])},wr(a.post)):null])})};return e}();function mo(e,t,r){return{onmatch:function(r){var a=r.itemGuid;Kr(Jr.view);return e.initialLoad().then((function(){return t.selectItem(a)}))},render:function(){return c["default"](gi,r,c["default"](po,{modelList:e.model()(),itemList:e.data(),model:t.getModel(),item:t.getItem(),readonly:t.isReadonly(),onReturn:Ra,onEdit:function(){return Va(t.getItem())}}))}}}function ho(e,t){var r=t.x1,a=t.x2,n=t.y1,i=t.y2;return d["default"].extend({},e,{uiClass:{wrapper:"ma0 pa0 bn",merge:false},heightPct:100*(i-n)/(a-r)})}function vo(e){var t=d["default"].map(e,(function(e){var t=e._id,r=e.field,a=e.fileValue,n=e.computed,i=e.page,o=e.rect,u=e.preText,l=e.postText;return{key:t,input:r.type==="sign"?ho(r,o):r,fileValue:a,computed:n,data:{page:i,rect:o,preText:u,postText:l}}}));return qr(t)}function go(e){var t=e.fields;return d["default"].reduce(t,(function(e,t){var r=t.key,a=t.type,n=t.value,i=t.files;if(a===1&&n){e[r]=n()}else if(a===2&&i){var o=d["default"].head(i());if(o&&o.file){e[r]=o.dataUrl;e[r+"-ts"]=new Date(o.file.lastModified).toISOString()}}return e}),{})}var yo=function(){function e(){}e.prototype.view=function(e){var t=e.attrs,r=t.overlay,a=t.height,n=t.scalar;return c["default"](".relative.doc-overlay",d["default"].map(r,(function(e){if(!e.data||!e.input){return null}var t=e.input,r=e.data.rect,i=r.x1,o=r.y1,u=r.x2,l=r.y2;var s=zt(t);var f=e.type===1;return c["default"](".absolute",{style:d["default"].extend({left:i*n+"px",top:a-l*n+"px"},f?{width:u-i+"px",height:l-o+"px","font-size":(l-o)*.52+"px",transform:"scale("+n+")","transform-origin":"top left"}:{width:(u-i)*n+"px",height:(l-o)*n+"px"})},Vr(e,{label:"",readonly:true,uiClass:{wrapper:"pa0 ma0 bn h-100 w-100",inputWrapper:"h-100 w-100",input:"fw2 h-100 w-100 "+(s?Wa().uiPdfFieldOverlay:"arrow"),merge:false}}))})))};return e}();var bo=function(){function e(){this.rendering=false}e.prototype.oncreate=function(e){var t=e.dom,r=e.attrs,a=r.page,n=r.viewport;this.renderPage(a,t,n)};e.prototype.onbeforeupdate=function(e,t){var r=e.attrs.viewport.height;var a=t.attrs.viewport.height;return r!==a};e.prototype.onupdate=function(e){var t=e.dom,r=e.attrs,a=r.page,n=r.viewport;this.renderPage(a,t,n)};e.prototype.view=function(){return c["default"]("canvas.w-100.h-100")};e.prototype.onbeforeremove=function(){if(this.rendering&&this.renderTask){this.renderTask.cancel()}};e.prototype.renderPage=function(e,t,r){var a=this;var n=t.getContext("2d");if(n&&!this.rendering){t.width=r.width;t.height=r.height;this.rendering=true;this.renderTask=e.render({canvasContext:n,viewport:r});this.renderTask.promise.then((function(){a.rendering=false}))}};return e}();var wo=function(){function e(){this.pageBuffer=[];this.pageBufferSize=Nt()?2:3;this.scrollPct=0;this.containerWidth=0;this.containerHeight=0;this.pageHeight=1;this.leftMargin=0;this.scalar=1}e.prototype.oncreate=function(e){var t=this;var r=e.dom,a=e.attrs,n=a.pdf,i=a.overlayForm,o=a.scale,u=a.jumpTo,l=a.zoom;var s=r;this.onResize=Ha.map((function(){t.containerWidth=s.clientWidth;t.containerHeight=s.clientHeight;d["default"].delay((function(){s.scrollTop=t.scrollPct*(n.numPages*t.pageHeight)}),32)}));this.scrollHandler=d["default"].throttle((function(e){t.scroll(n,i,e)}),333,{leading:false});this.pageBufferSize=Math.min(this.pageBufferSize,n.numPages);this.getPage(n,i,1).then((function(e){t.firstPage=e;t.applyScaling(o,l)})).then((function(){return t.scroll(n,i,0)}));u===null||u===void 0?void 0:u.map((function(e){var r;if(e&&e.input&&((r=e.data)===null||r===void 0?void 0:r.page)){var a=e.input.id,o=e.data.page;var u=(o-1)*t.pageHeight;t.scroll(n,i,u);t.jumpDelay=d["default"].delay((function(){var e=document.getElementById(a);if(e){if(Ht()){e.scrollIntoView({block:"end",inline:"center"});s.scrollTop+=15}else{e.scrollIntoView({block:"center"})}}else{s.scrollTop=u}}),125)}}))};e.prototype.onremove=function(){this.onResize.end(true);this.scrollHandler.cancel();if(this.jumpDelay){clearTimeout(this.jumpDelay)}};e.prototype.onbeforeupdate=function(e){var t=e.attrs,r=t.scale,a=t.zoom;this.applyScaling(r,a)};e.prototype.view=function(e){var t=this;var r=e.attrs,a=r.pdf,n=r.onSelect;return c["default"](".flex-auto.overflow-x-auto.overflow-y-scroll.bg-gray.safari-bug",{onclick:function(e){var t=e.target;if(t&&t.id){n(t.id)}},onscroll:function(e){e.redraw=false;if(e.target&&t.scrollHandler){t.scrollHandler(e.target.scrollTop)}}},c["default"](".relative",{style:{height:a.numPages*this.pageHeight+"px"}},d["default"].map(this.pageBuffer,(function(e){var r=e.page,a=e.overlay;var n=r.getViewport({scale:t.scalar});return c["default"](".absolute.bg-near-white.shadow-5",{key:r.pageNumber,style:{width:n.width+"px",height:n.height+"px",transform:"translate("+t.leftMargin+"px, "+(r.pageNumber-1)*t.pageHeight+"px)"}},[c["default"](yo,{overlay:a,height:n.height,scalar:t.scalar}),c["default"](bo,{page:r,viewport:r.getViewport({scale:t.scalar*(window.devicePixelRatio||1)})})])}))))};e.prototype.applyScaling=function(e,t){if(this.firstPage){var r=this.firstPage.page.getViewport({scale:1}),a=r.width,n=r.height;switch(e){case 0:this.scalar=this.containerWidth/a;break;case 1:this.scalar=this.containerHeight/n;break;default:this.scalar=1.5}this.scalar*=t;this.applyPageScale()}};e.prototype.applyPageScale=function(){if(this.firstPage){var t=this.firstPage.page.getViewport({scale:1}),r=t.width,a=t.height;this.pageHeight=a*this.scalar+e.margin;var n=r*this.scalar;if(n<this.containerWidth){this.leftMargin=.5*(this.containerWidth-n)}else{this.leftMargin=0}}};e.prototype.scroll=function(e,t,r){var a=this;this.scrollPct=r/(e.numPages*this.pageHeight);var n=r+.5*this.pageHeight;var i=n-(this.pageBufferSize-1)*.33*this.pageHeight;var o=Math.min(Math.max(1,Math.round(i/this.pageHeight)),e.numPages-this.pageBufferSize+1);var u=false;Promise.all(d["default"].map(new Array(this.pageBufferSize),(function(r,n){var i=o+n;var l=d["default"].find(a.pageBuffer,{page:{pageNumber:i}});if(l){return Promise.resolve(l)}else{u=true;return a.getPage(e,t,i)}}))).then((function(e){a.pageBuffer=e;if(u){c["default"].redraw()}}))};e.prototype.getPage=function(e,t,r){return new Promise((function(a){return e.getPage(r).then((function(e){return a({page:e,overlay:d["default"].filter(t.fields,(function(e){return Boolean(e.data&&e.data.page===r)}))})}))}))};e.margin=10;return e}();var xo=this&&this.__awaiter||function(e,t,r,a){function n(e){return e instanceof r?e:new r((function(t){t(e)}))}return new(r||(r=Promise))((function(r,i){function o(e){try{l(a.next(e))}catch(e){i(e)}}function u(e){try{l(a["throw"](e))}catch(e){i(e)}}function l(e){e.done?r(e.value):n(e.value).then(o,u)}l((a=a.apply(e,t||[])).next())}))};var Co=this&&this.__generator||function(e,t){var r={label:0,sent:function(){if(i[0]&1)throw i[1];return i[1]},trys:[],ops:[]},a,n,i,o;return o={next:u(0),throw:u(1),return:u(2)},typeof Symbol==="function"&&(o[Symbol.iterator]=function(){return this}),o;function u(e){return function(t){return l([e,t])}}function l(o){if(a)throw new TypeError("Generator is already executing.");while(r)try{if(a=1,n&&(i=o[0]&2?n["return"]:o[0]?n["throw"]||((i=n["return"])&&i.call(n),0):n.next)&&!(i=i.call(n,o[1])).done)return i;if(n=0,i)o=[o[0]&2,i.value];switch(o[0]){case 0:case 1:i=o;break;case 4:r.label++;return{value:o[1],done:false};case 5:r.label++;n=o[1];o=[0];continue;case 7:o=r.ops.pop();r.trys.pop();continue;default:if(!(i=r.trys,i=i.length>0&&i[i.length-1])&&(o[0]===6||o[0]===2)){r=0;continue}if(o[0]===3&&(!i||o[1]>i[0]&&o[1]<i[3])){r.label=o[1];break}if(o[0]===6&&r.label<i[1]){r.label=i[1];i=o;break}if(i&&r.label<i[2]){r.label=i[2];r.ops.push(o);break}if(i[2])r.ops.pop();r.trys.pop();continue}o=t.call(e,r)}catch(e){o=[6,e];n=0}finally{a=i=0}if(o[0]&5)throw o[1];return{value:o[0]?o[1]:void 0,done:true}}};var Io=function(){function e(){}e.prototype.init=function(e){var t=this;return new Promise((function(r,a){l.getDocument(e).promise.then((function(e){t.pdf=e;r()}),(function(e){if(/server response \(440\)/g.test(e)){a(440)}else if(/server response \(403\)/g.test(e)){a(403)}else if(/Missing PDF/g.test(e)){a(404)}else{a(400)}}))}))};e.prototype.destroy=function(){this.pdf.destroy()};return e}();function ko(e){return xo(this,void 0,void 0,(function(){var t;return Co(this,(function(r){switch(r.label){case 0:t=new Io;return[4,t.init(e)];case 1:r.sent();return[2,t]}}))}))}function Lo(e){return Math.pow(2,e)}var Do=function(){function e(){this.statusText="Loading...";this.pageScale=Ht()?0:2;this.zoom=f["default"](0);this.smoothZoom=this.zoom.map(Lo);this.activeField=f["default"]();this.editList=[];this.actionCount=f["default"](0);this.state=f["default"](0)}e.prototype.oninit=function(e){var t=this;var r=e.attrs,a=r.item,n=a._id,i=a.files,o=a.actions,u=r.uploadDelay;var l=d["default"].head(i);if(l&&l.remoteUrl){this.fileObj=l;this.pdfPath=l.remoteUrl}else{this.statusText="No File Present"}this.formAction=d["default"].head(Et(o,{type:"form"}));var s=Et(o,{type:"overlay"});this.overlayForm=vo(s);this.editList=d["default"](this.overlayForm.fields).filter((function(e){var t=e.input;return t?zt(t):false})).uniqBy((function(e){var t=e.input;return t===null||t===void 0?void 0:t.id})).value();this.actionCount=f["default"].merge(d["default"](this.editList).map((function(e){var t=e.input,r=e.value;return t&&t.required?r:null})).compact().value()).map((function(e){return d["default"].reduce(e,(function(e,t){return qt(t)?e:e+1}),0)}));if(this.formAction){this.state(1);f["default"].lift((function(e,r){if(e===2&&r===0){t.state(3)}if(e===3){if(t.formAction&&t.fileObj){var a=new FormData;a.append("item_id",n);a.append("file_id",t.fileObj._id);d["default"].forEach(t.serialise(),(function(e,t){a.append(t,String(e))}));var i=t.formAction.url;d["default"].delay((function(){return Xa({method:"POST",url:i,body:a})}),u)}}}),this.state,this.actionCount)}};e.prototype.oncreate=function(){var e=this;if(this.pdfPath){ko(this.pdfPath).then((function(t){return e.viewer=t})).catch((function(t){var r,a,n;if(t===440){Oa()}else if(t===403){e.statusText="Unable to access "+((r=e.fileObj)===null||r===void 0?void 0:r.name)}else if(t===404){e.statusText=((a=e.fileObj)===null||a===void 0?void 0:a.name)+" not found"}else{e.statusText="Error loading "+((n=e.fileObj)===null||n===void 0?void 0:n.name)}})).then(c["default"].redraw)}};e.prototype.onremove=function(){if(this.viewer){this.viewer.destroy()}};e.prototype.view=function(){var e=this;var t,r,a,n;var o=this.activeField();return c["default"](yi,{header:[ja()?c["default"]("div"):c["default"](i.NavButton,{icon:"fal fa-times nl2",title:"Back",classes:mr(["f3 dim",Wa().uiNavButton,Wa().uiPdfBackButton]),onclick:Ra}),c["default"]("div.flex.w-50.w-35-m.w-20-l.justify-around",[c["default"](i.NavButton,{icon:"fal fa-search-plus fa-fw",title:"Zoom In",classes:mr(["f3 dim fw4",Wa().uiNavButton,Wa().uiPdfZoomInButton]),disabled:this.zoom()>=2,onclick:function(){return e.adjustZoom(.5)}}),c["default"](i.NavButton,{icon:"fal fa-search-minus fa-fw",title:"Zoom Out",classes:mr(["f3 dim",Wa().uiNavButton,Wa().uiPdfZoomOutButton]),disabled:this.zoom()<=-2,onclick:function(){return e.adjustZoom(-.5)}})]),this.pdfPath?c["default"](i.NavLink,{icon:"fal fa-arrow-to-bottom",title:"Download",classes:mr(["f3 dim",Wa().uiNavButton,Wa().uiPdfDownloadButton]),href:this.pdfPath}):null],headerClass:mr(["h2.5",Wa().uiPdfTopBar]),subheaderClass:"relative",content:this.viewer?c["default"](wo,{pdf:this.viewer.pdf,overlayForm:this.overlayForm,scale:this.pageScale,zoom:this.smoothZoom(),jumpTo:this.activeField,onSelect:function(t){return e.setWidget(t)}}):c["default"](".flex-auto.self-stretch",{class:mr([Wa().uiPdfPanel])},c["default"]("span.ma3.db.truncate",{class:mr([Wa().uiPdfSubheader])},this.statusText)),footer:this.state()!==0?c["default"](".relative.flex.flex-column.justify-around.items-center.pa1.shadow-2.flex-shrink-0",{style:{"min-height":"6rem"},class:mr([Wa().uiPdfBottomBar])},o&&o.data?[o.data.preText?c["default"]("p.ma1.f5.tc",o.data.preText):null,c["default"]("form.w-100.mw5.ma1",{onsubmit:function(){e.setNextWidget();return false}},Vr(o,{id:"overlay-assist"})),o.data.postText?c["default"]("p.ma1.f5.tc",o.data.postText):null]:this.state()===1?[c["default"](i.NavButton,{title:"Start",icon:((t=this.formAction)===null||t===void 0?void 0:t.icon)||"fal fa-chevron-down",classes:mr(["absolute f2 f1-ns top-0 nt4 br-100 shadow-4 pulse",Wa().uiPdfStartButton]),onclick:function(){return e.setActive(e.nextEmptyWidget())}}),c["default"](".w-100.flex-auto.flex.flex-column-reverse.items-center.pointer.ma3",{onclick:function(){return e.setActive(e.nextEmptyWidget())}},c["default"]("p.mv2.f5.tc",(r=this.formAction)===null||r===void 0?void 0:r.label))]:this.state()===3?c["default"]("p.self-center.mv0.fw3.tc",{class:oa().default.color},[((a=this.formAction)===null||a===void 0?void 0:a.completeIcon)?c["default"]("i.mr2",{class:this.formAction.completeIcon}):null,(n=this.formAction)===null||n===void 0?void 0:n.complete]):null):null})};e.prototype.activeWidgetIdx=function(){var e=this.activeField();if(e&&e.input){return d["default"].findIndex(this.editList,d["default"].matches({input:{id:e.input.id}}))}else{return undefined}};e.prototype.setActive=function(e){this.state(2);if(e){this.activeField(e);this.focusWidget()}};e.prototype.nextEmptyWidget=function(){return d["default"].find(this.editList,(function(e){var t=e.value;return t?!qt(t()):true}))};e.prototype.setWidget=function(e){this.setActive(d["default"].find(this.editList,d["default"].matches({input:{id:e}})))};e.prototype.setNextWidget=function(e){if(e===void 0){e=1}var t=this.activeWidgetIdx();if(t!==undefined){t+=e;if(t>=0&&t<this.editList.length){this.setActive(this.editList[t])}}};e.prototype.focusWidget=function(){d["default"].delay((function(){var e=document.getElementById("overlay-assist");if(e){e.focus()}}),32)};e.prototype.adjustZoom=function(e){this.zoom(Math.max(-2,Math.min(this.zoom()+e,2)));window.dispatchEvent(new Event("resize"))};e.prototype.serialise=function(){this.activeField(undefined);return go(this.overlayForm)};return e}();function Po(e,t,r,a){return{onmatch:function(r){var a=r.itemGuid;Kr(Jr.pdf);return e.initialLoad().then((function(){return t.selectItem(a)}))},render:function(){return c["default"](gi,r,c["default"](Do,{item:t.getItem(),uploadDelay:a}))}}}function To(e){return gn(e).then((function(e){var t=e.application,a=e.pusher;var n=t.vault&&t.vault.fileDelay?t.vault.fileDelay:2500;var i=new yn(t.vault);var o=new Nn(t.vault);var u=new Hn(o.model(),o.data());var l=new _n(i,o,u);a.applicationChannel.bind("reloadapplication",(function(){return o.loadApplication().then(c["default"].redraw)}));a.applicationUserChannel.bind("reloaditems",(function(){return o.loadUser().then(c["default"].redraw)}));a.applicationUserChannel.bind("newassets",(function(e){o.updateAssets(e).then((function(e){Qr({message:"We have sent "+e+" new documents",context:"default"});c["default"].redraw()})).catch(Xr)}));a.applicationUserChannel.bind("document",(function(e){if(e.length){var t=o.addAssets(e);var r=e[0].origin==="customer"?"received":"sent";Qr({message:"We have "+r+" "+t+" new documents",context:"default"});c["default"].redraw()}}));a.applicationUserChannel.bind("viewed",(function(e){o.viewAsset(e);c["default"].redraw()}));function s(e,t){return l.upsertItem(e,t).then((function(){return new Promise((function(e){return setTimeout(e,n)}))})).catch(Xr)}function f(e){return l.removeItem(e).catch(Xr)}var p={saving:l.saving,progress:i.getPercent()};var m=d["default"].extend({responsiveHeader:true},p);var h=d["default"].extend({responsiveHeader:true,responsiveFooter:true},p);r.route(document.getElementById("page"),Fa,{"/:itemGuid/list":oo(o,u,p,i.canUploadAssets()?function(e){return l.uploadAssets(u.getItem(),e).catch(Xr)}:undefined),"/:itemGuid/single":Wi(o,u,m,(function(e,t){return s(e,t).then(Ra).catch(Xr)}),f),"/:modelGuid/new":Bi(o,u,m,(function(e,t){return s(e,t).then((function(){return Ga(u.getModel(),e,{replace:true})})).catch(Xr)}),f),"/:itemGuid/view":mo(o,u,m),"/:itemGuid/edit":Si(o,u,m,(function(e,t){return s(e,t).then(Ra).catch(Xr)}),(function(e){return f(e).then(Ea).catch(Xr)})),"/:itemGuid/comp":wi(o,u,p),"/:itemGuid/comp/:actionGuid":xi(o,u,p),"/:itemGuid/pdf":Po(o,u,h,n)});return{application:t,pusher:a}}))}e.application=Yr;e.assembleFormField=Vr;e.branding=ea;e.buildComponent=br;e.buildComponentList=wr;e.buildFormFields=qr;e.colors=oa;e.createResponsiveClass=cr;e.dialog=Qr;e.joinClasses=mr;e.profile=ua;e.registerComponent=yr;e.registerFileMapFn=Fr;e.registerMapFn=Hr;e.registerMergeFn=Ur;e.sdxRequest=Xa;e.size=Ha;e.theme=Wa;e.vault=To;Object.defineProperty(e,"__esModule",{value:true})}));
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('lodash'), require('mithril'), require('mithril/stream'), require('jss'), require('@sdxmessaging/ui-widgets'), require('pusher-js'), require('js-sha256'), require('pdfjs-dist')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'lodash', 'mithril', 'mithril/stream', 'jss', '@sdxmessaging/ui-widgets', 'pusher-js', 'js-sha256', 'pdfjs-dist'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.uiBuilder = {}, global._, global.m, global.m.stream, global.jss, global.uiWidgets, global.Pusher, global.sha256, global.pdfjsLib));
+}(this, (function (exports, lodash, m, stream, jss, uiWidgets, Pusher, jsSha256, pdfjsDist) { 'use strict';
+
+  function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+
+  var lodash__default = /*#__PURE__*/_interopDefaultLegacy(lodash);
+  var m__default = /*#__PURE__*/_interopDefaultLegacy(m);
+  var stream__default = /*#__PURE__*/_interopDefaultLegacy(stream);
+  var jss__default = /*#__PURE__*/_interopDefaultLegacy(jss);
+  var Pusher__default = /*#__PURE__*/_interopDefaultLegacy(Pusher);
+
+  function toInteger(dirtyNumber) {
+    if (dirtyNumber === null || dirtyNumber === true || dirtyNumber === false) {
+      return NaN;
+    }
+
+    var number = Number(dirtyNumber);
+
+    if (isNaN(number)) {
+      return number;
+    }
+
+    return number < 0 ? Math.ceil(number) : Math.floor(number);
+  }
+
+  function requiredArgs(required, args) {
+    if (args.length < required) {
+      throw new TypeError(required + ' argument' + (required > 1 ? 's' : '') + ' required, but only ' + args.length + ' present');
+    }
+  }
+
+  /**
+   * @name toDate
+   * @category Common Helpers
+   * @summary Convert the given argument to an instance of Date.
+   *
+   * @description
+   * Convert the given argument to an instance of Date.
+   *
+   * If the argument is an instance of Date, the function returns its clone.
+   *
+   * If the argument is a number, it is treated as a timestamp.
+   *
+   * If the argument is none of the above, the function returns Invalid Date.
+   *
+   * **Note**: *all* Date arguments passed to any *date-fns* function is processed by `toDate`.
+   *
+   * @param {Date|Number} argument - the value to convert
+   * @returns {Date} the parsed date in the local time zone
+   * @throws {TypeError} 1 argument required
+   *
+   * @example
+   * // Clone the date:
+   * const result = toDate(new Date(2014, 1, 11, 11, 30, 30))
+   * //=> Tue Feb 11 2014 11:30:30
+   *
+   * @example
+   * // Convert the timestamp to date:
+   * const result = toDate(1392098430000)
+   * //=> Tue Feb 11 2014 11:30:30
+   */
+
+  function toDate(argument) {
+    requiredArgs(1, arguments);
+    var argStr = Object.prototype.toString.call(argument); // Clone the date
+
+    if (argument instanceof Date || typeof argument === 'object' && argStr === '[object Date]') {
+      // Prevent the date to lose the milliseconds when passed to new Date() in IE10
+      return new Date(argument.getTime());
+    } else if (typeof argument === 'number' || argStr === '[object Number]') {
+      return new Date(argument);
+    } else {
+      if ((typeof argument === 'string' || argStr === '[object String]') && typeof console !== 'undefined') {
+        // eslint-disable-next-line no-console
+        console.warn("Starting with v2.0.0-beta.1 date-fns doesn't accept strings as date arguments. Please use `parseISO` to parse strings. See: https://git.io/fjule"); // eslint-disable-next-line no-console
+
+        console.warn(new Error().stack);
+      }
+
+      return new Date(NaN);
+    }
+  }
+
+  /**
+   * @name addDays
+   * @category Day Helpers
+   * @summary Add the specified number of days to the given date.
+   *
+   * @description
+   * Add the specified number of days to the given date.
+   *
+   * ### v2.0.0 breaking changes:
+   *
+   * - [Changes that are common for the whole library](https://github.com/date-fns/date-fns/blob/master/docs/upgradeGuide.md#Common-Changes).
+   *
+   * @param {Date|Number} date - the date to be changed
+   * @param {Number} amount - the amount of days to be added. Positive decimals will be rounded using `Math.floor`, decimals less than zero will be rounded using `Math.ceil`.
+   * @returns {Date} the new date with the days added
+   * @throws {TypeError} 2 arguments required
+   *
+   * @example
+   * // Add 10 days to 1 September 2014:
+   * var result = addDays(new Date(2014, 8, 1), 10)
+   * //=> Thu Sep 11 2014 00:00:00
+   */
+
+  function addDays(dirtyDate, dirtyAmount) {
+    requiredArgs(2, arguments);
+    var date = toDate(dirtyDate);
+    var amount = toInteger(dirtyAmount);
+
+    if (isNaN(amount)) {
+      return new Date(NaN);
+    }
+
+    if (!amount) {
+      // If 0 days, no-op to avoid changing times in the hour before end of DST
+      return date;
+    }
+
+    date.setDate(date.getDate() + amount);
+    return date;
+  }
+
+  /**
+   * @name addMonths
+   * @category Month Helpers
+   * @summary Add the specified number of months to the given date.
+   *
+   * @description
+   * Add the specified number of months to the given date.
+   *
+   * ### v2.0.0 breaking changes:
+   *
+   * - [Changes that are common for the whole library](https://github.com/date-fns/date-fns/blob/master/docs/upgradeGuide.md#Common-Changes).
+   *
+   * @param {Date|Number} date - the date to be changed
+   * @param {Number} amount - the amount of months to be added. Positive decimals will be rounded using `Math.floor`, decimals less than zero will be rounded using `Math.ceil`.
+   * @returns {Date} the new date with the months added
+   * @throws {TypeError} 2 arguments required
+   *
+   * @example
+   * // Add 5 months to 1 September 2014:
+   * var result = addMonths(new Date(2014, 8, 1), 5)
+   * //=> Sun Feb 01 2015 00:00:00
+   */
+
+  function addMonths(dirtyDate, dirtyAmount) {
+    requiredArgs(2, arguments);
+    var date = toDate(dirtyDate);
+    var amount = toInteger(dirtyAmount);
+
+    if (isNaN(amount)) {
+      return new Date(NaN);
+    }
+
+    if (!amount) {
+      // If 0 months, no-op to avoid changing times in the hour before end of DST
+      return date;
+    }
+
+    var dayOfMonth = date.getDate(); // The JS Date object supports date math by accepting out-of-bounds values for
+    // month, day, etc. For example, new Date(2020, 1, 0) returns 31 Dec 2019 and
+    // new Date(2020, 13, 1) returns 1 Feb 2021.  This is *almost* the behavior we
+    // want except that dates will wrap around the end of a month, meaning that
+    // new Date(2020, 13, 31) will return 3 Mar 2021 not 28 Feb 2021 as desired. So
+    // we'll default to the end of the desired month by adding 1 to the desired
+    // month and using a date of 0 to back up one day to the end of the desired
+    // month.
+
+    var endOfDesiredMonth = new Date(date.getTime());
+    endOfDesiredMonth.setMonth(date.getMonth() + amount + 1, 0);
+    var daysInMonth = endOfDesiredMonth.getDate();
+
+    if (dayOfMonth >= daysInMonth) {
+      // If we're already at the end of the month, then this is the correct date
+      // and we're done.
+      return endOfDesiredMonth;
+    } else {
+      // Otherwise, we now know that setting the original day-of-month value won't
+      // cause an overflow, so set the desired day-of-month. Note that we can't
+      // just set the date of `endOfDesiredMonth` because that object may have had
+      // its time changed in the unusual case where where a DST transition was on
+      // the last day of the month and its local time was in the hour skipped or
+      // repeated next to a DST transition.  So we use `date` instead which is
+      // guaranteed to still have the original time.
+      date.setFullYear(endOfDesiredMonth.getFullYear(), endOfDesiredMonth.getMonth(), dayOfMonth);
+      return date;
+    }
+  }
+
+  /**
+   * @name add
+   * @category Common Helpers
+   * @summary Add the specified years, months, weeks, days, hours, minutes and seconds to the given date.
+   *
+   * @description
+   * Add the specified years, months, weeks, days, hours, minutes and seconds to the given date.
+   *
+   * @param {Date|Number} date - the date to be changed
+   * @param {Duration} duration - the object with years, months, weeks, days, hours, minutes and seconds to be added. Positive decimals will be rounded using `Math.floor`, decimals less than zero will be rounded using `Math.ceil`.
+   *
+   * | Key            | Description                        |
+   * |----------------|------------------------------------|
+   * | years          | Amount of years to be added        |
+   * | months         | Amount of months to be added       |
+   * | weeks          | Amount of weeks to be added       |
+   * | days           | Amount of days to be added         |
+   * | hours          | Amount of hours to be added        |
+   * | minutes        | Amount of minutes to be added      |
+   * | seconds        | Amount of seconds to be added      |
+   *
+   * All values default to 0
+   *
+   * @returns {Date} the new date with the seconds added
+   * @throws {TypeError} 2 arguments required
+   *
+   * @example
+   * // Add the following duration to 1 September 2014, 10:19:50
+   * var result = add(new Date(2014, 8, 1, 10, 19, 50), {
+   *   years: 2,
+   *   months: 9,
+   *   weeks: 1,
+   *   days: 7,
+   *   hours: 5,
+   *   minutes: 9,
+   *   seconds: 30,
+   * })
+   * //=> Thu Jun 15 2017 15:29:20
+   */
+
+  function add(dirtyDate, duration) {
+    requiredArgs(2, arguments);
+    if (!duration || typeof duration !== 'object') return new Date(NaN);
+    var years = 'years' in duration ? toInteger(duration.years) : 0;
+    var months = 'months' in duration ? toInteger(duration.months) : 0;
+    var weeks = 'weeks' in duration ? toInteger(duration.weeks) : 0;
+    var days = 'days' in duration ? toInteger(duration.days) : 0;
+    var hours = 'hours' in duration ? toInteger(duration.hours) : 0;
+    var minutes = 'minutes' in duration ? toInteger(duration.minutes) : 0;
+    var seconds = 'seconds' in duration ? toInteger(duration.seconds) : 0; // Add years and months
+
+    var date = toDate(dirtyDate);
+    var dateWithMonths = months || years ? addMonths(date, months + years * 12) : date; // Add weeks and days
+
+    var dateWithDays = days || weeks ? addDays(dateWithMonths, days + weeks * 7) : dateWithMonths; // Add days, hours, minutes and seconds
+
+    var minutesToAdd = minutes + hours * 60;
+    var secondsToAdd = seconds + minutesToAdd * 60;
+    var msToAdd = secondsToAdd * 1000;
+    var finalDate = new Date(dateWithDays.getTime() + msToAdd);
+    return finalDate;
+  }
+
+  /**
+   * @name addMilliseconds
+   * @category Millisecond Helpers
+   * @summary Add the specified number of milliseconds to the given date.
+   *
+   * @description
+   * Add the specified number of milliseconds to the given date.
+   *
+   * ### v2.0.0 breaking changes:
+   *
+   * - [Changes that are common for the whole library](https://github.com/date-fns/date-fns/blob/master/docs/upgradeGuide.md#Common-Changes).
+   *
+   * @param {Date|Number} date - the date to be changed
+   * @param {Number} amount - the amount of milliseconds to be added. Positive decimals will be rounded using `Math.floor`, decimals less than zero will be rounded using `Math.ceil`.
+   * @returns {Date} the new date with the milliseconds added
+   * @throws {TypeError} 2 arguments required
+   *
+   * @example
+   * // Add 750 milliseconds to 10 July 2014 12:45:30.000:
+   * var result = addMilliseconds(new Date(2014, 6, 10, 12, 45, 30, 0), 750)
+   * //=> Thu Jul 10 2014 12:45:30.750
+   */
+
+  function addMilliseconds(dirtyDate, dirtyAmount) {
+    requiredArgs(2, arguments);
+    var timestamp = toDate(dirtyDate).getTime();
+    var amount = toInteger(dirtyAmount);
+    return new Date(timestamp + amount);
+  }
+
+  var MILLISECONDS_IN_MINUTE = 60000;
+
+  function getDateMillisecondsPart(date) {
+    return date.getTime() % MILLISECONDS_IN_MINUTE;
+  }
+  /**
+   * Google Chrome as of 67.0.3396.87 introduced timezones with offset that includes seconds.
+   * They usually appear for dates that denote time before the timezones were introduced
+   * (e.g. for 'Europe/Prague' timezone the offset is GMT+00:57:44 before 1 October 1891
+   * and GMT+01:00:00 after that date)
+   *
+   * Date#getTimezoneOffset returns the offset in minutes and would return 57 for the example above,
+   * which would lead to incorrect calculations.
+   *
+   * This function returns the timezone offset in milliseconds that takes seconds in account.
+   */
+
+
+  function getTimezoneOffsetInMilliseconds(dirtyDate) {
+    var date = new Date(dirtyDate.getTime());
+    var baseTimezoneOffset = Math.ceil(date.getTimezoneOffset());
+    date.setSeconds(0, 0);
+    var hasNegativeUTCOffset = baseTimezoneOffset > 0;
+    var millisecondsPartOfTimezoneOffset = hasNegativeUTCOffset ? (MILLISECONDS_IN_MINUTE + getDateMillisecondsPart(date)) % MILLISECONDS_IN_MINUTE : getDateMillisecondsPart(date);
+    return baseTimezoneOffset * MILLISECONDS_IN_MINUTE + millisecondsPartOfTimezoneOffset;
+  }
+
+  /**
+   * @name startOfDay
+   * @category Day Helpers
+   * @summary Return the start of a day for the given date.
+   *
+   * @description
+   * Return the start of a day for the given date.
+   * The result will be in the local timezone.
+   *
+   * ### v2.0.0 breaking changes:
+   *
+   * - [Changes that are common for the whole library](https://github.com/date-fns/date-fns/blob/master/docs/upgradeGuide.md#Common-Changes).
+   *
+   * @param {Date|Number} date - the original date
+   * @returns {Date} the start of a day
+   * @throws {TypeError} 1 argument required
+   *
+   * @example
+   * // The start of a day for 2 September 2014 11:55:00:
+   * var result = startOfDay(new Date(2014, 8, 2, 11, 55, 0))
+   * //=> Tue Sep 02 2014 00:00:00
+   */
+
+  function startOfDay(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }
+
+  /**
+   * @name isValid
+   * @category Common Helpers
+   * @summary Is the given date valid?
+   *
+   * @description
+   * Returns false if argument is Invalid Date and true otherwise.
+   * Argument is converted to Date using `toDate`. See [toDate]{@link https://date-fns.org/docs/toDate}
+   * Invalid Date is a Date, whose time value is NaN.
+   *
+   * Time value of Date: http://es5.github.io/#x15.9.1.1
+   *
+   * ### v2.0.0 breaking changes:
+   *
+   * - [Changes that are common for the whole library](https://github.com/date-fns/date-fns/blob/master/docs/upgradeGuide.md#Common-Changes).
+   *
+   * - Now `isValid` doesn't throw an exception
+   *   if the first argument is not an instance of Date.
+   *   Instead, argument is converted beforehand using `toDate`.
+   *
+   *   Examples:
+   *
+   *   | `isValid` argument        | Before v2.0.0 | v2.0.0 onward |
+   *   |---------------------------|---------------|---------------|
+   *   | `new Date()`              | `true`        | `true`        |
+   *   | `new Date('2016-01-01')`  | `true`        | `true`        |
+   *   | `new Date('')`            | `false`       | `false`       |
+   *   | `new Date(1488370835081)` | `true`        | `true`        |
+   *   | `new Date(NaN)`           | `false`       | `false`       |
+   *   | `'2016-01-01'`            | `TypeError`   | `false`       |
+   *   | `''`                      | `TypeError`   | `false`       |
+   *   | `1488370835081`           | `TypeError`   | `true`        |
+   *   | `NaN`                     | `TypeError`   | `false`       |
+   *
+   *   We introduce this change to make *date-fns* consistent with ECMAScript behavior
+   *   that try to coerce arguments to the expected type
+   *   (which is also the case with other *date-fns* functions).
+   *
+   * @param {*} date - the date to check
+   * @returns {Boolean} the date is valid
+   * @throws {TypeError} 1 argument required
+   *
+   * @example
+   * // For the valid date:
+   * var result = isValid(new Date(2014, 1, 31))
+   * //=> true
+   *
+   * @example
+   * // For the value, convertable into a date:
+   * var result = isValid(1393804800000)
+   * //=> true
+   *
+   * @example
+   * // For the invalid date:
+   * var result = isValid(new Date(''))
+   * //=> false
+   */
+
+  function isValid(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    return !isNaN(date);
+  }
+
+  /**
+   * @name isSameDay
+   * @category Day Helpers
+   * @summary Are the given dates in the same day?
+   *
+   * @description
+   * Are the given dates in the same day?
+   *
+   * ### v2.0.0 breaking changes:
+   *
+   * - [Changes that are common for the whole library](https://github.com/date-fns/date-fns/blob/master/docs/upgradeGuide.md#Common-Changes).
+   *
+   * @param {Date|Number} dateLeft - the first date to check
+   * @param {Date|Number} dateRight - the second date to check
+   * @returns {Boolean} the dates are in the same day
+   * @throws {TypeError} 2 arguments required
+   *
+   * @example
+   * // Are 4 September 06:00:00 and 4 September 18:00:00 in the same day?
+   * var result = isSameDay(new Date(2014, 8, 4, 6, 0), new Date(2014, 8, 4, 18, 0))
+   * //=> true
+   */
+
+  function isSameDay(dirtyDateLeft, dirtyDateRight) {
+    requiredArgs(2, arguments);
+    var dateLeftStartOfDay = startOfDay(dirtyDateLeft);
+    var dateRightStartOfDay = startOfDay(dirtyDateRight);
+    return dateLeftStartOfDay.getTime() === dateRightStartOfDay.getTime();
+  }
+
+  var formatDistanceLocale = {
+    lessThanXSeconds: {
+      one: 'less than a second',
+      other: 'less than {{count}} seconds'
+    },
+    xSeconds: {
+      one: '1 second',
+      other: '{{count}} seconds'
+    },
+    halfAMinute: 'half a minute',
+    lessThanXMinutes: {
+      one: 'less than a minute',
+      other: 'less than {{count}} minutes'
+    },
+    xMinutes: {
+      one: '1 minute',
+      other: '{{count}} minutes'
+    },
+    aboutXHours: {
+      one: 'about 1 hour',
+      other: 'about {{count}} hours'
+    },
+    xHours: {
+      one: '1 hour',
+      other: '{{count}} hours'
+    },
+    xDays: {
+      one: '1 day',
+      other: '{{count}} days'
+    },
+    aboutXWeeks: {
+      one: 'about 1 week',
+      other: 'about {{count}} weeks'
+    },
+    xWeeks: {
+      one: '1 week',
+      other: '{{count}} weeks'
+    },
+    aboutXMonths: {
+      one: 'about 1 month',
+      other: 'about {{count}} months'
+    },
+    xMonths: {
+      one: '1 month',
+      other: '{{count}} months'
+    },
+    aboutXYears: {
+      one: 'about 1 year',
+      other: 'about {{count}} years'
+    },
+    xYears: {
+      one: '1 year',
+      other: '{{count}} years'
+    },
+    overXYears: {
+      one: 'over 1 year',
+      other: 'over {{count}} years'
+    },
+    almostXYears: {
+      one: 'almost 1 year',
+      other: 'almost {{count}} years'
+    }
+  };
+  function formatDistance(token, count, options) {
+    options = options || {};
+    var result;
+
+    if (typeof formatDistanceLocale[token] === 'string') {
+      result = formatDistanceLocale[token];
+    } else if (count === 1) {
+      result = formatDistanceLocale[token].one;
+    } else {
+      result = formatDistanceLocale[token].other.replace('{{count}}', count);
+    }
+
+    if (options.addSuffix) {
+      if (options.comparison > 0) {
+        return 'in ' + result;
+      } else {
+        return result + ' ago';
+      }
+    }
+
+    return result;
+  }
+
+  function buildFormatLongFn(args) {
+    return function (dirtyOptions) {
+      var options = dirtyOptions || {};
+      var width = options.width ? String(options.width) : args.defaultWidth;
+      var format = args.formats[width] || args.formats[args.defaultWidth];
+      return format;
+    };
+  }
+
+  var dateFormats = {
+    full: 'EEEE, MMMM do, y',
+    long: 'MMMM do, y',
+    medium: 'MMM d, y',
+    short: 'MM/dd/yyyy'
+  };
+  var timeFormats = {
+    full: 'h:mm:ss a zzzz',
+    long: 'h:mm:ss a z',
+    medium: 'h:mm:ss a',
+    short: 'h:mm a'
+  };
+  var dateTimeFormats = {
+    full: "{{date}} 'at' {{time}}",
+    long: "{{date}} 'at' {{time}}",
+    medium: '{{date}}, {{time}}',
+    short: '{{date}}, {{time}}'
+  };
+  var formatLong = {
+    date: buildFormatLongFn({
+      formats: dateFormats,
+      defaultWidth: 'full'
+    }),
+    time: buildFormatLongFn({
+      formats: timeFormats,
+      defaultWidth: 'full'
+    }),
+    dateTime: buildFormatLongFn({
+      formats: dateTimeFormats,
+      defaultWidth: 'full'
+    })
+  };
+
+  var formatRelativeLocale = {
+    lastWeek: "'last' eeee 'at' p",
+    yesterday: "'yesterday at' p",
+    today: "'today at' p",
+    tomorrow: "'tomorrow at' p",
+    nextWeek: "eeee 'at' p",
+    other: 'P'
+  };
+  function formatRelative(token, _date, _baseDate, _options) {
+    return formatRelativeLocale[token];
+  }
+
+  function buildLocalizeFn(args) {
+    return function (dirtyIndex, dirtyOptions) {
+      var options = dirtyOptions || {};
+      var context = options.context ? String(options.context) : 'standalone';
+      var valuesArray;
+
+      if (context === 'formatting' && args.formattingValues) {
+        var defaultWidth = args.defaultFormattingWidth || args.defaultWidth;
+        var width = options.width ? String(options.width) : defaultWidth;
+        valuesArray = args.formattingValues[width] || args.formattingValues[defaultWidth];
+      } else {
+        var _defaultWidth = args.defaultWidth;
+
+        var _width = options.width ? String(options.width) : args.defaultWidth;
+
+        valuesArray = args.values[_width] || args.values[_defaultWidth];
+      }
+
+      var index = args.argumentCallback ? args.argumentCallback(dirtyIndex) : dirtyIndex;
+      return valuesArray[index];
+    };
+  }
+
+  var eraValues = {
+    narrow: ['B', 'A'],
+    abbreviated: ['BC', 'AD'],
+    wide: ['Before Christ', 'Anno Domini']
+  };
+  var quarterValues = {
+    narrow: ['1', '2', '3', '4'],
+    abbreviated: ['Q1', 'Q2', 'Q3', 'Q4'],
+    wide: ['1st quarter', '2nd quarter', '3rd quarter', '4th quarter'] // Note: in English, the names of days of the week and months are capitalized.
+    // If you are making a new locale based on this one, check if the same is true for the language you're working on.
+    // Generally, formatted dates should look like they are in the middle of a sentence,
+    // e.g. in Spanish language the weekdays and months should be in the lowercase.
+
+  };
+  var monthValues = {
+    narrow: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'],
+    abbreviated: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    wide: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  };
+  var dayValues = {
+    narrow: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+    short: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+    abbreviated: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    wide: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+  };
+  var dayPeriodValues = {
+    narrow: {
+      am: 'a',
+      pm: 'p',
+      midnight: 'mi',
+      noon: 'n',
+      morning: 'morning',
+      afternoon: 'afternoon',
+      evening: 'evening',
+      night: 'night'
+    },
+    abbreviated: {
+      am: 'AM',
+      pm: 'PM',
+      midnight: 'midnight',
+      noon: 'noon',
+      morning: 'morning',
+      afternoon: 'afternoon',
+      evening: 'evening',
+      night: 'night'
+    },
+    wide: {
+      am: 'a.m.',
+      pm: 'p.m.',
+      midnight: 'midnight',
+      noon: 'noon',
+      morning: 'morning',
+      afternoon: 'afternoon',
+      evening: 'evening',
+      night: 'night'
+    }
+  };
+  var formattingDayPeriodValues = {
+    narrow: {
+      am: 'a',
+      pm: 'p',
+      midnight: 'mi',
+      noon: 'n',
+      morning: 'in the morning',
+      afternoon: 'in the afternoon',
+      evening: 'in the evening',
+      night: 'at night'
+    },
+    abbreviated: {
+      am: 'AM',
+      pm: 'PM',
+      midnight: 'midnight',
+      noon: 'noon',
+      morning: 'in the morning',
+      afternoon: 'in the afternoon',
+      evening: 'in the evening',
+      night: 'at night'
+    },
+    wide: {
+      am: 'a.m.',
+      pm: 'p.m.',
+      midnight: 'midnight',
+      noon: 'noon',
+      morning: 'in the morning',
+      afternoon: 'in the afternoon',
+      evening: 'in the evening',
+      night: 'at night'
+    }
+  };
+
+  function ordinalNumber(dirtyNumber, _dirtyOptions) {
+    var number = Number(dirtyNumber); // If ordinal numbers depend on context, for example,
+    // if they are different for different grammatical genders,
+    // use `options.unit`:
+    //
+    //   var options = dirtyOptions || {}
+    //   var unit = String(options.unit)
+    //
+    // where `unit` can be 'year', 'quarter', 'month', 'week', 'date', 'dayOfYear',
+    // 'day', 'hour', 'minute', 'second'
+
+    var rem100 = number % 100;
+
+    if (rem100 > 20 || rem100 < 10) {
+      switch (rem100 % 10) {
+        case 1:
+          return number + 'st';
+
+        case 2:
+          return number + 'nd';
+
+        case 3:
+          return number + 'rd';
+      }
+    }
+
+    return number + 'th';
+  }
+
+  var localize = {
+    ordinalNumber: ordinalNumber,
+    era: buildLocalizeFn({
+      values: eraValues,
+      defaultWidth: 'wide'
+    }),
+    quarter: buildLocalizeFn({
+      values: quarterValues,
+      defaultWidth: 'wide',
+      argumentCallback: function (quarter) {
+        return Number(quarter) - 1;
+      }
+    }),
+    month: buildLocalizeFn({
+      values: monthValues,
+      defaultWidth: 'wide'
+    }),
+    day: buildLocalizeFn({
+      values: dayValues,
+      defaultWidth: 'wide'
+    }),
+    dayPeriod: buildLocalizeFn({
+      values: dayPeriodValues,
+      defaultWidth: 'wide',
+      formattingValues: formattingDayPeriodValues,
+      defaultFormattingWidth: 'wide'
+    })
+  };
+
+  function buildMatchPatternFn(args) {
+    return function (dirtyString, dirtyOptions) {
+      var string = String(dirtyString);
+      var options = dirtyOptions || {};
+      var matchResult = string.match(args.matchPattern);
+
+      if (!matchResult) {
+        return null;
+      }
+
+      var matchedString = matchResult[0];
+      var parseResult = string.match(args.parsePattern);
+
+      if (!parseResult) {
+        return null;
+      }
+
+      var value = args.valueCallback ? args.valueCallback(parseResult[0]) : parseResult[0];
+      value = options.valueCallback ? options.valueCallback(value) : value;
+      return {
+        value: value,
+        rest: string.slice(matchedString.length)
+      };
+    };
+  }
+
+  function buildMatchFn(args) {
+    return function (dirtyString, dirtyOptions) {
+      var string = String(dirtyString);
+      var options = dirtyOptions || {};
+      var width = options.width;
+      var matchPattern = width && args.matchPatterns[width] || args.matchPatterns[args.defaultMatchWidth];
+      var matchResult = string.match(matchPattern);
+
+      if (!matchResult) {
+        return null;
+      }
+
+      var matchedString = matchResult[0];
+      var parsePatterns = width && args.parsePatterns[width] || args.parsePatterns[args.defaultParseWidth];
+      var value;
+
+      if (Object.prototype.toString.call(parsePatterns) === '[object Array]') {
+        value = findIndex(parsePatterns, function (pattern) {
+          return pattern.test(matchedString);
+        });
+      } else {
+        value = findKey(parsePatterns, function (pattern) {
+          return pattern.test(matchedString);
+        });
+      }
+
+      value = args.valueCallback ? args.valueCallback(value) : value;
+      value = options.valueCallback ? options.valueCallback(value) : value;
+      return {
+        value: value,
+        rest: string.slice(matchedString.length)
+      };
+    };
+  }
+
+  function findKey(object, predicate) {
+    for (var key in object) {
+      if (object.hasOwnProperty(key) && predicate(object[key])) {
+        return key;
+      }
+    }
+  }
+
+  function findIndex(array, predicate) {
+    for (var key = 0; key < array.length; key++) {
+      if (predicate(array[key])) {
+        return key;
+      }
+    }
+  }
+
+  var matchOrdinalNumberPattern = /^(\d+)(th|st|nd|rd)?/i;
+  var parseOrdinalNumberPattern = /\d+/i;
+  var matchEraPatterns = {
+    narrow: /^(b|a)/i,
+    abbreviated: /^(b\.?\s?c\.?|b\.?\s?c\.?\s?e\.?|a\.?\s?d\.?|c\.?\s?e\.?)/i,
+    wide: /^(before christ|before common era|anno domini|common era)/i
+  };
+  var parseEraPatterns = {
+    any: [/^b/i, /^(a|c)/i]
+  };
+  var matchQuarterPatterns = {
+    narrow: /^[1234]/i,
+    abbreviated: /^q[1234]/i,
+    wide: /^[1234](th|st|nd|rd)? quarter/i
+  };
+  var parseQuarterPatterns = {
+    any: [/1/i, /2/i, /3/i, /4/i]
+  };
+  var matchMonthPatterns = {
+    narrow: /^[jfmasond]/i,
+    abbreviated: /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i,
+    wide: /^(january|february|march|april|may|june|july|august|september|october|november|december)/i
+  };
+  var parseMonthPatterns = {
+    narrow: [/^j/i, /^f/i, /^m/i, /^a/i, /^m/i, /^j/i, /^j/i, /^a/i, /^s/i, /^o/i, /^n/i, /^d/i],
+    any: [/^ja/i, /^f/i, /^mar/i, /^ap/i, /^may/i, /^jun/i, /^jul/i, /^au/i, /^s/i, /^o/i, /^n/i, /^d/i]
+  };
+  var matchDayPatterns = {
+    narrow: /^[smtwf]/i,
+    short: /^(su|mo|tu|we|th|fr|sa)/i,
+    abbreviated: /^(sun|mon|tue|wed|thu|fri|sat)/i,
+    wide: /^(sunday|monday|tuesday|wednesday|thursday|friday|saturday)/i
+  };
+  var parseDayPatterns = {
+    narrow: [/^s/i, /^m/i, /^t/i, /^w/i, /^t/i, /^f/i, /^s/i],
+    any: [/^su/i, /^m/i, /^tu/i, /^w/i, /^th/i, /^f/i, /^sa/i]
+  };
+  var matchDayPeriodPatterns = {
+    narrow: /^(a|p|mi|n|(in the|at) (morning|afternoon|evening|night))/i,
+    any: /^([ap]\.?\s?m\.?|midnight|noon|(in the|at) (morning|afternoon|evening|night))/i
+  };
+  var parseDayPeriodPatterns = {
+    any: {
+      am: /^a/i,
+      pm: /^p/i,
+      midnight: /^mi/i,
+      noon: /^no/i,
+      morning: /morning/i,
+      afternoon: /afternoon/i,
+      evening: /evening/i,
+      night: /night/i
+    }
+  };
+  var match = {
+    ordinalNumber: buildMatchPatternFn({
+      matchPattern: matchOrdinalNumberPattern,
+      parsePattern: parseOrdinalNumberPattern,
+      valueCallback: function (value) {
+        return parseInt(value, 10);
+      }
+    }),
+    era: buildMatchFn({
+      matchPatterns: matchEraPatterns,
+      defaultMatchWidth: 'wide',
+      parsePatterns: parseEraPatterns,
+      defaultParseWidth: 'any'
+    }),
+    quarter: buildMatchFn({
+      matchPatterns: matchQuarterPatterns,
+      defaultMatchWidth: 'wide',
+      parsePatterns: parseQuarterPatterns,
+      defaultParseWidth: 'any',
+      valueCallback: function (index) {
+        return index + 1;
+      }
+    }),
+    month: buildMatchFn({
+      matchPatterns: matchMonthPatterns,
+      defaultMatchWidth: 'wide',
+      parsePatterns: parseMonthPatterns,
+      defaultParseWidth: 'any'
+    }),
+    day: buildMatchFn({
+      matchPatterns: matchDayPatterns,
+      defaultMatchWidth: 'wide',
+      parsePatterns: parseDayPatterns,
+      defaultParseWidth: 'any'
+    }),
+    dayPeriod: buildMatchFn({
+      matchPatterns: matchDayPeriodPatterns,
+      defaultMatchWidth: 'any',
+      parsePatterns: parseDayPeriodPatterns,
+      defaultParseWidth: 'any'
+    })
+  };
+
+  /**
+   * @type {Locale}
+   * @category Locales
+   * @summary English locale (United States).
+   * @language English
+   * @iso-639-2 eng
+   * @author Sasha Koss [@kossnocorp]{@link https://github.com/kossnocorp}
+   * @author Lesha Koss [@leshakoss]{@link https://github.com/leshakoss}
+   */
+
+  var locale = {
+    code: 'en-US',
+    formatDistance: formatDistance,
+    formatLong: formatLong,
+    formatRelative: formatRelative,
+    localize: localize,
+    match: match,
+    options: {
+      weekStartsOn: 0
+      /* Sunday */
+      ,
+      firstWeekContainsDate: 1
+    }
+  };
+
+  /**
+   * @name subMilliseconds
+   * @category Millisecond Helpers
+   * @summary Subtract the specified number of milliseconds from the given date.
+   *
+   * @description
+   * Subtract the specified number of milliseconds from the given date.
+   *
+   * ### v2.0.0 breaking changes:
+   *
+   * - [Changes that are common for the whole library](https://github.com/date-fns/date-fns/blob/master/docs/upgradeGuide.md#Common-Changes).
+   *
+   * @param {Date|Number} date - the date to be changed
+   * @param {Number} amount - the amount of milliseconds to be subtracted. Positive decimals will be rounded using `Math.floor`, decimals less than zero will be rounded using `Math.ceil`.
+   * @returns {Date} the new date with the milliseconds subtracted
+   * @throws {TypeError} 2 arguments required
+   *
+   * @example
+   * // Subtract 750 milliseconds from 10 July 2014 12:45:30.000:
+   * var result = subMilliseconds(new Date(2014, 6, 10, 12, 45, 30, 0), 750)
+   * //=> Thu Jul 10 2014 12:45:29.250
+   */
+
+  function subMilliseconds(dirtyDate, dirtyAmount) {
+    requiredArgs(2, arguments);
+    var amount = toInteger(dirtyAmount);
+    return addMilliseconds(dirtyDate, -amount);
+  }
+
+  function addLeadingZeros(number, targetLength) {
+    var sign = number < 0 ? '-' : '';
+    var output = Math.abs(number).toString();
+
+    while (output.length < targetLength) {
+      output = '0' + output;
+    }
+
+    return sign + output;
+  }
+
+  /*
+   * |     | Unit                           |     | Unit                           |
+   * |-----|--------------------------------|-----|--------------------------------|
+   * |  a  | AM, PM                         |  A* |                                |
+   * |  d  | Day of month                   |  D  |                                |
+   * |  h  | Hour [1-12]                    |  H  | Hour [0-23]                    |
+   * |  m  | Minute                         |  M  | Month                          |
+   * |  s  | Second                         |  S  | Fraction of second             |
+   * |  y  | Year (abs)                     |  Y  |                                |
+   *
+   * Letters marked by * are not implemented but reserved by Unicode standard.
+   */
+
+  var formatters = {
+    // Year
+    y: function (date, token) {
+      // From http://www.unicode.org/reports/tr35/tr35-31/tr35-dates.html#Date_Format_tokens
+      // | Year     |     y | yy |   yyy |  yyyy | yyyyy |
+      // |----------|-------|----|-------|-------|-------|
+      // | AD 1     |     1 | 01 |   001 |  0001 | 00001 |
+      // | AD 12    |    12 | 12 |   012 |  0012 | 00012 |
+      // | AD 123   |   123 | 23 |   123 |  0123 | 00123 |
+      // | AD 1234  |  1234 | 34 |  1234 |  1234 | 01234 |
+      // | AD 12345 | 12345 | 45 | 12345 | 12345 | 12345 |
+      var signedYear = date.getUTCFullYear(); // Returns 1 for 1 BC (which is year 0 in JavaScript)
+
+      var year = signedYear > 0 ? signedYear : 1 - signedYear;
+      return addLeadingZeros(token === 'yy' ? year % 100 : year, token.length);
+    },
+    // Month
+    M: function (date, token) {
+      var month = date.getUTCMonth();
+      return token === 'M' ? String(month + 1) : addLeadingZeros(month + 1, 2);
+    },
+    // Day of the month
+    d: function (date, token) {
+      return addLeadingZeros(date.getUTCDate(), token.length);
+    },
+    // AM or PM
+    a: function (date, token) {
+      var dayPeriodEnumValue = date.getUTCHours() / 12 >= 1 ? 'pm' : 'am';
+
+      switch (token) {
+        case 'a':
+        case 'aa':
+        case 'aaa':
+          return dayPeriodEnumValue.toUpperCase();
+
+        case 'aaaaa':
+          return dayPeriodEnumValue[0];
+
+        case 'aaaa':
+        default:
+          return dayPeriodEnumValue === 'am' ? 'a.m.' : 'p.m.';
+      }
+    },
+    // Hour [1-12]
+    h: function (date, token) {
+      return addLeadingZeros(date.getUTCHours() % 12 || 12, token.length);
+    },
+    // Hour [0-23]
+    H: function (date, token) {
+      return addLeadingZeros(date.getUTCHours(), token.length);
+    },
+    // Minute
+    m: function (date, token) {
+      return addLeadingZeros(date.getUTCMinutes(), token.length);
+    },
+    // Second
+    s: function (date, token) {
+      return addLeadingZeros(date.getUTCSeconds(), token.length);
+    },
+    // Fraction of second
+    S: function (date, token) {
+      var numberOfDigits = token.length;
+      var milliseconds = date.getUTCMilliseconds();
+      var fractionalSeconds = Math.floor(milliseconds * Math.pow(10, numberOfDigits - 3));
+      return addLeadingZeros(fractionalSeconds, token.length);
+    }
+  };
+
+  var MILLISECONDS_IN_DAY = 86400000; // This function will be a part of public API when UTC function will be implemented.
+  // See issue: https://github.com/date-fns/date-fns/issues/376
+
+  function getUTCDayOfYear(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    var timestamp = date.getTime();
+    date.setUTCMonth(0, 1);
+    date.setUTCHours(0, 0, 0, 0);
+    var startOfYearTimestamp = date.getTime();
+    var difference = timestamp - startOfYearTimestamp;
+    return Math.floor(difference / MILLISECONDS_IN_DAY) + 1;
+  }
+
+  // See issue: https://github.com/date-fns/date-fns/issues/376
+
+  function startOfUTCISOWeek(dirtyDate) {
+    requiredArgs(1, arguments);
+    var weekStartsOn = 1;
+    var date = toDate(dirtyDate);
+    var day = date.getUTCDay();
+    var diff = (day < weekStartsOn ? 7 : 0) + day - weekStartsOn;
+    date.setUTCDate(date.getUTCDate() - diff);
+    date.setUTCHours(0, 0, 0, 0);
+    return date;
+  }
+
+  // See issue: https://github.com/date-fns/date-fns/issues/376
+
+  function getUTCISOWeekYear(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    var year = date.getUTCFullYear();
+    var fourthOfJanuaryOfNextYear = new Date(0);
+    fourthOfJanuaryOfNextYear.setUTCFullYear(year + 1, 0, 4);
+    fourthOfJanuaryOfNextYear.setUTCHours(0, 0, 0, 0);
+    var startOfNextYear = startOfUTCISOWeek(fourthOfJanuaryOfNextYear);
+    var fourthOfJanuaryOfThisYear = new Date(0);
+    fourthOfJanuaryOfThisYear.setUTCFullYear(year, 0, 4);
+    fourthOfJanuaryOfThisYear.setUTCHours(0, 0, 0, 0);
+    var startOfThisYear = startOfUTCISOWeek(fourthOfJanuaryOfThisYear);
+
+    if (date.getTime() >= startOfNextYear.getTime()) {
+      return year + 1;
+    } else if (date.getTime() >= startOfThisYear.getTime()) {
+      return year;
+    } else {
+      return year - 1;
+    }
+  }
+
+  // See issue: https://github.com/date-fns/date-fns/issues/376
+
+  function startOfUTCISOWeekYear(dirtyDate) {
+    requiredArgs(1, arguments);
+    var year = getUTCISOWeekYear(dirtyDate);
+    var fourthOfJanuary = new Date(0);
+    fourthOfJanuary.setUTCFullYear(year, 0, 4);
+    fourthOfJanuary.setUTCHours(0, 0, 0, 0);
+    var date = startOfUTCISOWeek(fourthOfJanuary);
+    return date;
+  }
+
+  var MILLISECONDS_IN_WEEK = 604800000; // This function will be a part of public API when UTC function will be implemented.
+  // See issue: https://github.com/date-fns/date-fns/issues/376
+
+  function getUTCISOWeek(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    var diff = startOfUTCISOWeek(date).getTime() - startOfUTCISOWeekYear(date).getTime(); // Round the number of days to the nearest integer
+    // because the number of milliseconds in a week is not constant
+    // (e.g. it's different in the week of the daylight saving time clock shift)
+
+    return Math.round(diff / MILLISECONDS_IN_WEEK) + 1;
+  }
+
+  // See issue: https://github.com/date-fns/date-fns/issues/376
+
+  function startOfUTCWeek(dirtyDate, dirtyOptions) {
+    requiredArgs(1, arguments);
+    var options = dirtyOptions || {};
+    var locale = options.locale;
+    var localeWeekStartsOn = locale && locale.options && locale.options.weekStartsOn;
+    var defaultWeekStartsOn = localeWeekStartsOn == null ? 0 : toInteger(localeWeekStartsOn);
+    var weekStartsOn = options.weekStartsOn == null ? defaultWeekStartsOn : toInteger(options.weekStartsOn); // Test if weekStartsOn is between 0 and 6 _and_ is not NaN
+
+    if (!(weekStartsOn >= 0 && weekStartsOn <= 6)) {
+      throw new RangeError('weekStartsOn must be between 0 and 6 inclusively');
+    }
+
+    var date = toDate(dirtyDate);
+    var day = date.getUTCDay();
+    var diff = (day < weekStartsOn ? 7 : 0) + day - weekStartsOn;
+    date.setUTCDate(date.getUTCDate() - diff);
+    date.setUTCHours(0, 0, 0, 0);
+    return date;
+  }
+
+  // See issue: https://github.com/date-fns/date-fns/issues/376
+
+  function getUTCWeekYear(dirtyDate, dirtyOptions) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate, dirtyOptions);
+    var year = date.getUTCFullYear();
+    var options = dirtyOptions || {};
+    var locale = options.locale;
+    var localeFirstWeekContainsDate = locale && locale.options && locale.options.firstWeekContainsDate;
+    var defaultFirstWeekContainsDate = localeFirstWeekContainsDate == null ? 1 : toInteger(localeFirstWeekContainsDate);
+    var firstWeekContainsDate = options.firstWeekContainsDate == null ? defaultFirstWeekContainsDate : toInteger(options.firstWeekContainsDate); // Test if weekStartsOn is between 1 and 7 _and_ is not NaN
+
+    if (!(firstWeekContainsDate >= 1 && firstWeekContainsDate <= 7)) {
+      throw new RangeError('firstWeekContainsDate must be between 1 and 7 inclusively');
+    }
+
+    var firstWeekOfNextYear = new Date(0);
+    firstWeekOfNextYear.setUTCFullYear(year + 1, 0, firstWeekContainsDate);
+    firstWeekOfNextYear.setUTCHours(0, 0, 0, 0);
+    var startOfNextYear = startOfUTCWeek(firstWeekOfNextYear, dirtyOptions);
+    var firstWeekOfThisYear = new Date(0);
+    firstWeekOfThisYear.setUTCFullYear(year, 0, firstWeekContainsDate);
+    firstWeekOfThisYear.setUTCHours(0, 0, 0, 0);
+    var startOfThisYear = startOfUTCWeek(firstWeekOfThisYear, dirtyOptions);
+
+    if (date.getTime() >= startOfNextYear.getTime()) {
+      return year + 1;
+    } else if (date.getTime() >= startOfThisYear.getTime()) {
+      return year;
+    } else {
+      return year - 1;
+    }
+  }
+
+  // See issue: https://github.com/date-fns/date-fns/issues/376
+
+  function startOfUTCWeekYear(dirtyDate, dirtyOptions) {
+    requiredArgs(1, arguments);
+    var options = dirtyOptions || {};
+    var locale = options.locale;
+    var localeFirstWeekContainsDate = locale && locale.options && locale.options.firstWeekContainsDate;
+    var defaultFirstWeekContainsDate = localeFirstWeekContainsDate == null ? 1 : toInteger(localeFirstWeekContainsDate);
+    var firstWeekContainsDate = options.firstWeekContainsDate == null ? defaultFirstWeekContainsDate : toInteger(options.firstWeekContainsDate);
+    var year = getUTCWeekYear(dirtyDate, dirtyOptions);
+    var firstWeek = new Date(0);
+    firstWeek.setUTCFullYear(year, 0, firstWeekContainsDate);
+    firstWeek.setUTCHours(0, 0, 0, 0);
+    var date = startOfUTCWeek(firstWeek, dirtyOptions);
+    return date;
+  }
+
+  var MILLISECONDS_IN_WEEK$1 = 604800000; // This function will be a part of public API when UTC function will be implemented.
+  // See issue: https://github.com/date-fns/date-fns/issues/376
+
+  function getUTCWeek(dirtyDate, options) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    var diff = startOfUTCWeek(date, options).getTime() - startOfUTCWeekYear(date, options).getTime(); // Round the number of days to the nearest integer
+    // because the number of milliseconds in a week is not constant
+    // (e.g. it's different in the week of the daylight saving time clock shift)
+
+    return Math.round(diff / MILLISECONDS_IN_WEEK$1) + 1;
+  }
+
+  var dayPeriodEnum = {
+    am: 'am',
+    pm: 'pm',
+    midnight: 'midnight',
+    noon: 'noon',
+    morning: 'morning',
+    afternoon: 'afternoon',
+    evening: 'evening',
+    night: 'night'
+    /*
+     * |     | Unit                           |     | Unit                           |
+     * |-----|--------------------------------|-----|--------------------------------|
+     * |  a  | AM, PM                         |  A* | Milliseconds in day            |
+     * |  b  | AM, PM, noon, midnight         |  B  | Flexible day period            |
+     * |  c  | Stand-alone local day of week  |  C* | Localized hour w/ day period   |
+     * |  d  | Day of month                   |  D  | Day of year                    |
+     * |  e  | Local day of week              |  E  | Day of week                    |
+     * |  f  |                                |  F* | Day of week in month           |
+     * |  g* | Modified Julian day            |  G  | Era                            |
+     * |  h  | Hour [1-12]                    |  H  | Hour [0-23]                    |
+     * |  i! | ISO day of week                |  I! | ISO week of year               |
+     * |  j* | Localized hour w/ day period   |  J* | Localized hour w/o day period  |
+     * |  k  | Hour [1-24]                    |  K  | Hour [0-11]                    |
+     * |  l* | (deprecated)                   |  L  | Stand-alone month              |
+     * |  m  | Minute                         |  M  | Month                          |
+     * |  n  |                                |  N  |                                |
+     * |  o! | Ordinal number modifier        |  O  | Timezone (GMT)                 |
+     * |  p! | Long localized time            |  P! | Long localized date            |
+     * |  q  | Stand-alone quarter            |  Q  | Quarter                        |
+     * |  r* | Related Gregorian year         |  R! | ISO week-numbering year        |
+     * |  s  | Second                         |  S  | Fraction of second             |
+     * |  t! | Seconds timestamp              |  T! | Milliseconds timestamp         |
+     * |  u  | Extended year                  |  U* | Cyclic year                    |
+     * |  v* | Timezone (generic non-locat.)  |  V* | Timezone (location)            |
+     * |  w  | Local week of year             |  W* | Week of month                  |
+     * |  x  | Timezone (ISO-8601 w/o Z)      |  X  | Timezone (ISO-8601)            |
+     * |  y  | Year (abs)                     |  Y  | Local week-numbering year      |
+     * |  z  | Timezone (specific non-locat.) |  Z* | Timezone (aliases)             |
+     *
+     * Letters marked by * are not implemented but reserved by Unicode standard.
+     *
+     * Letters marked by ! are non-standard, but implemented by date-fns:
+     * - `o` modifies the previous token to turn it into an ordinal (see `format` docs)
+     * - `i` is ISO day of week. For `i` and `ii` is returns numeric ISO week days,
+     *   i.e. 7 for Sunday, 1 for Monday, etc.
+     * - `I` is ISO week of year, as opposed to `w` which is local week of year.
+     * - `R` is ISO week-numbering year, as opposed to `Y` which is local week-numbering year.
+     *   `R` is supposed to be used in conjunction with `I` and `i`
+     *   for universal ISO week-numbering date, whereas
+     *   `Y` is supposed to be used in conjunction with `w` and `e`
+     *   for week-numbering date specific to the locale.
+     * - `P` is long localized date format
+     * - `p` is long localized time format
+     */
+
+  };
+  var formatters$1 = {
+    // Era
+    G: function (date, token, localize) {
+      var era = date.getUTCFullYear() > 0 ? 1 : 0;
+
+      switch (token) {
+        // AD, BC
+        case 'G':
+        case 'GG':
+        case 'GGG':
+          return localize.era(era, {
+            width: 'abbreviated'
+          });
+        // A, B
+
+        case 'GGGGG':
+          return localize.era(era, {
+            width: 'narrow'
+          });
+        // Anno Domini, Before Christ
+
+        case 'GGGG':
+        default:
+          return localize.era(era, {
+            width: 'wide'
+          });
+      }
+    },
+    // Year
+    y: function (date, token, localize) {
+      // Ordinal number
+      if (token === 'yo') {
+        var signedYear = date.getUTCFullYear(); // Returns 1 for 1 BC (which is year 0 in JavaScript)
+
+        var year = signedYear > 0 ? signedYear : 1 - signedYear;
+        return localize.ordinalNumber(year, {
+          unit: 'year'
+        });
+      }
+
+      return formatters.y(date, token);
+    },
+    // Local week-numbering year
+    Y: function (date, token, localize, options) {
+      var signedWeekYear = getUTCWeekYear(date, options); // Returns 1 for 1 BC (which is year 0 in JavaScript)
+
+      var weekYear = signedWeekYear > 0 ? signedWeekYear : 1 - signedWeekYear; // Two digit year
+
+      if (token === 'YY') {
+        var twoDigitYear = weekYear % 100;
+        return addLeadingZeros(twoDigitYear, 2);
+      } // Ordinal number
+
+
+      if (token === 'Yo') {
+        return localize.ordinalNumber(weekYear, {
+          unit: 'year'
+        });
+      } // Padding
+
+
+      return addLeadingZeros(weekYear, token.length);
+    },
+    // ISO week-numbering year
+    R: function (date, token) {
+      var isoWeekYear = getUTCISOWeekYear(date); // Padding
+
+      return addLeadingZeros(isoWeekYear, token.length);
+    },
+    // Extended year. This is a single number designating the year of this calendar system.
+    // The main difference between `y` and `u` localizers are B.C. years:
+    // | Year | `y` | `u` |
+    // |------|-----|-----|
+    // | AC 1 |   1 |   1 |
+    // | BC 1 |   1 |   0 |
+    // | BC 2 |   2 |  -1 |
+    // Also `yy` always returns the last two digits of a year,
+    // while `uu` pads single digit years to 2 characters and returns other years unchanged.
+    u: function (date, token) {
+      var year = date.getUTCFullYear();
+      return addLeadingZeros(year, token.length);
+    },
+    // Quarter
+    Q: function (date, token, localize) {
+      var quarter = Math.ceil((date.getUTCMonth() + 1) / 3);
+
+      switch (token) {
+        // 1, 2, 3, 4
+        case 'Q':
+          return String(quarter);
+        // 01, 02, 03, 04
+
+        case 'QQ':
+          return addLeadingZeros(quarter, 2);
+        // 1st, 2nd, 3rd, 4th
+
+        case 'Qo':
+          return localize.ordinalNumber(quarter, {
+            unit: 'quarter'
+          });
+        // Q1, Q2, Q3, Q4
+
+        case 'QQQ':
+          return localize.quarter(quarter, {
+            width: 'abbreviated',
+            context: 'formatting'
+          });
+        // 1, 2, 3, 4 (narrow quarter; could be not numerical)
+
+        case 'QQQQQ':
+          return localize.quarter(quarter, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+        // 1st quarter, 2nd quarter, ...
+
+        case 'QQQQ':
+        default:
+          return localize.quarter(quarter, {
+            width: 'wide',
+            context: 'formatting'
+          });
+      }
+    },
+    // Stand-alone quarter
+    q: function (date, token, localize) {
+      var quarter = Math.ceil((date.getUTCMonth() + 1) / 3);
+
+      switch (token) {
+        // 1, 2, 3, 4
+        case 'q':
+          return String(quarter);
+        // 01, 02, 03, 04
+
+        case 'qq':
+          return addLeadingZeros(quarter, 2);
+        // 1st, 2nd, 3rd, 4th
+
+        case 'qo':
+          return localize.ordinalNumber(quarter, {
+            unit: 'quarter'
+          });
+        // Q1, Q2, Q3, Q4
+
+        case 'qqq':
+          return localize.quarter(quarter, {
+            width: 'abbreviated',
+            context: 'standalone'
+          });
+        // 1, 2, 3, 4 (narrow quarter; could be not numerical)
+
+        case 'qqqqq':
+          return localize.quarter(quarter, {
+            width: 'narrow',
+            context: 'standalone'
+          });
+        // 1st quarter, 2nd quarter, ...
+
+        case 'qqqq':
+        default:
+          return localize.quarter(quarter, {
+            width: 'wide',
+            context: 'standalone'
+          });
+      }
+    },
+    // Month
+    M: function (date, token, localize) {
+      var month = date.getUTCMonth();
+
+      switch (token) {
+        case 'M':
+        case 'MM':
+          return formatters.M(date, token);
+        // 1st, 2nd, ..., 12th
+
+        case 'Mo':
+          return localize.ordinalNumber(month + 1, {
+            unit: 'month'
+          });
+        // Jan, Feb, ..., Dec
+
+        case 'MMM':
+          return localize.month(month, {
+            width: 'abbreviated',
+            context: 'formatting'
+          });
+        // J, F, ..., D
+
+        case 'MMMMM':
+          return localize.month(month, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+        // January, February, ..., December
+
+        case 'MMMM':
+        default:
+          return localize.month(month, {
+            width: 'wide',
+            context: 'formatting'
+          });
+      }
+    },
+    // Stand-alone month
+    L: function (date, token, localize) {
+      var month = date.getUTCMonth();
+
+      switch (token) {
+        // 1, 2, ..., 12
+        case 'L':
+          return String(month + 1);
+        // 01, 02, ..., 12
+
+        case 'LL':
+          return addLeadingZeros(month + 1, 2);
+        // 1st, 2nd, ..., 12th
+
+        case 'Lo':
+          return localize.ordinalNumber(month + 1, {
+            unit: 'month'
+          });
+        // Jan, Feb, ..., Dec
+
+        case 'LLL':
+          return localize.month(month, {
+            width: 'abbreviated',
+            context: 'standalone'
+          });
+        // J, F, ..., D
+
+        case 'LLLLL':
+          return localize.month(month, {
+            width: 'narrow',
+            context: 'standalone'
+          });
+        // January, February, ..., December
+
+        case 'LLLL':
+        default:
+          return localize.month(month, {
+            width: 'wide',
+            context: 'standalone'
+          });
+      }
+    },
+    // Local week of year
+    w: function (date, token, localize, options) {
+      var week = getUTCWeek(date, options);
+
+      if (token === 'wo') {
+        return localize.ordinalNumber(week, {
+          unit: 'week'
+        });
+      }
+
+      return addLeadingZeros(week, token.length);
+    },
+    // ISO week of year
+    I: function (date, token, localize) {
+      var isoWeek = getUTCISOWeek(date);
+
+      if (token === 'Io') {
+        return localize.ordinalNumber(isoWeek, {
+          unit: 'week'
+        });
+      }
+
+      return addLeadingZeros(isoWeek, token.length);
+    },
+    // Day of the month
+    d: function (date, token, localize) {
+      if (token === 'do') {
+        return localize.ordinalNumber(date.getUTCDate(), {
+          unit: 'date'
+        });
+      }
+
+      return formatters.d(date, token);
+    },
+    // Day of year
+    D: function (date, token, localize) {
+      var dayOfYear = getUTCDayOfYear(date);
+
+      if (token === 'Do') {
+        return localize.ordinalNumber(dayOfYear, {
+          unit: 'dayOfYear'
+        });
+      }
+
+      return addLeadingZeros(dayOfYear, token.length);
+    },
+    // Day of week
+    E: function (date, token, localize) {
+      var dayOfWeek = date.getUTCDay();
+
+      switch (token) {
+        // Tue
+        case 'E':
+        case 'EE':
+        case 'EEE':
+          return localize.day(dayOfWeek, {
+            width: 'abbreviated',
+            context: 'formatting'
+          });
+        // T
+
+        case 'EEEEE':
+          return localize.day(dayOfWeek, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+        // Tu
+
+        case 'EEEEEE':
+          return localize.day(dayOfWeek, {
+            width: 'short',
+            context: 'formatting'
+          });
+        // Tuesday
+
+        case 'EEEE':
+        default:
+          return localize.day(dayOfWeek, {
+            width: 'wide',
+            context: 'formatting'
+          });
+      }
+    },
+    // Local day of week
+    e: function (date, token, localize, options) {
+      var dayOfWeek = date.getUTCDay();
+      var localDayOfWeek = (dayOfWeek - options.weekStartsOn + 8) % 7 || 7;
+
+      switch (token) {
+        // Numerical value (Nth day of week with current locale or weekStartsOn)
+        case 'e':
+          return String(localDayOfWeek);
+        // Padded numerical value
+
+        case 'ee':
+          return addLeadingZeros(localDayOfWeek, 2);
+        // 1st, 2nd, ..., 7th
+
+        case 'eo':
+          return localize.ordinalNumber(localDayOfWeek, {
+            unit: 'day'
+          });
+
+        case 'eee':
+          return localize.day(dayOfWeek, {
+            width: 'abbreviated',
+            context: 'formatting'
+          });
+        // T
+
+        case 'eeeee':
+          return localize.day(dayOfWeek, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+        // Tu
+
+        case 'eeeeee':
+          return localize.day(dayOfWeek, {
+            width: 'short',
+            context: 'formatting'
+          });
+        // Tuesday
+
+        case 'eeee':
+        default:
+          return localize.day(dayOfWeek, {
+            width: 'wide',
+            context: 'formatting'
+          });
+      }
+    },
+    // Stand-alone local day of week
+    c: function (date, token, localize, options) {
+      var dayOfWeek = date.getUTCDay();
+      var localDayOfWeek = (dayOfWeek - options.weekStartsOn + 8) % 7 || 7;
+
+      switch (token) {
+        // Numerical value (same as in `e`)
+        case 'c':
+          return String(localDayOfWeek);
+        // Padded numerical value
+
+        case 'cc':
+          return addLeadingZeros(localDayOfWeek, token.length);
+        // 1st, 2nd, ..., 7th
+
+        case 'co':
+          return localize.ordinalNumber(localDayOfWeek, {
+            unit: 'day'
+          });
+
+        case 'ccc':
+          return localize.day(dayOfWeek, {
+            width: 'abbreviated',
+            context: 'standalone'
+          });
+        // T
+
+        case 'ccccc':
+          return localize.day(dayOfWeek, {
+            width: 'narrow',
+            context: 'standalone'
+          });
+        // Tu
+
+        case 'cccccc':
+          return localize.day(dayOfWeek, {
+            width: 'short',
+            context: 'standalone'
+          });
+        // Tuesday
+
+        case 'cccc':
+        default:
+          return localize.day(dayOfWeek, {
+            width: 'wide',
+            context: 'standalone'
+          });
+      }
+    },
+    // ISO day of week
+    i: function (date, token, localize) {
+      var dayOfWeek = date.getUTCDay();
+      var isoDayOfWeek = dayOfWeek === 0 ? 7 : dayOfWeek;
+
+      switch (token) {
+        // 2
+        case 'i':
+          return String(isoDayOfWeek);
+        // 02
+
+        case 'ii':
+          return addLeadingZeros(isoDayOfWeek, token.length);
+        // 2nd
+
+        case 'io':
+          return localize.ordinalNumber(isoDayOfWeek, {
+            unit: 'day'
+          });
+        // Tue
+
+        case 'iii':
+          return localize.day(dayOfWeek, {
+            width: 'abbreviated',
+            context: 'formatting'
+          });
+        // T
+
+        case 'iiiii':
+          return localize.day(dayOfWeek, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+        // Tu
+
+        case 'iiiiii':
+          return localize.day(dayOfWeek, {
+            width: 'short',
+            context: 'formatting'
+          });
+        // Tuesday
+
+        case 'iiii':
+        default:
+          return localize.day(dayOfWeek, {
+            width: 'wide',
+            context: 'formatting'
+          });
+      }
+    },
+    // AM or PM
+    a: function (date, token, localize) {
+      var hours = date.getUTCHours();
+      var dayPeriodEnumValue = hours / 12 >= 1 ? 'pm' : 'am';
+
+      switch (token) {
+        case 'a':
+        case 'aa':
+        case 'aaa':
+          return localize.dayPeriod(dayPeriodEnumValue, {
+            width: 'abbreviated',
+            context: 'formatting'
+          });
+
+        case 'aaaaa':
+          return localize.dayPeriod(dayPeriodEnumValue, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+
+        case 'aaaa':
+        default:
+          return localize.dayPeriod(dayPeriodEnumValue, {
+            width: 'wide',
+            context: 'formatting'
+          });
+      }
+    },
+    // AM, PM, midnight, noon
+    b: function (date, token, localize) {
+      var hours = date.getUTCHours();
+      var dayPeriodEnumValue;
+
+      if (hours === 12) {
+        dayPeriodEnumValue = dayPeriodEnum.noon;
+      } else if (hours === 0) {
+        dayPeriodEnumValue = dayPeriodEnum.midnight;
+      } else {
+        dayPeriodEnumValue = hours / 12 >= 1 ? 'pm' : 'am';
+      }
+
+      switch (token) {
+        case 'b':
+        case 'bb':
+        case 'bbb':
+          return localize.dayPeriod(dayPeriodEnumValue, {
+            width: 'abbreviated',
+            context: 'formatting'
+          });
+
+        case 'bbbbb':
+          return localize.dayPeriod(dayPeriodEnumValue, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+
+        case 'bbbb':
+        default:
+          return localize.dayPeriod(dayPeriodEnumValue, {
+            width: 'wide',
+            context: 'formatting'
+          });
+      }
+    },
+    // in the morning, in the afternoon, in the evening, at night
+    B: function (date, token, localize) {
+      var hours = date.getUTCHours();
+      var dayPeriodEnumValue;
+
+      if (hours >= 17) {
+        dayPeriodEnumValue = dayPeriodEnum.evening;
+      } else if (hours >= 12) {
+        dayPeriodEnumValue = dayPeriodEnum.afternoon;
+      } else if (hours >= 4) {
+        dayPeriodEnumValue = dayPeriodEnum.morning;
+      } else {
+        dayPeriodEnumValue = dayPeriodEnum.night;
+      }
+
+      switch (token) {
+        case 'B':
+        case 'BB':
+        case 'BBB':
+          return localize.dayPeriod(dayPeriodEnumValue, {
+            width: 'abbreviated',
+            context: 'formatting'
+          });
+
+        case 'BBBBB':
+          return localize.dayPeriod(dayPeriodEnumValue, {
+            width: 'narrow',
+            context: 'formatting'
+          });
+
+        case 'BBBB':
+        default:
+          return localize.dayPeriod(dayPeriodEnumValue, {
+            width: 'wide',
+            context: 'formatting'
+          });
+      }
+    },
+    // Hour [1-12]
+    h: function (date, token, localize) {
+      if (token === 'ho') {
+        var hours = date.getUTCHours() % 12;
+        if (hours === 0) hours = 12;
+        return localize.ordinalNumber(hours, {
+          unit: 'hour'
+        });
+      }
+
+      return formatters.h(date, token);
+    },
+    // Hour [0-23]
+    H: function (date, token, localize) {
+      if (token === 'Ho') {
+        return localize.ordinalNumber(date.getUTCHours(), {
+          unit: 'hour'
+        });
+      }
+
+      return formatters.H(date, token);
+    },
+    // Hour [0-11]
+    K: function (date, token, localize) {
+      var hours = date.getUTCHours() % 12;
+
+      if (token === 'Ko') {
+        return localize.ordinalNumber(hours, {
+          unit: 'hour'
+        });
+      }
+
+      return addLeadingZeros(hours, token.length);
+    },
+    // Hour [1-24]
+    k: function (date, token, localize) {
+      var hours = date.getUTCHours();
+      if (hours === 0) hours = 24;
+
+      if (token === 'ko') {
+        return localize.ordinalNumber(hours, {
+          unit: 'hour'
+        });
+      }
+
+      return addLeadingZeros(hours, token.length);
+    },
+    // Minute
+    m: function (date, token, localize) {
+      if (token === 'mo') {
+        return localize.ordinalNumber(date.getUTCMinutes(), {
+          unit: 'minute'
+        });
+      }
+
+      return formatters.m(date, token);
+    },
+    // Second
+    s: function (date, token, localize) {
+      if (token === 'so') {
+        return localize.ordinalNumber(date.getUTCSeconds(), {
+          unit: 'second'
+        });
+      }
+
+      return formatters.s(date, token);
+    },
+    // Fraction of second
+    S: function (date, token) {
+      return formatters.S(date, token);
+    },
+    // Timezone (ISO-8601. If offset is 0, output is always `'Z'`)
+    X: function (date, token, _localize, options) {
+      var originalDate = options._originalDate || date;
+      var timezoneOffset = originalDate.getTimezoneOffset();
+
+      if (timezoneOffset === 0) {
+        return 'Z';
+      }
+
+      switch (token) {
+        // Hours and optional minutes
+        case 'X':
+          return formatTimezoneWithOptionalMinutes(timezoneOffset);
+        // Hours, minutes and optional seconds without `:` delimiter
+        // Note: neither ISO-8601 nor JavaScript supports seconds in timezone offsets
+        // so this token always has the same output as `XX`
+
+        case 'XXXX':
+        case 'XX':
+          // Hours and minutes without `:` delimiter
+          return formatTimezone(timezoneOffset);
+        // Hours, minutes and optional seconds with `:` delimiter
+        // Note: neither ISO-8601 nor JavaScript supports seconds in timezone offsets
+        // so this token always has the same output as `XXX`
+
+        case 'XXXXX':
+        case 'XXX': // Hours and minutes with `:` delimiter
+
+        default:
+          return formatTimezone(timezoneOffset, ':');
+      }
+    },
+    // Timezone (ISO-8601. If offset is 0, output is `'+00:00'` or equivalent)
+    x: function (date, token, _localize, options) {
+      var originalDate = options._originalDate || date;
+      var timezoneOffset = originalDate.getTimezoneOffset();
+
+      switch (token) {
+        // Hours and optional minutes
+        case 'x':
+          return formatTimezoneWithOptionalMinutes(timezoneOffset);
+        // Hours, minutes and optional seconds without `:` delimiter
+        // Note: neither ISO-8601 nor JavaScript supports seconds in timezone offsets
+        // so this token always has the same output as `xx`
+
+        case 'xxxx':
+        case 'xx':
+          // Hours and minutes without `:` delimiter
+          return formatTimezone(timezoneOffset);
+        // Hours, minutes and optional seconds with `:` delimiter
+        // Note: neither ISO-8601 nor JavaScript supports seconds in timezone offsets
+        // so this token always has the same output as `xxx`
+
+        case 'xxxxx':
+        case 'xxx': // Hours and minutes with `:` delimiter
+
+        default:
+          return formatTimezone(timezoneOffset, ':');
+      }
+    },
+    // Timezone (GMT)
+    O: function (date, token, _localize, options) {
+      var originalDate = options._originalDate || date;
+      var timezoneOffset = originalDate.getTimezoneOffset();
+
+      switch (token) {
+        // Short
+        case 'O':
+        case 'OO':
+        case 'OOO':
+          return 'GMT' + formatTimezoneShort(timezoneOffset, ':');
+        // Long
+
+        case 'OOOO':
+        default:
+          return 'GMT' + formatTimezone(timezoneOffset, ':');
+      }
+    },
+    // Timezone (specific non-location)
+    z: function (date, token, _localize, options) {
+      var originalDate = options._originalDate || date;
+      var timezoneOffset = originalDate.getTimezoneOffset();
+
+      switch (token) {
+        // Short
+        case 'z':
+        case 'zz':
+        case 'zzz':
+          return 'GMT' + formatTimezoneShort(timezoneOffset, ':');
+        // Long
+
+        case 'zzzz':
+        default:
+          return 'GMT' + formatTimezone(timezoneOffset, ':');
+      }
+    },
+    // Seconds timestamp
+    t: function (date, token, _localize, options) {
+      var originalDate = options._originalDate || date;
+      var timestamp = Math.floor(originalDate.getTime() / 1000);
+      return addLeadingZeros(timestamp, token.length);
+    },
+    // Milliseconds timestamp
+    T: function (date, token, _localize, options) {
+      var originalDate = options._originalDate || date;
+      var timestamp = originalDate.getTime();
+      return addLeadingZeros(timestamp, token.length);
+    }
+  };
+
+  function formatTimezoneShort(offset, dirtyDelimiter) {
+    var sign = offset > 0 ? '-' : '+';
+    var absOffset = Math.abs(offset);
+    var hours = Math.floor(absOffset / 60);
+    var minutes = absOffset % 60;
+
+    if (minutes === 0) {
+      return sign + String(hours);
+    }
+
+    var delimiter = dirtyDelimiter || '';
+    return sign + String(hours) + delimiter + addLeadingZeros(minutes, 2);
+  }
+
+  function formatTimezoneWithOptionalMinutes(offset, dirtyDelimiter) {
+    if (offset % 60 === 0) {
+      var sign = offset > 0 ? '-' : '+';
+      return sign + addLeadingZeros(Math.abs(offset) / 60, 2);
+    }
+
+    return formatTimezone(offset, dirtyDelimiter);
+  }
+
+  function formatTimezone(offset, dirtyDelimiter) {
+    var delimiter = dirtyDelimiter || '';
+    var sign = offset > 0 ? '-' : '+';
+    var absOffset = Math.abs(offset);
+    var hours = addLeadingZeros(Math.floor(absOffset / 60), 2);
+    var minutes = addLeadingZeros(absOffset % 60, 2);
+    return sign + hours + delimiter + minutes;
+  }
+
+  function dateLongFormatter(pattern, formatLong) {
+    switch (pattern) {
+      case 'P':
+        return formatLong.date({
+          width: 'short'
+        });
+
+      case 'PP':
+        return formatLong.date({
+          width: 'medium'
+        });
+
+      case 'PPP':
+        return formatLong.date({
+          width: 'long'
+        });
+
+      case 'PPPP':
+      default:
+        return formatLong.date({
+          width: 'full'
+        });
+    }
+  }
+
+  function timeLongFormatter(pattern, formatLong) {
+    switch (pattern) {
+      case 'p':
+        return formatLong.time({
+          width: 'short'
+        });
+
+      case 'pp':
+        return formatLong.time({
+          width: 'medium'
+        });
+
+      case 'ppp':
+        return formatLong.time({
+          width: 'long'
+        });
+
+      case 'pppp':
+      default:
+        return formatLong.time({
+          width: 'full'
+        });
+    }
+  }
+
+  function dateTimeLongFormatter(pattern, formatLong) {
+    var matchResult = pattern.match(/(P+)(p+)?/);
+    var datePattern = matchResult[1];
+    var timePattern = matchResult[2];
+
+    if (!timePattern) {
+      return dateLongFormatter(pattern, formatLong);
+    }
+
+    var dateTimeFormat;
+
+    switch (datePattern) {
+      case 'P':
+        dateTimeFormat = formatLong.dateTime({
+          width: 'short'
+        });
+        break;
+
+      case 'PP':
+        dateTimeFormat = formatLong.dateTime({
+          width: 'medium'
+        });
+        break;
+
+      case 'PPP':
+        dateTimeFormat = formatLong.dateTime({
+          width: 'long'
+        });
+        break;
+
+      case 'PPPP':
+      default:
+        dateTimeFormat = formatLong.dateTime({
+          width: 'full'
+        });
+        break;
+    }
+
+    return dateTimeFormat.replace('{{date}}', dateLongFormatter(datePattern, formatLong)).replace('{{time}}', timeLongFormatter(timePattern, formatLong));
+  }
+
+  var longFormatters = {
+    p: timeLongFormatter,
+    P: dateTimeLongFormatter
+  };
+
+  var protectedDayOfYearTokens = ['D', 'DD'];
+  var protectedWeekYearTokens = ['YY', 'YYYY'];
+  function isProtectedDayOfYearToken(token) {
+    return protectedDayOfYearTokens.indexOf(token) !== -1;
+  }
+  function isProtectedWeekYearToken(token) {
+    return protectedWeekYearTokens.indexOf(token) !== -1;
+  }
+  function throwProtectedError(token, format, input) {
+    if (token === 'YYYY') {
+      throw new RangeError("Use `yyyy` instead of `YYYY` (in `".concat(format, "`) for formatting years to the input `").concat(input, "`; see: https://git.io/fxCyr"));
+    } else if (token === 'YY') {
+      throw new RangeError("Use `yy` instead of `YY` (in `".concat(format, "`) for formatting years to the input `").concat(input, "`; see: https://git.io/fxCyr"));
+    } else if (token === 'D') {
+      throw new RangeError("Use `d` instead of `D` (in `".concat(format, "`) for formatting days of the month to the input `").concat(input, "`; see: https://git.io/fxCyr"));
+    } else if (token === 'DD') {
+      throw new RangeError("Use `dd` instead of `DD` (in `".concat(format, "`) for formatting days of the month to the input `").concat(input, "`; see: https://git.io/fxCyr"));
+    }
+  }
+
+  // - [yYQqMLwIdDecihHKkms]o matches any available ordinal number token
+  //   (one of the certain letters followed by `o`)
+  // - (\w)\1* matches any sequences of the same letter
+  // - '' matches two quote characters in a row
+  // - '(''|[^'])+('|$) matches anything surrounded by two quote characters ('),
+  //   except a single quote symbol, which ends the sequence.
+  //   Two quote characters do not end the sequence.
+  //   If there is no matching single quote
+  //   then the sequence will continue until the end of the string.
+  // - . matches any single character unmatched by previous parts of the RegExps
+
+  var formattingTokensRegExp = /[yYQqMLwIdDecihHKkms]o|(\w)\1*|''|'(''|[^'])+('|$)|./g; // This RegExp catches symbols escaped by quotes, and also
+  // sequences of symbols P, p, and the combinations like `PPPPPPPppppp`
+
+  var longFormattingTokensRegExp = /P+p+|P+|p+|''|'(''|[^'])+('|$)|./g;
+  var escapedStringRegExp = /^'([^]*?)'?$/;
+  var doubleQuoteRegExp = /''/g;
+  var unescapedLatinCharacterRegExp = /[a-zA-Z]/;
+  /**
+   * @name format
+   * @category Common Helpers
+   * @summary Format the date.
+   *
+   * @description
+   * Return the formatted date string in the given format. The result may vary by locale.
+   *
+   * > ⚠️ Please note that the `format` tokens differ from Moment.js and other libraries.
+   * > See: https://git.io/fxCyr
+   *
+   * The characters wrapped between two single quotes characters (') are escaped.
+   * Two single quotes in a row, whether inside or outside a quoted sequence, represent a 'real' single quote.
+   * (see the last example)
+   *
+   * Format of the string is based on Unicode Technical Standard #35:
+   * https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
+   * with a few additions (see note 7 below the table).
+   *
+   * Accepted patterns:
+   * | Unit                            | Pattern | Result examples                   | Notes |
+   * |---------------------------------|---------|-----------------------------------|-------|
+   * | Era                             | G..GGG  | AD, BC                            |       |
+   * |                                 | GGGG    | Anno Domini, Before Christ        | 2     |
+   * |                                 | GGGGG   | A, B                              |       |
+   * | Calendar year                   | y       | 44, 1, 1900, 2017                 | 5     |
+   * |                                 | yo      | 44th, 1st, 0th, 17th              | 5,7   |
+   * |                                 | yy      | 44, 01, 00, 17                    | 5     |
+   * |                                 | yyy     | 044, 001, 1900, 2017              | 5     |
+   * |                                 | yyyy    | 0044, 0001, 1900, 2017            | 5     |
+   * |                                 | yyyyy   | ...                               | 3,5   |
+   * | Local week-numbering year       | Y       | 44, 1, 1900, 2017                 | 5     |
+   * |                                 | Yo      | 44th, 1st, 1900th, 2017th         | 5,7   |
+   * |                                 | YY      | 44, 01, 00, 17                    | 5,8   |
+   * |                                 | YYY     | 044, 001, 1900, 2017              | 5     |
+   * |                                 | YYYY    | 0044, 0001, 1900, 2017            | 5,8   |
+   * |                                 | YYYYY   | ...                               | 3,5   |
+   * | ISO week-numbering year         | R       | -43, 0, 1, 1900, 2017             | 5,7   |
+   * |                                 | RR      | -43, 00, 01, 1900, 2017           | 5,7   |
+   * |                                 | RRR     | -043, 000, 001, 1900, 2017        | 5,7   |
+   * |                                 | RRRR    | -0043, 0000, 0001, 1900, 2017     | 5,7   |
+   * |                                 | RRRRR   | ...                               | 3,5,7 |
+   * | Extended year                   | u       | -43, 0, 1, 1900, 2017             | 5     |
+   * |                                 | uu      | -43, 01, 1900, 2017               | 5     |
+   * |                                 | uuu     | -043, 001, 1900, 2017             | 5     |
+   * |                                 | uuuu    | -0043, 0001, 1900, 2017           | 5     |
+   * |                                 | uuuuu   | ...                               | 3,5   |
+   * | Quarter (formatting)            | Q       | 1, 2, 3, 4                        |       |
+   * |                                 | Qo      | 1st, 2nd, 3rd, 4th                | 7     |
+   * |                                 | QQ      | 01, 02, 03, 04                    |       |
+   * |                                 | QQQ     | Q1, Q2, Q3, Q4                    |       |
+   * |                                 | QQQQ    | 1st quarter, 2nd quarter, ...     | 2     |
+   * |                                 | QQQQQ   | 1, 2, 3, 4                        | 4     |
+   * | Quarter (stand-alone)           | q       | 1, 2, 3, 4                        |       |
+   * |                                 | qo      | 1st, 2nd, 3rd, 4th                | 7     |
+   * |                                 | qq      | 01, 02, 03, 04                    |       |
+   * |                                 | qqq     | Q1, Q2, Q3, Q4                    |       |
+   * |                                 | qqqq    | 1st quarter, 2nd quarter, ...     | 2     |
+   * |                                 | qqqqq   | 1, 2, 3, 4                        | 4     |
+   * | Month (formatting)              | M       | 1, 2, ..., 12                     |       |
+   * |                                 | Mo      | 1st, 2nd, ..., 12th               | 7     |
+   * |                                 | MM      | 01, 02, ..., 12                   |       |
+   * |                                 | MMM     | Jan, Feb, ..., Dec                |       |
+   * |                                 | MMMM    | January, February, ..., December  | 2     |
+   * |                                 | MMMMM   | J, F, ..., D                      |       |
+   * | Month (stand-alone)             | L       | 1, 2, ..., 12                     |       |
+   * |                                 | Lo      | 1st, 2nd, ..., 12th               | 7     |
+   * |                                 | LL      | 01, 02, ..., 12                   |       |
+   * |                                 | LLL     | Jan, Feb, ..., Dec                |       |
+   * |                                 | LLLL    | January, February, ..., December  | 2     |
+   * |                                 | LLLLL   | J, F, ..., D                      |       |
+   * | Local week of year              | w       | 1, 2, ..., 53                     |       |
+   * |                                 | wo      | 1st, 2nd, ..., 53th               | 7     |
+   * |                                 | ww      | 01, 02, ..., 53                   |       |
+   * | ISO week of year                | I       | 1, 2, ..., 53                     | 7     |
+   * |                                 | Io      | 1st, 2nd, ..., 53th               | 7     |
+   * |                                 | II      | 01, 02, ..., 53                   | 7     |
+   * | Day of month                    | d       | 1, 2, ..., 31                     |       |
+   * |                                 | do      | 1st, 2nd, ..., 31st               | 7     |
+   * |                                 | dd      | 01, 02, ..., 31                   |       |
+   * | Day of year                     | D       | 1, 2, ..., 365, 366               | 9     |
+   * |                                 | Do      | 1st, 2nd, ..., 365th, 366th       | 7     |
+   * |                                 | DD      | 01, 02, ..., 365, 366             | 9     |
+   * |                                 | DDD     | 001, 002, ..., 365, 366           |       |
+   * |                                 | DDDD    | ...                               | 3     |
+   * | Day of week (formatting)        | E..EEE  | Mon, Tue, Wed, ..., Sun           |       |
+   * |                                 | EEEE    | Monday, Tuesday, ..., Sunday      | 2     |
+   * |                                 | EEEEE   | M, T, W, T, F, S, S               |       |
+   * |                                 | EEEEEE  | Mo, Tu, We, Th, Fr, Su, Sa        |       |
+   * | ISO day of week (formatting)    | i       | 1, 2, 3, ..., 7                   | 7     |
+   * |                                 | io      | 1st, 2nd, ..., 7th                | 7     |
+   * |                                 | ii      | 01, 02, ..., 07                   | 7     |
+   * |                                 | iii     | Mon, Tue, Wed, ..., Sun           | 7     |
+   * |                                 | iiii    | Monday, Tuesday, ..., Sunday      | 2,7   |
+   * |                                 | iiiii   | M, T, W, T, F, S, S               | 7     |
+   * |                                 | iiiiii  | Mo, Tu, We, Th, Fr, Su, Sa        | 7     |
+   * | Local day of week (formatting)  | e       | 2, 3, 4, ..., 1                   |       |
+   * |                                 | eo      | 2nd, 3rd, ..., 1st                | 7     |
+   * |                                 | ee      | 02, 03, ..., 01                   |       |
+   * |                                 | eee     | Mon, Tue, Wed, ..., Sun           |       |
+   * |                                 | eeee    | Monday, Tuesday, ..., Sunday      | 2     |
+   * |                                 | eeeee   | M, T, W, T, F, S, S               |       |
+   * |                                 | eeeeee  | Mo, Tu, We, Th, Fr, Su, Sa        |       |
+   * | Local day of week (stand-alone) | c       | 2, 3, 4, ..., 1                   |       |
+   * |                                 | co      | 2nd, 3rd, ..., 1st                | 7     |
+   * |                                 | cc      | 02, 03, ..., 01                   |       |
+   * |                                 | ccc     | Mon, Tue, Wed, ..., Sun           |       |
+   * |                                 | cccc    | Monday, Tuesday, ..., Sunday      | 2     |
+   * |                                 | ccccc   | M, T, W, T, F, S, S               |       |
+   * |                                 | cccccc  | Mo, Tu, We, Th, Fr, Su, Sa        |       |
+   * | AM, PM                          | a..aaa  | AM, PM                            |       |
+   * |                                 | aaaa    | a.m., p.m.                        | 2     |
+   * |                                 | aaaaa   | a, p                              |       |
+   * | AM, PM, noon, midnight          | b..bbb  | AM, PM, noon, midnight            |       |
+   * |                                 | bbbb    | a.m., p.m., noon, midnight        | 2     |
+   * |                                 | bbbbb   | a, p, n, mi                       |       |
+   * | Flexible day period             | B..BBB  | at night, in the morning, ...     |       |
+   * |                                 | BBBB    | at night, in the morning, ...     | 2     |
+   * |                                 | BBBBB   | at night, in the morning, ...     |       |
+   * | Hour [1-12]                     | h       | 1, 2, ..., 11, 12                 |       |
+   * |                                 | ho      | 1st, 2nd, ..., 11th, 12th         | 7     |
+   * |                                 | hh      | 01, 02, ..., 11, 12               |       |
+   * | Hour [0-23]                     | H       | 0, 1, 2, ..., 23                  |       |
+   * |                                 | Ho      | 0th, 1st, 2nd, ..., 23rd          | 7     |
+   * |                                 | HH      | 00, 01, 02, ..., 23               |       |
+   * | Hour [0-11]                     | K       | 1, 2, ..., 11, 0                  |       |
+   * |                                 | Ko      | 1st, 2nd, ..., 11th, 0th          | 7     |
+   * |                                 | KK      | 01, 02, ..., 11, 00               |       |
+   * | Hour [1-24]                     | k       | 24, 1, 2, ..., 23                 |       |
+   * |                                 | ko      | 24th, 1st, 2nd, ..., 23rd         | 7     |
+   * |                                 | kk      | 24, 01, 02, ..., 23               |       |
+   * | Minute                          | m       | 0, 1, ..., 59                     |       |
+   * |                                 | mo      | 0th, 1st, ..., 59th               | 7     |
+   * |                                 | mm      | 00, 01, ..., 59                   |       |
+   * | Second                          | s       | 0, 1, ..., 59                     |       |
+   * |                                 | so      | 0th, 1st, ..., 59th               | 7     |
+   * |                                 | ss      | 00, 01, ..., 59                   |       |
+   * | Fraction of second              | S       | 0, 1, ..., 9                      |       |
+   * |                                 | SS      | 00, 01, ..., 99                   |       |
+   * |                                 | SSS     | 000, 0001, ..., 999               |       |
+   * |                                 | SSSS    | ...                               | 3     |
+   * | Timezone (ISO-8601 w/ Z)        | X       | -08, +0530, Z                     |       |
+   * |                                 | XX      | -0800, +0530, Z                   |       |
+   * |                                 | XXX     | -08:00, +05:30, Z                 |       |
+   * |                                 | XXXX    | -0800, +0530, Z, +123456          | 2     |
+   * |                                 | XXXXX   | -08:00, +05:30, Z, +12:34:56      |       |
+   * | Timezone (ISO-8601 w/o Z)       | x       | -08, +0530, +00                   |       |
+   * |                                 | xx      | -0800, +0530, +0000               |       |
+   * |                                 | xxx     | -08:00, +05:30, +00:00            | 2     |
+   * |                                 | xxxx    | -0800, +0530, +0000, +123456      |       |
+   * |                                 | xxxxx   | -08:00, +05:30, +00:00, +12:34:56 |       |
+   * | Timezone (GMT)                  | O...OOO | GMT-8, GMT+5:30, GMT+0            |       |
+   * |                                 | OOOO    | GMT-08:00, GMT+05:30, GMT+00:00   | 2     |
+   * | Timezone (specific non-locat.)  | z...zzz | GMT-8, GMT+5:30, GMT+0            | 6     |
+   * |                                 | zzzz    | GMT-08:00, GMT+05:30, GMT+00:00   | 2,6   |
+   * | Seconds timestamp               | t       | 512969520                         | 7     |
+   * |                                 | tt      | ...                               | 3,7   |
+   * | Milliseconds timestamp          | T       | 512969520900                      | 7     |
+   * |                                 | TT      | ...                               | 3,7   |
+   * | Long localized date             | P       | 05/29/1453                        | 7     |
+   * |                                 | PP      | May 29, 1453                      | 7     |
+   * |                                 | PPP     | May 29th, 1453                    | 7     |
+   * |                                 | PPPP    | Sunday, May 29th, 1453            | 2,7   |
+   * | Long localized time             | p       | 12:00 AM                          | 7     |
+   * |                                 | pp      | 12:00:00 AM                       | 7     |
+   * |                                 | ppp     | 12:00:00 AM GMT+2                 | 7     |
+   * |                                 | pppp    | 12:00:00 AM GMT+02:00             | 2,7   |
+   * | Combination of date and time    | Pp      | 05/29/1453, 12:00 AM              | 7     |
+   * |                                 | PPpp    | May 29, 1453, 12:00:00 AM         | 7     |
+   * |                                 | PPPppp  | May 29th, 1453 at ...             | 7     |
+   * |                                 | PPPPpppp| Sunday, May 29th, 1453 at ...     | 2,7   |
+   * Notes:
+   * 1. "Formatting" units (e.g. formatting quarter) in the default en-US locale
+   *    are the same as "stand-alone" units, but are different in some languages.
+   *    "Formatting" units are declined according to the rules of the language
+   *    in the context of a date. "Stand-alone" units are always nominative singular:
+   *
+   *    `format(new Date(2017, 10, 6), 'do LLLL', {locale: cs}) //=> '6. listopad'`
+   *
+   *    `format(new Date(2017, 10, 6), 'do MMMM', {locale: cs}) //=> '6. listopadu'`
+   *
+   * 2. Any sequence of the identical letters is a pattern, unless it is escaped by
+   *    the single quote characters (see below).
+   *    If the sequence is longer than listed in table (e.g. `EEEEEEEEEEE`)
+   *    the output will be the same as default pattern for this unit, usually
+   *    the longest one (in case of ISO weekdays, `EEEE`). Default patterns for units
+   *    are marked with "2" in the last column of the table.
+   *
+   *    `format(new Date(2017, 10, 6), 'MMM') //=> 'Nov'`
+   *
+   *    `format(new Date(2017, 10, 6), 'MMMM') //=> 'November'`
+   *
+   *    `format(new Date(2017, 10, 6), 'MMMMM') //=> 'N'`
+   *
+   *    `format(new Date(2017, 10, 6), 'MMMMMM') //=> 'November'`
+   *
+   *    `format(new Date(2017, 10, 6), 'MMMMMMM') //=> 'November'`
+   *
+   * 3. Some patterns could be unlimited length (such as `yyyyyyyy`).
+   *    The output will be padded with zeros to match the length of the pattern.
+   *
+   *    `format(new Date(2017, 10, 6), 'yyyyyyyy') //=> '00002017'`
+   *
+   * 4. `QQQQQ` and `qqqqq` could be not strictly numerical in some locales.
+   *    These tokens represent the shortest form of the quarter.
+   *
+   * 5. The main difference between `y` and `u` patterns are B.C. years:
+   *
+   *    | Year | `y` | `u` |
+   *    |------|-----|-----|
+   *    | AC 1 |   1 |   1 |
+   *    | BC 1 |   1 |   0 |
+   *    | BC 2 |   2 |  -1 |
+   *
+   *    Also `yy` always returns the last two digits of a year,
+   *    while `uu` pads single digit years to 2 characters and returns other years unchanged:
+   *
+   *    | Year | `yy` | `uu` |
+   *    |------|------|------|
+   *    | 1    |   01 |   01 |
+   *    | 14   |   14 |   14 |
+   *    | 376  |   76 |  376 |
+   *    | 1453 |   53 | 1453 |
+   *
+   *    The same difference is true for local and ISO week-numbering years (`Y` and `R`),
+   *    except local week-numbering years are dependent on `options.weekStartsOn`
+   *    and `options.firstWeekContainsDate` (compare [getISOWeekYear]{@link https://date-fns.org/docs/getISOWeekYear}
+   *    and [getWeekYear]{@link https://date-fns.org/docs/getWeekYear}).
+   *
+   * 6. Specific non-location timezones are currently unavailable in `date-fns`,
+   *    so right now these tokens fall back to GMT timezones.
+   *
+   * 7. These patterns are not in the Unicode Technical Standard #35:
+   *    - `i`: ISO day of week
+   *    - `I`: ISO week of year
+   *    - `R`: ISO week-numbering year
+   *    - `t`: seconds timestamp
+   *    - `T`: milliseconds timestamp
+   *    - `o`: ordinal number modifier
+   *    - `P`: long localized date
+   *    - `p`: long localized time
+   *
+   * 8. `YY` and `YYYY` tokens represent week-numbering years but they are often confused with years.
+   *    You should enable `options.useAdditionalWeekYearTokens` to use them. See: https://git.io/fxCyr
+   *
+   * 9. `D` and `DD` tokens represent days of the year but they are ofthen confused with days of the month.
+   *    You should enable `options.useAdditionalDayOfYearTokens` to use them. See: https://git.io/fxCyr
+   *
+   * ### v2.0.0 breaking changes:
+   *
+   * - [Changes that are common for the whole library](https://github.com/date-fns/date-fns/blob/master/docs/upgradeGuide.md#Common-Changes).
+   *
+   * - The second argument is now required for the sake of explicitness.
+   *
+   *   ```javascript
+   *   // Before v2.0.0
+   *   format(new Date(2016, 0, 1))
+   *
+   *   // v2.0.0 onward
+   *   format(new Date(2016, 0, 1), "yyyy-MM-dd'T'HH:mm:ss.SSSxxx")
+   *   ```
+   *
+   * - New format string API for `format` function
+   *   which is based on [Unicode Technical Standard #35](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table).
+   *   See [this post](https://blog.date-fns.org/post/unicode-tokens-in-date-fns-v2-sreatyki91jg) for more details.
+   *
+   * - Characters are now escaped using single quote symbols (`'`) instead of square brackets.
+   *
+   * @param {Date|Number} date - the original date
+   * @param {String} format - the string of tokens
+   * @param {Object} [options] - an object with options.
+   * @param {Locale} [options.locale=defaultLocale] - the locale object. See [Locale]{@link https://date-fns.org/docs/Locale}
+   * @param {0|1|2|3|4|5|6} [options.weekStartsOn=0] - the index of the first day of the week (0 - Sunday)
+   * @param {Number} [options.firstWeekContainsDate=1] - the day of January, which is
+   * @param {Boolean} [options.useAdditionalWeekYearTokens=false] - if true, allows usage of the week-numbering year tokens `YY` and `YYYY`;
+   *   see: https://git.io/fxCyr
+   * @param {Boolean} [options.useAdditionalDayOfYearTokens=false] - if true, allows usage of the day of year tokens `D` and `DD`;
+   *   see: https://git.io/fxCyr
+   * @returns {String} the formatted date string
+   * @throws {TypeError} 2 arguments required
+   * @throws {RangeError} `date` must not be Invalid Date
+   * @throws {RangeError} `options.locale` must contain `localize` property
+   * @throws {RangeError} `options.locale` must contain `formatLong` property
+   * @throws {RangeError} `options.weekStartsOn` must be between 0 and 6
+   * @throws {RangeError} `options.firstWeekContainsDate` must be between 1 and 7
+   * @throws {RangeError} use `yyyy` instead of `YYYY` for formatting years using [format provided] to the input [input provided]; see: https://git.io/fxCyr
+   * @throws {RangeError} use `yy` instead of `YY` for formatting years using [format provided] to the input [input provided]; see: https://git.io/fxCyr
+   * @throws {RangeError} use `d` instead of `D` for formatting days of the month using [format provided] to the input [input provided]; see: https://git.io/fxCyr
+   * @throws {RangeError} use `dd` instead of `DD` for formatting days of the month using [format provided] to the input [input provided]; see: https://git.io/fxCyr
+   * @throws {RangeError} format string contains an unescaped latin alphabet character
+   *
+   * @example
+   * // Represent 11 February 2014 in middle-endian format:
+   * var result = format(new Date(2014, 1, 11), 'MM/dd/yyyy')
+   * //=> '02/11/2014'
+   *
+   * @example
+   * // Represent 2 July 2014 in Esperanto:
+   * import { eoLocale } from 'date-fns/locale/eo'
+   * var result = format(new Date(2014, 6, 2), "do 'de' MMMM yyyy", {
+   *   locale: eoLocale
+   * })
+   * //=> '2-a de julio 2014'
+   *
+   * @example
+   * // Escape string by single quote characters:
+   * var result = format(new Date(2014, 6, 2, 15), "h 'o''clock'")
+   * //=> "3 o'clock"
+   */
+
+  function format(dirtyDate, dirtyFormatStr, dirtyOptions) {
+    requiredArgs(2, arguments);
+    var formatStr = String(dirtyFormatStr);
+    var options = dirtyOptions || {};
+    var locale$1 = options.locale || locale;
+    var localeFirstWeekContainsDate = locale$1.options && locale$1.options.firstWeekContainsDate;
+    var defaultFirstWeekContainsDate = localeFirstWeekContainsDate == null ? 1 : toInteger(localeFirstWeekContainsDate);
+    var firstWeekContainsDate = options.firstWeekContainsDate == null ? defaultFirstWeekContainsDate : toInteger(options.firstWeekContainsDate); // Test if weekStartsOn is between 1 and 7 _and_ is not NaN
+
+    if (!(firstWeekContainsDate >= 1 && firstWeekContainsDate <= 7)) {
+      throw new RangeError('firstWeekContainsDate must be between 1 and 7 inclusively');
+    }
+
+    var localeWeekStartsOn = locale$1.options && locale$1.options.weekStartsOn;
+    var defaultWeekStartsOn = localeWeekStartsOn == null ? 0 : toInteger(localeWeekStartsOn);
+    var weekStartsOn = options.weekStartsOn == null ? defaultWeekStartsOn : toInteger(options.weekStartsOn); // Test if weekStartsOn is between 0 and 6 _and_ is not NaN
+
+    if (!(weekStartsOn >= 0 && weekStartsOn <= 6)) {
+      throw new RangeError('weekStartsOn must be between 0 and 6 inclusively');
+    }
+
+    if (!locale$1.localize) {
+      throw new RangeError('locale must contain localize property');
+    }
+
+    if (!locale$1.formatLong) {
+      throw new RangeError('locale must contain formatLong property');
+    }
+
+    var originalDate = toDate(dirtyDate);
+
+    if (!isValid(originalDate)) {
+      throw new RangeError('Invalid time value');
+    } // Convert the date in system timezone to the same date in UTC+00:00 timezone.
+    // This ensures that when UTC functions will be implemented, locales will be compatible with them.
+    // See an issue about UTC functions: https://github.com/date-fns/date-fns/issues/376
+
+
+    var timezoneOffset = getTimezoneOffsetInMilliseconds(originalDate);
+    var utcDate = subMilliseconds(originalDate, timezoneOffset);
+    var formatterOptions = {
+      firstWeekContainsDate: firstWeekContainsDate,
+      weekStartsOn: weekStartsOn,
+      locale: locale$1,
+      _originalDate: originalDate
+    };
+    var result = formatStr.match(longFormattingTokensRegExp).map(function (substring) {
+      var firstCharacter = substring[0];
+
+      if (firstCharacter === 'p' || firstCharacter === 'P') {
+        var longFormatter = longFormatters[firstCharacter];
+        return longFormatter(substring, locale$1.formatLong, formatterOptions);
+      }
+
+      return substring;
+    }).join('').match(formattingTokensRegExp).map(function (substring) {
+      // Replace two single quote characters with one single quote character
+      if (substring === "''") {
+        return "'";
+      }
+
+      var firstCharacter = substring[0];
+
+      if (firstCharacter === "'") {
+        return cleanEscapedString(substring);
+      }
+
+      var formatter = formatters$1[firstCharacter];
+
+      if (formatter) {
+        if (!options.useAdditionalWeekYearTokens && isProtectedWeekYearToken(substring)) {
+          throwProtectedError(substring, dirtyFormatStr, dirtyDate);
+        }
+
+        if (!options.useAdditionalDayOfYearTokens && isProtectedDayOfYearToken(substring)) {
+          throwProtectedError(substring, dirtyFormatStr, dirtyDate);
+        }
+
+        return formatter(utcDate, substring, locale$1.localize, formatterOptions);
+      }
+
+      if (firstCharacter.match(unescapedLatinCharacterRegExp)) {
+        throw new RangeError('Format string contains an unescaped latin alphabet character `' + firstCharacter + '`');
+      }
+
+      return substring;
+    }).join('');
+    return result;
+  }
+
+  function cleanEscapedString(input) {
+    return input.match(escapedStringRegExp)[1].replace(doubleQuoteRegExp, "'");
+  }
+
+  /**
+   * @name subDays
+   * @category Day Helpers
+   * @summary Subtract the specified number of days from the given date.
+   *
+   * @description
+   * Subtract the specified number of days from the given date.
+   *
+   * ### v2.0.0 breaking changes:
+   *
+   * - [Changes that are common for the whole library](https://github.com/date-fns/date-fns/blob/master/docs/upgradeGuide.md#Common-Changes).
+   *
+   * @param {Date|Number} date - the date to be changed
+   * @param {Number} amount - the amount of days to be subtracted. Positive decimals will be rounded using `Math.floor`, decimals less than zero will be rounded using `Math.ceil`.
+   * @returns {Date} the new date with the days subtracted
+   * @throws {TypeError} 2 arguments required
+   *
+   * @example
+   * // Subtract 10 days from 1 September 2014:
+   * var result = subDays(new Date(2014, 8, 1), 10)
+   * //=> Fri Aug 22 2014 00:00:00
+   */
+
+  function subDays(dirtyDate, dirtyAmount) {
+    requiredArgs(2, arguments);
+    var amount = toInteger(dirtyAmount);
+    return addDays(dirtyDate, -amount);
+  }
+
+  /**
+   * @name isToday
+   * @category Day Helpers
+   * @summary Is the given date today?
+   * @pure false
+   *
+   * @description
+   * Is the given date today?
+   *
+   * > ⚠️ Please note that this function is not present in the FP submodule as
+   * > it uses `Date.now()` internally hence impure and can't be safely curried.
+   *
+   * ### v2.0.0 breaking changes:
+   *
+   * - [Changes that are common for the whole library](https://github.com/date-fns/date-fns/blob/master/docs/upgradeGuide.md#Common-Changes).
+   *
+   * @param {Date|Number} date - the date to check
+   * @returns {Boolean} the date is today
+   * @throws {TypeError} 1 argument required
+   *
+   * @example
+   * // If today is 6 October 2014, is 6 October 14:00:00 today?
+   * var result = isToday(new Date(2014, 9, 6, 14, 0))
+   * //=> true
+   */
+
+  function isToday(dirtyDate) {
+    requiredArgs(1, arguments);
+    return isSameDay(dirtyDate, Date.now());
+  }
+
+  /**
+   * @name isTomorrow
+   * @category Day Helpers
+   * @summary Is the given date tomorrow?
+   * @pure false
+   *
+   * @description
+   * Is the given date tomorrow?
+   *
+   * > ⚠️ Please note that this function is not present in the FP submodule as
+   * > it uses `Date.now()` internally hence impure and can't be safely curried.
+   *
+   * ### v2.0.0 breaking changes:
+   *
+   * - [Changes that are common for the whole library](https://github.com/date-fns/date-fns/blob/master/docs/upgradeGuide.md#Common-Changes).
+   *
+   * @param {Date|Number} date - the date to check
+   * @returns {Boolean} the date is tomorrow
+   * @throws {TypeError} 1 argument required
+   *
+   * @example
+   * // If today is 6 October 2014, is 7 October 14:00:00 tomorrow?
+   * var result = isTomorrow(new Date(2014, 9, 7, 14, 0))
+   * //=> true
+   */
+
+  function isTomorrow(dirtyDate) {
+    requiredArgs(1, arguments);
+    return isSameDay(dirtyDate, addDays(Date.now(), 1));
+  }
+
+  /**
+   * @name isYesterday
+   * @category Day Helpers
+   * @summary Is the given date yesterday?
+   * @pure false
+   *
+   * @description
+   * Is the given date yesterday?
+   *
+   * > ⚠️ Please note that this function is not present in the FP submodule as
+   * > it uses `Date.now()` internally hence impure and can't be safely curried.
+   *
+   * ### v2.0.0 breaking changes:
+   *
+   * - [Changes that are common for the whole library](https://github.com/date-fns/date-fns/blob/master/docs/upgradeGuide.md#Common-Changes).
+   *
+   * @param {Date|Number} date - the date to check
+   * @returns {Boolean} the date is yesterday
+   * @throws {TypeError} 1 argument required
+   *
+   * @example
+   * // If today is 6 October 2014, is 5 October 14:00:00 yesterday?
+   * var result = isYesterday(new Date(2014, 9, 5, 14, 0))
+   * //=> true
+   */
+
+  function isYesterday(dirtyDate) {
+    requiredArgs(1, arguments);
+    return isSameDay(dirtyDate, subDays(Date.now(), 1));
+  }
+
+  var MILLISECONDS_IN_HOUR = 3600000;
+  var MILLISECONDS_IN_MINUTE$1 = 60000;
+  var DEFAULT_ADDITIONAL_DIGITS = 2;
+  var patterns = {
+    dateTimeDelimiter: /[T ]/,
+    timeZoneDelimiter: /[Z ]/i,
+    timezone: /([Z+-].*)$/
+  };
+  var dateRegex = /^-?(?:(\d{3})|(\d{2})(?:-?(\d{2}))?|W(\d{2})(?:-?(\d{1}))?|)$/;
+  var timeRegex = /^(\d{2}(?:[.,]\d*)?)(?::?(\d{2}(?:[.,]\d*)?))?(?::?(\d{2}(?:[.,]\d*)?))?$/;
+  var timezoneRegex = /^([+-])(\d{2})(?::?(\d{2}))?$/;
+  /**
+   * @name parseISO
+   * @category Common Helpers
+   * @summary Parse ISO string
+   *
+   * @description
+   * Parse the given string in ISO 8601 format and return an instance of Date.
+   *
+   * Function accepts complete ISO 8601 formats as well as partial implementations.
+   * ISO 8601: http://en.wikipedia.org/wiki/ISO_8601
+   *
+   * If the argument isn't a string, the function cannot parse the string or
+   * the values are invalid, it returns Invalid Date.
+   *
+   * ### v2.0.0 breaking changes:
+   *
+   * - [Changes that are common for the whole library](https://github.com/date-fns/date-fns/blob/master/docs/upgradeGuide.md#Common-Changes).
+   *
+   * - The previous `parse` implementation was renamed to `parseISO`.
+   *
+   *   ```javascript
+   *   // Before v2.0.0
+   *   parse('2016-01-01')
+   *
+   *   // v2.0.0 onward
+   *   parseISO('2016-01-01')
+   *   ```
+   *
+   * - `parseISO` now validates separate date and time values in ISO-8601 strings
+   *   and returns `Invalid Date` if the date is invalid.
+   *
+   *   ```javascript
+   *   parseISO('2018-13-32')
+   *   //=> Invalid Date
+   *   ```
+   *
+   * - `parseISO` now doesn't fall back to `new Date` constructor
+   *   if it fails to parse a string argument. Instead, it returns `Invalid Date`.
+   *
+   * @param {String} argument - the value to convert
+   * @param {Object} [options] - an object with options.
+   * @param {0|1|2} [options.additionalDigits=2] - the additional number of digits in the extended year format
+   * @returns {Date} the parsed date in the local time zone
+   * @throws {TypeError} 1 argument required
+   * @throws {RangeError} `options.additionalDigits` must be 0, 1 or 2
+   *
+   * @example
+   * // Convert string '2014-02-11T11:30:30' to date:
+   * var result = parseISO('2014-02-11T11:30:30')
+   * //=> Tue Feb 11 2014 11:30:30
+   *
+   * @example
+   * // Convert string '+02014101' to date,
+   * // if the additional number of digits in the extended year format is 1:
+   * var result = parseISO('+02014101', { additionalDigits: 1 })
+   * //=> Fri Apr 11 2014 00:00:00
+   */
+
+  function parseISO(argument, dirtyOptions) {
+    requiredArgs(1, arguments);
+    var options = dirtyOptions || {};
+    var additionalDigits = options.additionalDigits == null ? DEFAULT_ADDITIONAL_DIGITS : toInteger(options.additionalDigits);
+
+    if (additionalDigits !== 2 && additionalDigits !== 1 && additionalDigits !== 0) {
+      throw new RangeError('additionalDigits must be 0, 1 or 2');
+    }
+
+    if (!(typeof argument === 'string' || Object.prototype.toString.call(argument) === '[object String]')) {
+      return new Date(NaN);
+    }
+
+    var dateStrings = splitDateString(argument);
+    var date;
+
+    if (dateStrings.date) {
+      var parseYearResult = parseYear(dateStrings.date, additionalDigits);
+      date = parseDate(parseYearResult.restDateString, parseYearResult.year);
+    }
+
+    if (isNaN(date) || !date) {
+      return new Date(NaN);
+    }
+
+    var timestamp = date.getTime();
+    var time = 0;
+    var offset;
+
+    if (dateStrings.time) {
+      time = parseTime(dateStrings.time);
+
+      if (isNaN(time) || time === null) {
+        return new Date(NaN);
+      }
+    }
+
+    if (dateStrings.timezone) {
+      offset = parseTimezone(dateStrings.timezone);
+
+      if (isNaN(offset)) {
+        return new Date(NaN);
+      }
+    } else {
+      var dirtyDate = new Date(timestamp + time); // js parsed string assuming it's in UTC timezone
+      // but we need it to be parsed in our timezone
+      // so we use utc values to build date in our timezone.
+      // Year values from 0 to 99 map to the years 1900 to 1999
+      // so set year explicitly with setFullYear.
+
+      var result = new Date(dirtyDate.getUTCFullYear(), dirtyDate.getUTCMonth(), dirtyDate.getUTCDate(), dirtyDate.getUTCHours(), dirtyDate.getUTCMinutes(), dirtyDate.getUTCSeconds(), dirtyDate.getUTCMilliseconds());
+      result.setFullYear(dirtyDate.getUTCFullYear());
+      return result;
+    }
+
+    return new Date(timestamp + time + offset);
+  }
+
+  function splitDateString(dateString) {
+    var dateStrings = {};
+    var array = dateString.split(patterns.dateTimeDelimiter);
+    var timeString; // The regex match should only return at maximum two array elements.
+    // [date], [time], or [date, time].
+
+    if (array.length > 2) {
+      return dateStrings;
+    }
+
+    if (/:/.test(array[0])) {
+      dateStrings.date = null;
+      timeString = array[0];
+    } else {
+      dateStrings.date = array[0];
+      timeString = array[1];
+
+      if (patterns.timeZoneDelimiter.test(dateStrings.date)) {
+        dateStrings.date = dateString.split(patterns.timeZoneDelimiter)[0];
+        timeString = dateString.substr(dateStrings.date.length, dateString.length);
+      }
+    }
+
+    if (timeString) {
+      var token = patterns.timezone.exec(timeString);
+
+      if (token) {
+        dateStrings.time = timeString.replace(token[1], '');
+        dateStrings.timezone = token[1];
+      } else {
+        dateStrings.time = timeString;
+      }
+    }
+
+    return dateStrings;
+  }
+
+  function parseYear(dateString, additionalDigits) {
+    var regex = new RegExp('^(?:(\\d{4}|[+-]\\d{' + (4 + additionalDigits) + '})|(\\d{2}|[+-]\\d{' + (2 + additionalDigits) + '})$)');
+    var captures = dateString.match(regex); // Invalid ISO-formatted year
+
+    if (!captures) return {
+      year: null
+    };
+    var year = captures[1] && parseInt(captures[1]);
+    var century = captures[2] && parseInt(captures[2]);
+    return {
+      year: century == null ? year : century * 100,
+      restDateString: dateString.slice((captures[1] || captures[2]).length)
+    };
+  }
+
+  function parseDate(dateString, year) {
+    // Invalid ISO-formatted year
+    if (year === null) return null;
+    var captures = dateString.match(dateRegex); // Invalid ISO-formatted string
+
+    if (!captures) return null;
+    var isWeekDate = !!captures[4];
+    var dayOfYear = parseDateUnit(captures[1]);
+    var month = parseDateUnit(captures[2]) - 1;
+    var day = parseDateUnit(captures[3]);
+    var week = parseDateUnit(captures[4]);
+    var dayOfWeek = parseDateUnit(captures[5]) - 1;
+
+    if (isWeekDate) {
+      if (!validateWeekDate(year, week, dayOfWeek)) {
+        return new Date(NaN);
+      }
+
+      return dayOfISOWeekYear(year, week, dayOfWeek);
+    } else {
+      var date = new Date(0);
+
+      if (!validateDate(year, month, day) || !validateDayOfYearDate(year, dayOfYear)) {
+        return new Date(NaN);
+      }
+
+      date.setUTCFullYear(year, month, Math.max(dayOfYear, day));
+      return date;
+    }
+  }
+
+  function parseDateUnit(value) {
+    return value ? parseInt(value) : 1;
+  }
+
+  function parseTime(timeString) {
+    var captures = timeString.match(timeRegex);
+    if (!captures) return null; // Invalid ISO-formatted time
+
+    var hours = parseTimeUnit(captures[1]);
+    var minutes = parseTimeUnit(captures[2]);
+    var seconds = parseTimeUnit(captures[3]);
+
+    if (!validateTime(hours, minutes, seconds)) {
+      return NaN;
+    }
+
+    return hours * MILLISECONDS_IN_HOUR + minutes * MILLISECONDS_IN_MINUTE$1 + seconds * 1000;
+  }
+
+  function parseTimeUnit(value) {
+    return value && parseFloat(value.replace(',', '.')) || 0;
+  }
+
+  function parseTimezone(timezoneString) {
+    if (timezoneString === 'Z') return 0;
+    var captures = timezoneString.match(timezoneRegex);
+    if (!captures) return 0;
+    var sign = captures[1] === '+' ? -1 : 1;
+    var hours = parseInt(captures[2]);
+    var minutes = captures[3] && parseInt(captures[3]) || 0;
+
+    if (!validateTimezone(hours, minutes)) {
+      return NaN;
+    }
+
+    return sign * (hours * MILLISECONDS_IN_HOUR + minutes * MILLISECONDS_IN_MINUTE$1);
+  }
+
+  function dayOfISOWeekYear(isoWeekYear, week, day) {
+    var date = new Date(0);
+    date.setUTCFullYear(isoWeekYear, 0, 4);
+    var fourthOfJanuaryDay = date.getUTCDay() || 7;
+    var diff = (week - 1) * 7 + day + 1 - fourthOfJanuaryDay;
+    date.setUTCDate(date.getUTCDate() + diff);
+    return date;
+  } // Validation functions
+  // February is null to handle the leap year (using ||)
+
+
+  var daysInMonths = [31, null, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+  function isLeapYearIndex(year) {
+    return year % 400 === 0 || year % 4 === 0 && year % 100;
+  }
+
+  function validateDate(year, month, date) {
+    return month >= 0 && month <= 11 && date >= 1 && date <= (daysInMonths[month] || (isLeapYearIndex(year) ? 29 : 28));
+  }
+
+  function validateDayOfYearDate(year, dayOfYear) {
+    return dayOfYear >= 1 && dayOfYear <= (isLeapYearIndex(year) ? 366 : 365);
+  }
+
+  function validateWeekDate(_year, week, day) {
+    return week >= 1 && week <= 53 && day >= 0 && day <= 6;
+  }
+
+  function validateTime(hours, minutes, seconds) {
+    if (hours === 24) {
+      return minutes === 0 && seconds === 0;
+    }
+
+    return seconds >= 0 && seconds < 60 && minutes >= 0 && minutes < 60 && hours >= 0 && hours < 25;
+  }
+
+  function validateTimezone(_hours, minutes) {
+    return minutes >= 0 && minutes <= 59;
+  }
+
+  var dateFormats$1 = {
+    full: 'EEEE, d MMMM yyyy',
+    long: 'd MMMM yyyy',
+    medium: 'd MMM yyyy',
+    short: 'dd/MM/yyyy'
+  };
+  var timeFormats$1 = {
+    full: 'HH:mm:ss zzzz',
+    long: 'HH:mm:ss z',
+    medium: 'HH:mm:ss',
+    short: 'HH:mm'
+  };
+  var dateTimeFormats$1 = {
+    full: "{{date}} 'at' {{time}}",
+    long: "{{date}} 'at' {{time}}",
+    medium: '{{date}}, {{time}}',
+    short: '{{date}}, {{time}}'
+  };
+  var formatLong$1 = {
+    date: buildFormatLongFn({
+      formats: dateFormats$1,
+      defaultWidth: 'full'
+    }),
+    time: buildFormatLongFn({
+      formats: timeFormats$1,
+      defaultWidth: 'full'
+    }),
+    dateTime: buildFormatLongFn({
+      formats: dateTimeFormats$1,
+      defaultWidth: 'full'
+    })
+  };
+
+  /**
+   * @type {Locale}
+   * @category Locales
+   * @summary English locale (United Kingdom).
+   * @language English
+   * @iso-639-2 eng
+   * @author Alex [@glintik]{@link https://github.com/glintik}
+   */
+
+  var locale$1 = {
+    code: 'en-GB',
+    formatDistance: formatDistance,
+    formatLong: formatLong$1,
+    formatRelative: formatRelative,
+    localize: localize,
+    match: match,
+    options: {
+      weekStartsOn: 1
+      /* Monday */
+      ,
+      firstWeekContainsDate: 4
+    }
+  };
+
+  var psuedoElems = ["after", "before", "first-line", "first-letter", "selection"];
+  var psuedoSelectors = ["active", "checked", "disabled", "empty", "enabled", "first-child", "first-of-type", "focus", "hover", "in-range", "invalid", "last-child", "last-of-type", "link", "not", "only-of-type", "only-child", "optional", "out-of-range", "read-only", "read-write", "required", "root", "target", "valid", "visited"];
+  var indexedSelectors = ["nth-child", "nth-last-child", "nth-last-of-type", "nth-of-type"];
+  var deliniators = { "-space-": " ", "space-": " ", "-dot-": " .", "dot-": " .", "-chevron-": " >", "chevron-": " >", "-hash-": " #", "hash-": " #" };
+  function jssPluginPsuedo() {
+      function replaceParentRefs(prop, parent) {
+          var selectorFunction = function (key) {
+              var selector = lodash__default['default'].find(indexedSelectors, function (entry) { return key.search(entry) !== -1; });
+              if (selector) {
+                  var index = key.slice(selector.length + 1);
+                  return ":" + key.slice(0, selector.length) + "(" + index + ")";
+              }
+              return key;
+          };
+          var replaceDeliniators = function (key) {
+              return lodash__default['default'].reduce(lodash__default['default'].entries(deliniators), function (acc, _a) {
+                  var deliniator = _a[0], value = _a[1];
+                  var start = key.search(deliniator);
+                  acc = !acc ? key : acc;
+                  if (start !== -1) {
+                      acc = acc.replace(deliniator, value);
+                  }
+                  return acc;
+              }, "");
+          };
+          var addPsudoSelectors = function (key) {
+              psuedoElems.forEach(function (selector) { return key = key.replace(selector, "::" + selector); });
+              psuedoSelectors.forEach(function (selector) { return key = key.replace(selector, ":" + selector); });
+              key = selectorFunction(key);
+              return "" + parent + key;
+          };
+          var deliniaitedKey = replaceDeliniators(prop);
+          return addPsudoSelectors(deliniaitedKey);
+      }
+      function onProcessStyle(style, rule, _) {
+          if (rule.type !== 'style')
+              return style;
+          var styleRule = rule;
+          var container = styleRule.options.parent;
+          lodash__default['default'].forEach(style, function (value, key) {
+              if (typeof value !== "string" && typeof value === "object") {
+                  var selector = replaceParentRefs(key, styleRule.selector);
+                  container.addRule(selector, value, { selector: selector });
+                  delete style[key];
+              }
+          });
+          return style;
+      }
+      return { onProcessStyle: onProcessStyle };
+  }
+
+  var classMapper = {
+      uiTableHeader: 'ag-header',
+      uiTableHeaderCell: 'ag-header-cell'
+  };
+  function jssPluginAgGridClassMapper() {
+      function onProcessStyle(style, rule, sheet) {
+          if (rule.type !== 'style')
+              return style;
+          if (rule.id && classMapper[rule.id.replace(/(-\d+)*/g, "")] && sheet) {
+              var importantStyle = lodash__default['default'].reduce(lodash__default['default'].entries(rule.style), function (acc, _a) {
+                  var key = _a[0], value = _a[1];
+                  acc[key] = value + " !important";
+                  return acc;
+              }, {});
+              var r = sheet.addRule(classMapper[rule.id.replace(/(-\d+)*/g, "")], importantStyle, {
+                  selector: '.' + classMapper[rule.id.replace(/(-\d+)*/g, "")],
+              });
+              r.id = classMapper[rule.id];
+          }
+          return style;
+      }
+      return { onProcessStyle: onProcessStyle };
+  }
+
+  function jssIncreaseSpecificity(userOptions) {
+      var options = lodash__default['default'].assign({ repeat: 2 }, userOptions);
+      var prefix = Array(options.repeat).join(':not(#\\20)');
+      return {
+          onProcessRule: function (rule, sheet) {
+              var parent = rule.options.parent;
+              if (sheet.options.increaseSpecificity === false ||
+                  rule.type !== 'style' ||
+                  (parent && parent.type === 'keyframes') ||
+                  rule.selectorText.search(':not(#\\20)') !== -1)
+                  return;
+              rule.selectorText = prefix + rule.selectorText;
+          }
+      };
+  }
+
+  var isIE11 = !!window.MSInputMethodContext && !!document.documentMode;
+  function tinyDevice() {
+      return window.matchMedia("only screen and (max-width: 360px)").matches;
+  }
+  function smallDevice() {
+      return window.matchMedia("only screen and (max-width: 768px)").matches;
+  }
+  function pickByProperty(list, prop) {
+      return lodash__default['default'].find(list, lodash__default['default'].matches(prop));
+  }
+  function pickById(list, id) {
+      return lodash__default['default'].find(list, lodash__default['default'].matches({ _id: id }));
+  }
+  /**
+   * Variant of pickById accepting stream values, and returning a stream
+   */
+  function pickByIdStream(listStream, idStream, defaultValue) {
+      return stream__default['default'].lift(function (list, id) { return pickById(list, id) || defaultValue; }, listStream, idStream);
+  }
+  function filterByProperty(list, prop) {
+      return lodash__default['default'].filter(list, lodash__default['default'].matches(prop));
+  }
+  /**
+   * Mutates input list, returns array of removed items
+   */
+  function removeByProperty(list, prop) {
+      return lodash__default['default'].remove(list, lodash__default['default'].matches(prop));
+  }
+  function itemTagsOr(testTags, _a) {
+      var tags = _a.tags;
+      return lodash__default['default'].some(testTags, function (tag) { return lodash__default['default'].some(tags, tag); });
+  }
+  function itemTagsAnd(testTags, _a) {
+      var tags = _a.tags;
+      return lodash__default['default'].every(testTags, function (tag) { return lodash__default['default'].some(tags, tag); });
+  }
+  function itemsForCategory(itemList, hasTags, matchAll) {
+      if (matchAll === void 0) { matchAll = false; }
+      if (hasTags.length === 0) {
+          return itemList;
+      }
+      var filterFn = lodash__default['default'].partial(matchAll ? itemTagsAnd : itemTagsOr, hasTags);
+      return lodash__default['default'].filter(itemList, function (item) {
+          if (filterFn(item)) {
+              // TODO cleaner way to test if item is a category?
+              var category = item;
+              return category.hideEmpty
+                  ? itemsForCategory(itemList, category.content, category.contentAll).length > 0
+                  : true;
+          }
+          return false;
+      });
+  }
+  // Test given primitive is truthy or array has > 0 elements
+  function canEdit(_a) {
+      var readonly = _a.readonly, disabled = _a.disabled;
+      return !(readonly || disabled);
+  }
+  function hasValue(value) {
+      return Boolean(lodash__default['default'].isArray(value) ? value.length : value);
+  }
+  /**
+   * Express a given number of bytes as Kilobytes or Megabytes where appropriate
+   */
+  function humaniseByteCount(numBytes) {
+      if (numBytes < 1000 /* kilo */) {
+          return numBytes + " bytes";
+      }
+      else if (numBytes < 1000000 /* mega */) {
+          return lodash__default['default'].round(numBytes / 1000 /* kilo */) + "Kb";
+      }
+      else {
+          return lodash__default['default'].round(numBytes / 1000000 /* mega */) + "Mb";
+      }
+  }
+  function formatDate(timeValue, mask) {
+      if (mask === void 0) { mask = "P"; }
+      return format(timeValue, mask, { locale: locale$1 });
+  }
+  function formatTime(timeValue, mask) {
+      if (mask === void 0) { mask = "HH:mm"; }
+      return formatDate(timeValue, mask);
+  }
+  function humaniseTimeValue(timeValue) {
+      if (isYesterday(timeValue)) {
+          return "Yesterday";
+      }
+      else if (isToday(timeValue)) {
+          return "Today";
+      }
+      else if (isTomorrow(timeValue)) {
+          return "Tomorrow";
+      }
+      else {
+          return formatDate(timeValue);
+      }
+  }
+  function parseDateStr(timeStr) {
+      try {
+          return timeStr ? humaniseTimeValue(parseISO(timeStr).valueOf()) : "-";
+      }
+      catch (_a) {
+          return "-";
+      }
+  }
+  function parseTimeStr(timeStr) {
+      try {
+          return timeStr ? formatTime(parseISO(timeStr).valueOf()) : "-";
+      }
+      catch (_a) {
+          return "-";
+      }
+  }
+  /**
+   * Extract field(s) from item props
+   * A single field will be returned as its respective TProp type
+   * Multiple fields will be joined into a space delimited string
+   */
+  function extractFields(item, fieldList, category) {
+      if (category) {
+          return item.label;
+      }
+      var props = item.props;
+      return fieldList.length === 1 ? props[fieldList[0]] : lodash__default['default'](fieldList)
+          .map(function (field) { return props[field]; })
+          .compact().value().join(" ");
+  }
+  /**
+   * Pass-through function for replacing m.request "deserialize" JSON parsing default
+   */
+  function simpleResponse(value) {
+      return value;
+  }
+  var mimeTypeMap = {
+      "application/zip": {
+          icon: "fal fa-file-archive", ext: ".zip"
+      },
+      "application/pdf": {
+          icon: "fal fa-file-pdf", ext: ".pdf"
+      },
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
+          icon: "fal fa-file-word", ext: ".docx"
+      },
+      "application/msword": {
+          icon: "fal fa-file-word", ext: ".doc"
+      },
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+          icon: "fal fa-file-excel", ext: ".xlsx"
+      },
+      "application/vnd.ms-excel": {
+          icon: "fal fa-file-excel", ext: ".xls"
+      },
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation": {
+          icon: "fal fa-file-powerpoint", ext: ".pptx"
+      },
+      "application/vnd.ms-powerpoint": {
+          icon: "fal fa-file-powerpoint", ext: ".ppt"
+      },
+      "image/jpeg": {
+          icon: "fal fa-file-image", ext: ".jpeg"
+      },
+      "image/png": {
+          icon: "fal fa-file-image", ext: ".png",
+      },
+      "image/gif": {
+          icon: "fal fa-file-image", ext: ".gif"
+      },
+      "image/tiff": {
+          icon: "fal fa-file-image", ext: ".tiff"
+      },
+      "audio/mpeg": {
+          icon: "fal fa-file-audio", ext: ".mp3"
+      },
+      "video/mpeg": {
+          icon: "fal fa-file-video", ext: ".mpeg"
+      },
+      "video/quicktime": {
+          icon: "fal fa-file-video", ext: ".mov"
+      },
+      "video/x-msvideo": {
+          icon: "fal fa-file-video", ext: ".avi"
+      }
+  };
+  function fileIcon(fileType) {
+      if (mimeTypeMap.hasOwnProperty(fileType)) {
+          return mimeTypeMap[fileType].icon;
+      }
+      else {
+          return "fal fa-file-alt";
+      }
+  }
+  function fileExt(fileType) {
+      if (mimeTypeMap.hasOwnProperty(fileType)) {
+          return mimeTypeMap[fileType].ext;
+      }
+      else {
+          return "";
+      }
+  }
+  /**
+   * Provide user-friendly presentation of some file metadata properties
+   */
+  function getFileValue(file, property) {
+      if (property === "size") {
+          return humaniseByteCount(file.size);
+      }
+      else if (property === "lastModified") {
+          return humaniseTimeValue(file.lastModified);
+      }
+      else if (property === "type") {
+          return m__default['default']("i.fal.fa-fw", {
+              title: file.type,
+              class: fileIcon(file.type)
+          });
+      }
+      else {
+          return  file[property];
+      }
+  }
+  /**
+   * Get an array of files
+   * @param files IDataItem file array
+   * @param prop file property to match
+   */
+  function getFiles(files, prop) {
+      return lodash__default['default'].map(filterByProperty(files, { prop: prop }), function (file) {
+          var guid = file._id, name = file.name;
+          return {
+              guid: guid,
+              name: name,
+              path: file.remoteUrl
+          };
+      });
+  }
+  /**
+   * Get a stream of files
+   * @param files IDataItem file array
+   * @param field TField identifying files
+   */
+  function getFileStream(files, _a) {
+      var id = _a.id;
+      return stream__default['default'](getFiles(files, id));
+  }
+  /**
+   * Get a property
+   * @param props IDataItem property map
+   * @param key TField key to match
+   */
+  function getProp(props, key) {
+      return lodash__default['default'].get(props, key);
+  }
+  /**
+   * Get a property stream
+   * @param props IDataItem property map
+   * @param field TField identifying prop
+   */
+  function getPropStream(props, _a) {
+      var id = _a.id;
+      var propVal = getProp(props, id);
+      return propVal ? stream__default['default'](propVal) : stream__default['default']();
+  }
+  // export function getLocation(): Promise<Coordinates | undefined> {
+  // 	return new Promise((resolve) => {
+  // 		navigator.geolocation.getCurrentPosition(({ coords }) => resolve(coords), () => resolve());
+  // 	});
+  // }
+  var mediaNS = "@media screen and (min-width:30em)";
+  var mediaM = "@media screen and (min-width:30em) and (max-width: 60em)";
+  var mediaL = "@media screen and (min-width:60em)";
+  /** SETUP JSS */
+  jss__default['default'].use(jssPluginPsuedo(), jssPluginAgGridClassMapper());
+  function kebabifyStyle(style) {
+      return lodash__default['default'].reduce(style, function (acc, value, key) {
+          acc[lodash__default['default'].kebabCase(key)] = value;
+          return acc;
+      }, {});
+  }
+  function createResponsiveClass(_a, uiSheet) {
+      var _b, _c, _d;
+      var style = _a.style, styleNS = _a.styleNS, styleM = _a.styleM, styleL = _a.styleL, classes = _a.classes, _e = _a.key, key = _e === void 0 ? "unnamed" : _e;
+      var _uiSheet = uiSheet ? uiSheet : jss__default['default'].createStyleSheet({});
+      var classList = [];
+      var rule;
+      if (style) {
+          rule = _uiSheet.addRule(key, kebabifyStyle(style));
+          if (rule.id)
+              classList.push(rule.id);
+      }
+      if (styleNS) {
+          rule = _uiSheet.addRule(mediaNS, (_b = {}, _b[key] = kebabifyStyle(styleNS), _b));
+          rule = rule.getRule(key);
+          if (rule.id)
+              classList.push(rule.id);
+      }
+      if (styleM) {
+          rule = _uiSheet.addRule(mediaM, (_c = {}, _c[key] = kebabifyStyle(styleM), _c));
+          rule = rule.getRule(key);
+          if (rule.id)
+              classList.push(rule.id);
+      }
+      if (styleL) {
+          rule = _uiSheet.addRule(mediaL, (_d = {}, _d[key] = kebabifyStyle(styleL), _d));
+          rule = rule.getRule(key);
+          if (rule.id)
+              classList.push(rule.id);
+      }
+      if (classList.length && !uiSheet) {
+          _uiSheet.attach();
+      }
+      if (classes) {
+          classList.push(classes);
+      }
+      return classList.join(" ");
+  }
+  var applyThemeJss = jss.create({
+      plugins: [jssPluginAgGridClassMapper(), jssPluginPsuedo(), jssIncreaseSpecificity()]
+  });
+  var ResponsiveThemeHandler = /** @class */ (function () {
+      function ResponsiveThemeHandler(applyTheme) {
+          var _this = this;
+          this._classes = {};
+          this.uiSheet = applyThemeJss.createStyleSheet({});
+          lodash__default['default'].map(applyTheme, function (themeObj, key) {
+              _this._classes[key] = createResponsiveClass(lodash__default['default'].assign({ key: key, increaseSpecificity: true }, themeObj), _this.uiSheet);
+          });
+          this.uiSheet.attach();
+      }
+      Object.defineProperty(ResponsiveThemeHandler.prototype, "classes", {
+          get: function () {
+              return this._classes;
+          },
+          enumerable: false,
+          configurable: true
+      });
+      return ResponsiveThemeHandler;
+  }());
+  function joinClasses(arr) {
+      return lodash__default['default'].compact(arr).join(" ");
+  }
+  function hasChildren(header) {
+      if (lodash__default['default'].isArray(header)) {
+          return lodash__default['default'].filter(header).length;
+      }
+      return header;
+  }
+  function ButtonContextMapper(context) {
+      switch (context) {
+          case "default" /* default */:
+              return "alt" /* alt */;
+          case "alt" /* alt */:
+              return "default" /* default */;
+          case "altLighter" /* altLighter */:
+              return "lighter" /* lighter */;
+          case "altDarker" /* altDarker */:
+              return "darker" /* darker */;
+          case "darker" /* darker */:
+              return "altDarker" /* altDarker */;
+          case "lighter" /* lighter */:
+              return "altLighter" /* altLighter */;
+          case "warn" /* warn */:
+              return "neutral" /* neutral */;
+          case "error" /* error */:
+              return "neutral" /* neutral */;
+          default: return "neutral" /* neutral */;
+      }
+  }
+
+  // Registered component map
+  var componentMap = {};
+  function registerComponent(type, component) {
+      if (type in componentMap) {
+          throw new Error("Component " + type + " is already registered");
+      }
+      else {
+          componentMap[type] = component;
+      }
+  }
+  function buildComponent(_a) {
+      var type = _a.type, data = _a.data, style = _a.style, styleNS = _a.styleNS, styleM = _a.styleM, styleL = _a.styleL, classes = _a.classes;
+      var mergedClasses = createResponsiveClass({ style: style, styleNS: styleNS, styleM: styleM, styleL: styleL, classes: classes });
+      if (type in componentMap) {
+          return m__default['default'](componentMap[type], { type: type, data: data, classes: mergedClasses });
+      }
+      else {
+          return m__default['default']("span", "Unknown component type: " + type);
+      }
+  }
+  function buildComponentList(list) {
+      return lodash__default['default'].map(list, function (comp) { return buildComponent(comp); });
+  }
+
+  var _a, _b;
+  var propMap = (_a = {},
+      _a["label" /* label */] = uiWidgets.Label,
+      _a["trusted" /* trusted */] = uiWidgets.TextareaInput,
+      _a["hidden" /* hidden */] = uiWidgets.BaseInput,
+      _a["text" /* text */] = uiWidgets.BaseInput,
+      _a["password" /* password */] = uiWidgets.PasswordInput,
+      _a["search" /* search */] = uiWidgets.BaseInput,
+      _a["date" /* date */] = uiWidgets.BaseInput,
+      _a["time" /* time */] = uiWidgets.BaseInput,
+      _a["datetime-local" /* dateTimeLocal */] = uiWidgets.BaseInput,
+      _a["dateInput" /* dateInput */] = uiWidgets.DateInput,
+      _a["cardDate" /* cardDate */] = uiWidgets.CardDateInput,
+      _a["number" /* number */] = uiWidgets.BaseInput,
+      _a["range" /* range */] = uiWidgets.BaseInput,
+      _a["email" /* email */] = uiWidgets.BaseInput,
+      _a["url" /* url */] = uiWidgets.BaseInput,
+      _a["tel" /* tel */] = uiWidgets.BaseInput,
+      _a["color" /* color */] = uiWidgets.BaseInput,
+      _a["currency" /* currency */] = uiWidgets.CurrencyInput,
+      _a["textarea" /* textarea */] = uiWidgets.TextareaInput,
+      _a["checkbox" /* checkbox */] = uiWidgets.CheckboxInput,
+      _a["toggle" /* toggle */] = uiWidgets.ToggleInput,
+      _a["select" /* select */] = uiWidgets.SelectInput,
+      _a["radio" /* radio */] = uiWidgets.RadioInput,
+      _a);
+  var fileMap = (_b = {},
+      _b["fileMulti" /* fileMulti */] = uiWidgets.FileMulti,
+      _b["file" /* file */] = uiWidgets.FileSelect,
+      _b["imageMulti" /* imageMulti */] = uiWidgets.ImageMulti,
+      _b["image" /* image */] = uiWidgets.ImageSelect,
+      _b["sign" /* sign */] = uiWidgets.SignBuilder,
+      _b);
+  // Index widgets by type
+  var widgetTypeMap = {};
+  lodash__default['default'].forEach(propMap, function (_widget, key) { return widgetTypeMap[key] = 1 /* Prop */; });
+  lodash__default['default'].forEach(fileMap, function (_widget, key) { return widgetTypeMap[key] = 2 /* File */; });
+  // Widget getters
+  function getFileWidget(fieldType) {
+      if (fileMap.hasOwnProperty(fieldType)) {
+          return fileMap[fieldType];
+      }
+      else {
+          return fileMap["file" /* file */];
+      }
+  }
+  function getPropWidget(fieldType) {
+      if (propMap.hasOwnProperty(fieldType)) {
+          return propMap[fieldType];
+      }
+      else {
+          return propMap["text" /* text */];
+      }
+  }
+  function getWidget(type, fieldType) {
+      return type === 2 /* File */
+          ? getFileWidget(fieldType)
+          : type === 1 /* Prop */
+              ? getPropWidget(fieldType)
+              : undefined;
+  }
+  function getWidgetType(fieldType) {
+      if (fieldType === void 0) { fieldType = "text" /* text */; }
+      return widgetTypeMap[fieldType] || 3 /* Unknown */;
+  }
+
+  var dobRegex = /^ {0,}[0-9]{2}\/[0-9]{2}\/[0-9]{4} {0,}$/;
+  var postCodeRegex = /^ {0,}(([gG][iI][rR] {0,}0[aA]{2})|((([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y]?[0-9][0-9]?)|(([a-pr-uwyzA-PR-UWYZ][0-9][a-hjkstuwA-HJKSTUW])|([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y][0-9][abehmnprv-yABEHMNPRV-Y]))) {0,}[0-9][abd-hjlnp-uw-zABD-HJLNP-UW-Z]{2})) {0,}$/;
+  var mapHelper = {
+      "default": function (inp) { return inp; },
+      "date-format": function (inp) { return inp.map(function (dateVal) { return dateVal
+          ? formatDate(Number(dateVal))
+          : ""; }); },
+      "dateStr-format": function (inp) { return inp.map(function (dateStr) { return dateStr
+          ? formatDate(new Date(String(dateStr)).valueOf())
+          : ""; }); },
+      "date-format-month": function (inp) { return inp.map(function (dateVal) { return dateVal
+          ? formatDate(Number(dateVal), "dd MMMM yyyy")
+          : ""; }); },
+      "date-endofday": function (inp) { return inp.map(function (dateVal) { return dateVal
+          ? add(new Date(dateVal), { hours: 23, minutes: 59, seconds: 59 }).toISOString()
+          : ""; }); },
+      "upper": function (inp) { return inp.map(function (val) { return String(val).toUpperCase(); }); },
+      "lower": function (inp) { return inp.map(function (val) { return String(val).toLowerCase(); }); },
+      "snake": function (inp) { return inp.map(function (val) { return lodash__default['default'].snakeCase(String(val)); }); },
+      "trunc": function (inp) { return inp.map(function (val) { return lodash__default['default'].truncate(String(val), { length: 15 }); }); },
+      "remove-whitespace": function (inp) { return inp.map(function (val) { return val ? lodash__default['default'].replace(String(val), /\s/g, "") : ""; }); },
+      "boolean": function (inp) { return inp.map(function (val) { return Boolean(val); }); },
+      // Value test
+      "strLength": function (inp) { return inp.map(function (val) { return val ? String(val).length > 0 : false; }); },
+      "strLength-6": function (inp) { return inp.map(function (val) { return val ? String(val).length === 6 : false; }); },
+      "test-dob": function (inp) { return inp.map(function (val) { return val ? dobRegex.test(String(val)) : false; }); },
+      "test-postcode": function (inp) { return inp.map(function (val) { return val ? postCodeRegex.test(String(val)) : false; }); }
+  };
+  function applyMap(key, inp) {
+      if (mapHelper.hasOwnProperty(key)) {
+          return mapHelper[key](inp);
+      }
+      else {
+          return mapHelper["default"](inp);
+      }
+  }
+  function registerMapFn(key, func) {
+      if (!mapHelper.hasOwnProperty(key)) {
+          mapHelper[key] = func;
+      }
+  }
+  // Convert file streams into basic computed props
+  var fileMapHelper = {
+      "default": function (inp) { return inp.map(function (files) { return lodash__default['default'].map(files, function (_a) {
+          var name = _a.name;
+          return name;
+      }).join(); }); },
+      // File properties
+      "file-name": function (inp) { return inp.map(function (files) { return lodash__default['default'].map(files, function (_a) {
+          var file = _a.file;
+          return file ? file.name : "";
+      }).join(); }); },
+      "file-type": function (inp) { return inp.map(function (files) { return lodash__default['default'].map(files, function (_a) {
+          var file = _a.file;
+          return file ? file.type : "";
+      }).join(); }); },
+      "file-size": function (inp) { return inp.map(function (files) { return lodash__default['default'].map(files, function (_a) {
+          var file = _a.file;
+          return file ? file.size : "";
+      }).join(); }); },
+      "file-lastmodified": function (inp) { return inp.map(function (files) { return lodash__default['default'].map(files, function (_a) {
+          var file = _a.file;
+          return file ? file.lastModified : "";
+      }).join(); }); },
+      // File metadata
+      "path": function (inp) { return inp.map(function (files) { return lodash__default['default'].map(files, function (_a) {
+          var path = _a.path;
+          return path;
+      }).join(); }); },
+      "dataUrl": function (inp) { return inp.map(function (files) { return lodash__default['default'].map(files, function (_a) {
+          var dataUrl = _a.dataUrl;
+          return dataUrl ? dataUrl : "";
+      }).join(); }); }
+  };
+  function applyFileMap(key, inp) {
+      if (fileMapHelper.hasOwnProperty(key)) {
+          return fileMapHelper[key](inp);
+      }
+      else {
+          return fileMapHelper["default"](inp);
+      }
+  }
+  function registerFileMapFn(key, func) {
+      if (!fileMapHelper.hasOwnProperty(key)) {
+          fileMapHelper[key] = func;
+      }
+  }
+
+  var mergeHelper = {
+      "default": function (inp) { return stream__default['default'].merge(inp).map(function (vals) { return vals.join(); }); },
+      "join-space": function (inp) { return stream__default['default'].merge(inp).map(function (vals) { return vals.join(" "); }); },
+      "join-newline": function (inp) { return stream__default['default'].merge(inp).map(function (vals) { return vals.join("\n"); }); },
+      "join-underscore": function (inp) { return stream__default['default'].merge(inp).map(function (vals) { return vals.join("_"); }); },
+      // Sum of values, attempt to parse values as integers
+      "sum": function (inp) { return stream__default['default'].merge(inp).map(function (vals) { return lodash__default['default']
+          .reduce(vals, function (acc, val) {
+          var num = Number.parseInt(String(val));
+          return lodash__default['default'].isNaN(num) ? acc : acc + num;
+      }, 0); }); },
+      // Product of values, attempt to parse values as integers
+      "product": function (inp) { return stream__default['default'].merge(inp).map(function (vals) { return lodash__default['default']
+          .reduce(vals, function (acc, val) {
+          var num = Number.parseInt(String(val));
+          return lodash__default['default'].isNaN(num) ? 0 : acc * num;
+      }, 1); }); },
+      // Boolean utils
+      // Return last value if all other values are "truthy", otherwise 0
+      "and": function (inp) { return stream__default['default'].merge(inp).map(function (vals) { return lodash__default['default']
+          .reduce(vals, function (acc, val) { return acc ? val : 0; }, true); }); },
+      // Return last value if any values are "truthy", otherwise 0
+      "or": function (inp) { return stream__default['default'].merge(inp).map(function (vals) { return lodash__default['default']
+          .reduce(vals, function (acc, val) { return acc || val ? val : acc; }, 0); }); }
+  };
+  function applyMerge(key, inp) {
+      if (mergeHelper.hasOwnProperty(key)) {
+          return mergeHelper[key](inp);
+      }
+      else {
+          return mergeHelper["default"](inp);
+      }
+  }
+  function registerMergeFn(key, func) {
+      if (!mergeHelper.hasOwnProperty(key)) {
+          mergeHelper[key] = func;
+      }
+  }
+
+  function getStreams(map, keys) {
+      // TODO Reject if any one key is missing?
+      return lodash__default['default'].map(lodash__default['default'].compact(lodash__default['default'].at(map, keys)), function (_a) {
+          var value = _a.value;
+          return value;
+      });
+  }
+  function depthTest(score, keys, fieldList) {
+      return lodash__default['default'].max(lodash__default['default'].map(keys, function (key) {
+          var field = lodash__default['default'].find(fieldList, lodash__default['default'].matches({ key: key }));
+          // Increment depth and test computed dep, or return result
+          return (field && field.computed) ? depthTest(score + 1, field.computed.keys, fieldList) : score;
+      })) || 0;
+  }
+  function sortComputed(fieldList) {
+      return lodash__default['default'].sortBy(fieldList, function (field) { return depthTest(0, field.computed.keys, fieldList); });
+  }
+  /**
+   * Convert a given list of fields into a form definition
+   */
+  function buildFormFields(fieldList) {
+      // Split list into "basic" and "computed" values
+      // const { [ValType.basic]: basicList, [ValType.computed]: computedList } = lodash
+      // 	.groupBy(fieldList, (field) => "computed" in field && field.computed ? ValType.computed : ValType.basic);
+      var groups = lodash__default['default'].groupBy(fieldList, function (field) { return "computed" in field && field.computed ? "c" /* computed */ : "b" /* basic */; });
+      var _a = groups, _b = "b" /* basic */, basicList = _a[_b], _c = "c" /* computed */, computedList = _a[_c];
+      var streamMap = {};
+      // Create "basic" value stream map
+      lodash__default['default'].reduce(basicList, function (acc, _a) {
+          var key = _a.key, fileValue = _a.fileValue, input = _a.input;
+          // Distinguish between TProp and IFile[] stream values
+          var type = input ? getWidgetType(input.type) : 3 /* Unknown */;
+          if (type === 1 /* Prop */) {
+              acc[key] = {
+                  type: type,
+                  value: stream__default['default']()
+              };
+          }
+          else if (type === 2 /* File */) {
+              // Apply stream transform to present file(s) as a basic text prop
+              var fileStream = stream__default['default']([]);
+              acc[key] = {
+                  type: type,
+                  value: applyFileMap(fileValue || "default", fileStream),
+                  files: fileStream
+              };
+          }
+          return acc;
+      }, streamMap);
+      // Sort computedList based on "depth" of computed dependencies
+      var sortedComputed = sortComputed(computedList);
+      // Create "computed" value stream map using basic streams
+      lodash__default['default'].reduce(sortedComputed, function (acc, _a) {
+          var key = _a.key, _b = _a.computed, keys = _b.keys, _c = _b.map, map = _c === void 0 ? "default" : _c, _d = _b.merge, merge = _d === void 0 ? "default" : _d;
+          var mapStream;
+          // Merge multiple streams
+          if (keys.length > 1) {
+              var srcStreams = getStreams(acc, keys);
+              mapStream = applyMerge(merge, srcStreams);
+          }
+          else if (keys.length === 1) {
+              // Get single stream
+              mapStream = getStreams(acc, keys)[0];
+          }
+          // Apply map
+          if (mapStream) {
+              acc[key] = {
+                  type: 1 /* Prop */,
+                  value: applyMap(map, mapStream)
+              };
+          }
+          return acc;
+      }, streamMap);
+      // Gather inputs, widgets, and streams
+      return {
+          fields: lodash__default['default'](fieldList)
+              // Only create fields for entries with inputs
+              .filter(function (field) { return "input" in field; })
+              .map(function (_a) {
+              var key = _a.key, group = _a.group, input = _a.input, data = _a.data;
+              var formStream = streamMap[key];
+              var type = formStream.type;
+              return {
+                  key: key, group: group, input: input, type: type, data: data,
+                  widget: getWidget(type, input.type || "text" /* text */),
+                  value: formStream.value,
+                  files: formStream.type === 2 /* File */ ? formStream.files : undefined
+              };
+          }).value(),
+          streamMap: streamMap
+      };
+  }
+  function overrideInput(input, override) {
+      return override ? lodash__default['default'].assign({}, input, override) : input;
+  }
+  function assembleFormField(_a, inputOverride) {
+      var type = _a.type, input = _a.input, widget = _a.widget, value = _a.value, files = _a.files;
+      if (type === 2 /* File */ && input && widget && files) {
+          return m__default['default'](widget, {
+              field: overrideInput(input, inputOverride),
+              value: files
+          });
+      }
+      else if (type === 1 /* Prop */ && input && widget && value) {
+          return m__default['default'](widget, {
+              field: overrideInput(input, inputOverride),
+              value: value
+          });
+      }
+      return null;
+  }
+
+  (function (DialogPosition) {
+      DialogPosition["center"] = "center";
+      DialogPosition["top"] = "top";
+      DialogPosition["topRight"] = "topRight";
+      DialogPosition["topLeft"] = "topLeft";
+      DialogPosition["bottom"] = "bottom";
+      DialogPosition["bottomRight"] = "bottomRight";
+      DialogPosition["bottomLeft"] = "bottomLeft";
+  })(exports.DialogPosition || (exports.DialogPosition = {}));
+  (function (DialogType) {
+      DialogType["notification"] = "notification";
+      DialogType["confirm"] = "confirm";
+      DialogType["login"] = "login";
+      DialogType["feedback"] = "feedback";
+  })(exports.DialogType || (exports.DialogType = {}));
+
+  var application = stream__default['default']();
+  // Update ui-widgets config when application is set
+  application.map(function (_a) {
+      var uiWidgets$1 = _a.uiWidgets;
+      uiWidgets.updateConfig({
+          signFont: "Caveat",
+          stampBtnClass: "pulse",
+          stampBtnContext: "alt"
+      });
+      if (uiWidgets$1) {
+          uiWidgets.updateConfig(uiWidgets$1);
+      }
+  });
+
+  var dialog = stream__default['default']();
+  /**
+   * Set dialog and redraw, useful for 3rd party library events/callbacks
+   */
+  function dialogRedraw(newDialog) {
+      dialog(newDialog);
+      m.redraw();
+  }
+  function errNotification(err) {
+      // console.debug(err);
+      // TODO Does this requre a redraw in our use cases?
+      dialogRedraw({
+          message: String(err.message),
+          context: "error" /* error */
+      });
+  }
+
+  var BrandingRoute;
+  (function (BrandingRoute) {
+      BrandingRoute["list"] = "list";
+      BrandingRoute["root"] = "root";
+      BrandingRoute["single"] = "single";
+      BrandingRoute["new"] = "new";
+      BrandingRoute["view"] = "view";
+      BrandingRoute["edit"] = "edit";
+      BrandingRoute["comp"] = "comp";
+      BrandingRoute["pdf"] = "pdf";
+      BrandingRoute["default"] = "default";
+  })(BrandingRoute || (BrandingRoute = {}));
+
+  var baseBranding = stream__default['default']({});
+  var routeString = stream__default['default'](BrandingRoute.default);
+  var branding = stream__default['default'].lift(function (route, base) {
+      var routes = base.routes || {};
+      return lodash__default['default'].assign({}, base, routes[route]);
+  }, routeString, baseBranding);
+  // Push new branding into brandMap, setting default values
+  function updateBrandmap(_a) {
+      var _b = _a.company, company = _b === void 0 ? "" : _b, _c = _a.copyright, copyright = _c === void 0 ? "" : _c, _d = _a.tel, tel = _d === void 0 ? "" : _d, _e = _a.email, email = _e === void 0 ? "" : _e, _f = _a.address, address = _f === void 0 ? "" : _f, poweredBy = _a.poweredBy, _g = _a.header, header = _g === void 0 ? [
+          { type: 0 /* spacer */ },
+          { type: 7 /* logoutLarge */ }
+      ] : _g, _h = _a.subheader, subheader = _h === void 0 ? [] : _h, _j = _a.footer, footer = _j === void 0 ? [
+          { type: 9 /* poweredBy */ },
+          { type: 0 /* spacer */ },
+          { type: 8 /* copyright */ },
+          { type: 0 /* spacer */ },
+          { type: 10 /* progress */ },
+          { type: 6 /* logoutSmall */ }
+      ] : _j, _k = _a.routes, routes = _k === void 0 ? {} : _k;
+      baseBranding({
+          company: company, copyright: copyright,
+          tel: tel, email: email, address: address,
+          poweredBy: poweredBy,
+          header: header, subheader: subheader, footer: footer, routes: routes
+      });
+  }
+  // Apply default value
+  updateBrandmap({});
+  function loadBranding() {
+      var path = application().brandingPath;
+      return path
+          ? m.request(path).then(function (newBranding) {
+              // Update legacy branding header
+              if (newBranding.header && !lodash__default['default'].isArray(newBranding.header)) {
+                  var oldHeader = newBranding.header;
+                  newBranding.header = [
+                      { type: 15 /* logo */, logo: oldHeader.lhs },
+                      { type: 0 /* spacer */ },
+                      { type: 15 /* logo */, logo: oldHeader.rhs },
+                      { type: 7 /* logoutLarge */ }
+                  ];
+              }
+              updateBrandmap(newBranding);
+          }).catch(lodash__default['default'].noop)
+          : Promise.resolve();
+  }
+
+  var uiColorSheet = jss__default['default'].createStyleSheet({});
+  var ThemeColor = /** @class */ (function () {
+      function ThemeColor(input) {
+          this.key = input.key;
+          this.background = input.background;
+          this.color = input.color;
+          this._style = {
+              background: input.background,
+              color: input.color
+          };
+          this._classes = {
+              background: createResponsiveClass({
+                  key: input.key,
+                  style: { background: input.background }
+              }, uiColorSheet),
+              color: createResponsiveClass({
+                  key: input.key,
+                  style: { color: input.color }
+              }, uiColorSheet)
+          };
+      }
+      Object.defineProperty(ThemeColor.prototype, "style", {
+          get: function () {
+              return lodash__default['default'].assign({}, this._style);
+          },
+          enumerable: false,
+          configurable: true
+      });
+      Object.defineProperty(ThemeColor.prototype, "classes", {
+          get: function () {
+              return this._classes;
+          },
+          enumerable: false,
+          configurable: true
+      });
+      return ThemeColor;
+  }());
+  var UIThemeColorsHelper = /** @class */ (function () {
+      function UIThemeColorsHelper() {
+          this._body = new ThemeColor({
+              key: 'body_colors',
+              background: 'linear-gradient(232deg, rgba(119, 171, 203, 0.4) 0%, rgba(255,255,255,1) 58%, rgba(255,255,255,1) 67%, rgba(119, 173, 206, 0.6) 100%)',
+              color: "#333333",
+          });
+          this._default = new ThemeColor({
+              key: "default_colors",
+              background: "#fff",
+              color: "#6db0ec",
+          });
+          this._lighter = new ThemeColor({
+              key: "lighter_colors",
+              background: "#fff",
+              color: "#9bc6ec",
+          });
+          this._darker = new ThemeColor({
+              key: "darker_colors",
+              background: "#efefef",
+              color: "#3372bc",
+          });
+          this._alt = new ThemeColor({
+              key: "alt_colors",
+              background: "#6db0ef",
+              color: "#fff",
+          });
+          this._altLighter = new ThemeColor({
+              key: "altLighter_colors",
+              background: "#9bc6ec",
+              color: "#333333",
+          });
+          this._altDarker = new ThemeColor({
+              key: "altDarker_colors",
+              background: "#3372bc",
+              color: "#fff",
+          });
+          this._error = new ThemeColor({
+              key: "error_colors",
+              background: "#ED5d5d",
+              color: "#fff",
+          });
+          this._warn = new ThemeColor({
+              key: "warn_colors",
+              background: "#ff925c",
+              color: "#fff",
+          });
+          this._neutral = new ThemeColor({
+              key: "neutral_colors",
+              background: "#fff",
+              color: "#333333",
+          });
+      }
+      UIThemeColorsHelper.prototype.getContextClasses = function (context) {
+          return this[context].classes.background + " " + this[context].classes.color;
+      };
+      UIThemeColorsHelper.prototype.update = function (newColors) {
+          if ("body" in newColors)
+              this.body = new ThemeColor(lodash__default['default'].assign({}, this._body, newColors.body));
+          if ("default" in newColors)
+              this.default = new ThemeColor(lodash__default['default'].assign({}, this._default, newColors.default));
+          if ("lighter" in newColors)
+              this.lighter = new ThemeColor(lodash__default['default'].assign({}, this._lighter, newColors.lighter));
+          if ("darker" in newColors)
+              this.darker = new ThemeColor(lodash__default['default'].assign({}, this._darker, newColors.darker));
+          if ("alt" in newColors)
+              this.alt = new ThemeColor(lodash__default['default'].assign({}, this._alt, newColors.alt));
+          if ("altDarker" in newColors)
+              this.altDarker = new ThemeColor(lodash__default['default'].assign({}, this._altDarker, newColors.altDarker));
+          if ("altLighter" in newColors)
+              this.altLighter = new ThemeColor(lodash__default['default'].assign({}, this._altLighter, newColors.altLighter));
+          if ("error" in newColors)
+              this.error = new ThemeColor(lodash__default['default'].assign({}, this._error, newColors.error));
+          if ("warn" in newColors)
+              this.warn = new ThemeColor(lodash__default['default'].assign({}, this._warn, newColors.warn));
+          if ("neutral" in newColors)
+              this.neutral = new ThemeColor(lodash__default['default'].assign({}, this._neutral, newColors.neutral));
+          uiColorSheet.attach();
+      };
+      Object.defineProperty(UIThemeColorsHelper.prototype, "body", {
+          get: function () { return this._body; },
+          set: function (newValue) { this._body = newValue; },
+          enumerable: false,
+          configurable: true
+      });
+      Object.defineProperty(UIThemeColorsHelper.prototype, "default", {
+          get: function () { return this._default; },
+          set: function (newValue) { this._default = newValue; },
+          enumerable: false,
+          configurable: true
+      });
+      Object.defineProperty(UIThemeColorsHelper.prototype, "lighter", {
+          get: function () { return this._lighter; },
+          set: function (newValue) { this._lighter = newValue; },
+          enumerable: false,
+          configurable: true
+      });
+      Object.defineProperty(UIThemeColorsHelper.prototype, "darker", {
+          get: function () { return this._darker; },
+          set: function (newValue) { this._darker = newValue; },
+          enumerable: false,
+          configurable: true
+      });
+      Object.defineProperty(UIThemeColorsHelper.prototype, "alt", {
+          get: function () { return this._alt; },
+          set: function (newValue) { this._alt = newValue; },
+          enumerable: false,
+          configurable: true
+      });
+      Object.defineProperty(UIThemeColorsHelper.prototype, "altLighter", {
+          get: function () { return this._altLighter; },
+          set: function (newValue) { this._altLighter = newValue; },
+          enumerable: false,
+          configurable: true
+      });
+      Object.defineProperty(UIThemeColorsHelper.prototype, "altDarker", {
+          get: function () { return this._altDarker; },
+          set: function (newValue) { this._altDarker = newValue; },
+          enumerable: false,
+          configurable: true
+      });
+      Object.defineProperty(UIThemeColorsHelper.prototype, "error", {
+          get: function () { return this._error; },
+          set: function (newValue) { this._error = newValue; },
+          enumerable: false,
+          configurable: true
+      });
+      Object.defineProperty(UIThemeColorsHelper.prototype, "warn", {
+          get: function () { return this._warn; },
+          set: function (newValue) { this._warn = newValue; },
+          enumerable: false,
+          configurable: true
+      });
+      Object.defineProperty(UIThemeColorsHelper.prototype, "neutral", {
+          get: function () { return this._neutral; },
+          set: function (newValue) { this._neutral = newValue; },
+          enumerable: false,
+          configurable: true
+      });
+      return UIThemeColorsHelper;
+  }());
+
+  var colors = stream__default['default'](new UIThemeColorsHelper());
+
+  var profile = stream__default['default']({});
+  function loadProfile() {
+      var path = application().profilePath;
+      return path
+          ? m.request(path).then(profile).catch(lodash__default['default'].noop)
+          : Promise.resolve();
+  }
+
+  function createThemeClasses(theme, uiSheet) {
+      return lodash__default['default'].reduce(theme, function (acc, value, key) {
+          acc[key] = createResponsiveClass(lodash__default['default'].assign({ key: key }, value), uiSheet);
+          return acc;
+      }, {});
+  }
+
+  function uiInputTheme() {
+      return {
+          uiInputWrapper: {
+              classes: "mb2",
+              style: {
+                  focus: { "border-color": colors().lighter.color },
+                  background: "#efefef",
+                  padding: '.3rem',
+                  margin: "10px 0px"
+              }
+          },
+          uiInput: {
+              classes: "bn fw2"
+          },
+          uiInputFieldset: {
+              classes: "mb2",
+          },
+          uiInputLabel: {},
+          uiRadioButton: {},
+          uiRadioButtonChecked: {}
+      };
+  }
+
+  // import { colors } from "../../state/theme";
+  function uiLayoutTheme( /* colors: UIThemeColorsHelper */) {
+      return {
+          uiLayout: {
+              style: {
+                  background: "transparent"
+              },
+          },
+          uiPostContentWrapper: {
+              classes: "flex flex-wrap items-center flex-column w-100"
+          },
+          uiPreContentWrapper: {
+              classes: "flex flex-wrap items-center flex-column w-100"
+          }
+      };
+  }
+
+  function uiCardTheme() {
+      return {
+          uiCardGroup: {
+              classes: "flex flex-wrap justify-center pa2"
+          },
+          uiCardWrapper: {
+              style: {
+                  color: colors().alt.color,
+                  background: colors().alt.background,
+                  borderRadius: "10px",
+                  boxShadow: "3px 2px 11px lightgrey",
+                  width: '13rem',
+                  height: '13rem',
+              },
+              classes: "flex flex-column",
+          },
+          uiCardHeader: {
+              classes: "flex-auto",
+              style: {
+                  fontSize: "1.25rem",
+                  textAlign: "center",
+                  fontWeight: '300',
+              }
+          },
+          uiCardContentWrapper: {
+              style: {
+                  justifyContent: "center",
+                  "hover-space-img": {
+                      transform: "scale(1.05)"
+                  }
+              },
+          },
+          uiCardSubheading: {
+              classes: "ma2 pv1 ph2 flex items-center",
+              style: {
+                  fontSize: "1.25rem"
+              }
+          },
+          uiCardIcon: {
+              classes: "fal fa-fw fa-4x ma2",
+              style: {
+                  fontSize: '3rem',
+              }
+          },
+          uiCardImage: {
+              classes: "img ma2",
+              style: {
+                  transition: 'transform 0.1s ease-in-out'
+              }
+          },
+          uiCardCounter: {
+              classes: "top-0 right-0",
+              style: {
+                  fontWeight: '600',
+                  background: '#f7931c',
+                  color: "white",
+                  padding: '0.3rem 0.5rem',
+                  borderRadius: '24px',
+                  marginTop: "-0.45rem",
+                  marginRight: "-0.55rem",
+              }
+          },
+          uiCardContextNeutral: {
+              style: colors().neutral.style
+          },
+          uiCardContextDefault: {
+              style: colors().default.style
+          },
+          uiCardContextWarn: {
+              style: colors().warn.style
+          },
+          uiCardContextError: {
+              style: colors().error.style
+          },
+      };
+  }
+
+  function uiHeaderFooterTheme() {
+      return {
+          uiCustomHeader: {},
+          uiHeaderWrapper: {
+              style: {
+                  maxWidth: "100%",
+                  background: 'white',
+                  boxShadow: '2px 2px 5px #ebf0f5',
+              }
+          },
+          uiHeader: {
+              style: colors().default.style
+          },
+          uiSubheader: {
+              style: {
+                  height: "3rem",
+                  color: colors().default.color,
+                  background: "transparent"
+              }
+          },
+          uiFooter: {
+              style: {
+                  maxWidth: "100%",
+                  height: "3rem",
+                  boxShadow: '0px 0px 2px 2px #ebf0f5',
+                  background: 'white'
+              }
+          },
+      };
+  }
+
+  function uiPanelTheme() {
+      return {
+          uiPanel: {},
+          uiPanelHeader: {
+              style: {
+                  color: colors().default.color,
+                  background: "transparent"
+              },
+          },
+          uiPanelSubheader: {},
+          uiPanelHeaderButton: {},
+      };
+  }
+
+  function uiLoginTheme() {
+      return {
+          uiLoginResetReturn: {},
+          uiLoginResetHeader: {},
+          uiLoginWrapper: {
+              classes: "pa2",
+              style: {
+                  width: "100%",
+              }
+          },
+          uiLogin: {
+              classes: "measure-wide center",
+              style: {
+                  padding: "2rem",
+                  border: "2px solid #dcdedf",
+                  borderRadius: "10px",
+                  marginTop: "3rem",
+                  boxShadow: "1px 1px 6px #80808036",
+              }
+          },
+          uiLoginInputWrapper: {
+              style: {
+                  border: "2px solid #dcdedf",
+                  borderRadius: "5px",
+                  margin: "10px 0px"
+              }
+          },
+          uiLoginForm: {},
+          uiLoginButtonWrapper: {
+              classes: "justify-between"
+          },
+          uiLoginButton: {
+              style: colors().alt.style
+          },
+          uiLoginInput: {},
+          uiLoginFormInputWrapper: {},
+          uiLoginLines: {},
+          uiHelpInputWrapper: {},
+          uiHelpInputLines: {},
+          uiLoginInputFieldset: {},
+          uiLoginInputLabel: {},
+          uiLoginHeader: {},
+          uiLoginResetButton: {},
+          uiLoginHelpHeader: {
+              style: {
+                  alignSelf: "center"
+              }
+          },
+          uiLoginPostLines: {}
+      };
+  }
+
+  function uiTableTheme() {
+      return {
+          uiTable: {
+              style: {}
+          },
+          uiTableHeader: {
+              classes: "flex-auto",
+              style: {
+                  color: colors().alt.color,
+                  background: colors().alt.background,
+                  fontWeight: "400"
+              }
+          },
+          uiTableHeaderCell: {
+              style: {
+                  color: colors().alt.color,
+                  fontWeight: "400",
+              }
+          },
+          uiTableHeaderRowCell: {},
+          uiTableRow: {},
+          uiTableRowCell: {},
+          uiTableItem: {},
+          uiTableItemRow: {},
+          uiTableItemIcon: {},
+          uiTableItemDate: {},
+          uiTableItemTime: {},
+          uiTableItemTitle: {},
+          uiTableItemType: {},
+          uiTableItemSize: {},
+      };
+  }
+
+  function uiButtonTheme() {
+      return {
+          uiNavButton: {},
+          uiButton: {
+              classes: "shadow-4 ma2",
+              style: {
+                  color: colors().default.color,
+                  background: colors().default.background,
+                  padding: ".5rem 2rem",
+                  fontWeight: '300',
+                  border: "unset",
+                  borderRadius: "5px",
+                  outline: "none",
+                  hover: {
+                      "box-shadow": "0 0 0.125rem 0 silver"
+                  }
+              }
+          },
+          uiButtonAlt: {
+              classes: "shadow-4 ma2",
+              style: colors().alt.style
+          },
+          uiButtonInfo: {},
+          uiButtonDefault: {
+              style: colors().default.style
+          },
+          uiButtonWarn: {
+              style: colors().warn.style
+          },
+          uiButtonError: {
+              style: colors().error.style
+          },
+          uiButtonNeutral: {
+              style: colors().neutral.style
+          }
+      };
+  }
+
+  function uiDialogTheme() {
+      return {
+          uiDialogContextAlt: {
+              style: colors().alt.style
+          },
+          uiDialogContextDefault: {
+              style: colors().default.style
+          },
+          uiDialogContextNeutral: {
+              style: colors().neutral.style
+          },
+          uiDialogContextWarn: {
+              style: colors().warn.style
+          },
+          uiDialogContextError: {
+              style: colors().error.style
+          },
+          uiDialogWrapper: {
+              style: {
+                  borderRadius: "10px",
+                  overflow: "hidden"
+              }
+          },
+          uiDialogLoginWrapper: {
+              style: {
+                  position: 'relative',
+                  minHeight: "20%",
+                  animationIterationCount: "3"
+              }
+          },
+          uiDialogNotificationWrapper: {
+              style: {
+                  borderRadius: "10px",
+                  pointerEvents: 'auto',
+                  boxShadow: "0px 3px 3px -2px rgba(0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0.14), 0px 1px 8px 0px rgba(0,0,0,0.12)",
+              }
+          },
+          uiDialogIcon: {},
+          uiDialogTitle: {},
+          uiDialogText: {},
+          uiDialogButtonWrapper: {
+              style: {
+                  position: 'relative',
+                  justifySelf: 'flex-end'
+              }
+          },
+          uiDialogFeedbackWrapper: {
+              style: {
+                  background: colors().default.background
+              }
+          },
+          uiDialogFeedbackTitle: {
+              style: {
+                  color: colors().default.color
+              }
+          },
+          uiDialogFeedbackLabel: {},
+          uiDialogFeedbackButtonWrapper: {
+              style: {
+                  backgroundColor: "#c7c7c7",
+                  position: 'relative',
+                  justifySelf: 'flex-end'
+              }
+          },
+          uiDialogLinkButton: {
+              style: {
+                  background: "unset"
+              }
+          },
+          uiDialogCancelButton: {
+              classes: "mr2"
+          },
+          uiDialogConfirmButton: {
+              classes: "mr2"
+          },
+          uiDialogFailMessage: {
+              style: {
+                  fontSize: '1.1rem'
+              },
+              styleNS: {
+                  fontSize: '1.2'
+              }
+          }
+      };
+  }
+
+  // import { colors } from "../../state/theme";
+  function uiNavbarTheme( /* colors: UIThemeColorsHelper */) {
+      return {
+          uiNavbarCopyright: {},
+          uiNavbarImage: {},
+          uiNavbarLink: {},
+          uiNavbarLogout: {
+              style: {
+                  height: "2rem",
+                  padding: "0rem 1rem",
+                  borderRadius: "5px",
+                  marginBottom: 'auto',
+                  marginTop: 'auto',
+              }
+          },
+          uiNavbarLogoutIcon: {
+              style: {
+                  color: "inherit"
+              }
+          },
+          uiNavbarLogoutLabel: {
+              style: {
+                  color: "inherit"
+              }
+          },
+          uiNavbarName: {},
+          uiNavbarNameVersion: {},
+          uiNavbarPoweredBy: {},
+          uiNavbarProgress: {},
+          uiNavbarSalutation: {},
+          uiNavbarText: {},
+          uiNavbarVersion: {}
+      };
+  }
+
+  function uiActionCardTheme() {
+      return {
+          uiActionCardContent: {},
+          uiActionCardWrapper: {
+              classes: "pa3",
+              style: {
+                  width: "100%",
+                  height: "100%"
+              }
+          },
+          uiActionCardInnerWrapper: {
+              style: {
+                  display: "flex",
+                  alignContent: "space-evenly",
+                  width: "100%"
+              },
+              styleNS: {
+                  width: "75%"
+              }
+          },
+          uiActionCardButton: {
+              style: {
+                  maxWidth: "35%"
+              }
+          },
+          uiActionCardHeader: {
+              style: {
+                  margin: "unset",
+                  flex: "unset",
+                  minWidth: "unset",
+                  minheight: "unset",
+                  textAlign: "left"
+              }
+          },
+          uiActionCardImage: {},
+          uiActionCardImageWrapper: {
+              style: {
+                  width: "0px",
+                  visibility: "hidden"
+              },
+              styleNS: {
+                  width: "25%",
+                  visibility: "visible"
+              }
+          },
+          uiActionCardLines: {
+              style: {
+                  background: "unset",
+                  color: "white"
+              }
+          },
+      };
+  }
+
+  function uiItemTheme() {
+      return {
+          uiItemListTitleIcon: {},
+          uiItemListAccordionIcon: {
+              style: {
+                  fontSize: "1.5rem"
+              }
+          },
+          uiItemListTitle: {
+              style: {
+                  fontSize: "1.5rem",
+                  fontWeight: "300"
+              }
+          },
+          uiItemListGroupLabel: {},
+          uiItemListAccordionTitleWrapper: {
+              style: {
+                  marginBottom: "1rem"
+              }
+          },
+          uiItemListAccordionWrapper: {
+              classes: "flex flex-column items-left",
+              style: {
+                  transition: "height 0.5s ease 0.1s",
+                  overflow: "hidden",
+                  width: "100%",
+                  border: "1px solid grey",
+                  padding: "0px 1rem"
+              }
+          },
+          uiItemListContainer: {
+              classes: "flex flex-column flex-auto overflow-x-hidden overflow-y-auto",
+          },
+          uiItemTableContainer: {
+              classes: "flex-auto overflow-x-hidden overflow-y-auto pa2",
+          },
+          uiItemTableIcon: {},
+          uiItemTableInfo: {},
+          uiItemTableInfoIcon: {},
+          uiItemTableRow: {},
+          uiItemTableHeader: {},
+          uiItemTableHeaderMarker: {},
+          uiItemTableHeaderDate: {},
+          uiItemTableHeaderDocumentName: {},
+          uiItemTableHeaderIcon: {},
+          uiItemTableHeaderSize: {},
+          uiItemGridContainer: {
+              classes: "flex-auto overflow-x-hidden overflow-y-auto",
+          },
+          uiItemRowWrapper: {
+              classes: "flex flex-column flex-row-ns ma2 pv2 bb b--black-20",
+          },
+          uiItemRowInnerWrapper: {
+              classes: "flex-auto flex flex-row items-center pointer",
+              style: {
+                  color: "black"
+              }
+          },
+          uiItemRowHeaderWrapper: {
+              classes: "flex-auto"
+          },
+          uiItemRowActions: {
+              classes: "flex flex-wrap items-center justify-end pl2 nl1 nr1",
+          },
+          uiItemButtonsWrapper: {},
+          uiItemButtonsInnerWrapper: {},
+          uiItemActionButton: {
+              classes: "pa1 mr2"
+          },
+          uiItemIcon: {},
+          uiItemHeading: {},
+          uiItemSubheading: {
+              classes: "flex flex-wrap nr1 nb1 nl1 f6 ws-normal",
+              style: {
+                  color: colors().default.color
+              }
+          },
+          uiItemEditWrapper: {},
+          uiItemEditHeader: {},
+          uiItemEditIcon: {},
+          uiItemEditLabel: {},
+          uiItemEditButton: {},
+          uiItemEditFormWrapper: {},
+          uiItemViewWrapper: {},
+          uiItemViewRowWrapper: {},
+          uiItemViewIcon: {},
+          uiItemViewField: {},
+          uiCategoryItemWrapper: {},
+          uiCategoryItemIcon: {},
+          uiCategoryItemLabel: {},
+          uiCategoryItemMarker: {},
+          uiCategoryItemArrow: {},
+      };
+  }
+
+  function uiPdfTheme() {
+      return {
+          uiPdfFieldOverlay: {
+              style: {
+                  background: colors().darker.background
+              }
+          },
+          uiPdfTopBar: {
+              style: colors().alt.style
+          },
+          uiPdfBackButton: {},
+          uiPdfZoomInButton: {},
+          uiPdfZoomOutButton: {},
+          uiPdfDownloadButton: {},
+          uiPdfPanel: {
+              style: {
+                  background: "#777777",
+              }
+          },
+          uiPdfBottomBar: {
+              style: colors().alt.style
+          },
+          uiPdfSubheader: {
+              style: colors().alt.style
+          },
+          uiPdfStartButton: {
+              style: colors().alt.style
+          },
+      };
+  }
+
+  function uiDataCardTheme() {
+      return {
+          uiDataCardGridWrapper: {
+              classes: "flex flex-column",
+              style: {
+                  padding: "0 1rem"
+              },
+              styleNS: {
+                  padding: "0 2rem"
+              }
+          },
+          uiDataCardCategoryLabel: {
+              style: {
+                  marginLeft: 'auto',
+                  borderRadius: '1rem',
+                  padding: '0.3rem 1rem',
+                  alignSelf: 'center',
+                  textTransform: 'uppercase',
+                  fontWeight: '300',
+              }
+          },
+          uiDataCardHeader: {
+              style: {
+                  fontWeight: '400',
+                  fontSize: '2rem',
+              }
+          },
+          uiDataCardHeaderWrapper: {
+              classes: "flex flex-row",
+              style: {
+                  marginBottom: '1rem'
+              }
+          },
+          uiDataCardSectionItemLabel: {
+              style: {
+                  fontWeight: '300',
+                  marginRight: '1rem',
+                  minWidth: '9rem',
+              }
+          },
+          uiDataCardSectionItemValue: {
+              style: {
+                  opacity: "0.9",
+                  fontWeight: '200',
+                  marginBottom: '0.5rem',
+              }
+          },
+          uiDataCardSectionItemWrapper: {
+              style: {
+                  display: 'inline',
+                  marginBottom: '0.5rem',
+              },
+              styleNS: {
+                  display: 'flex',
+                  flexDirection: 'row',
+              },
+              styleM: {
+                  display: 'flex',
+                  flexDirection: 'row',
+              }
+          },
+          uiDataCardSectionLabel: {
+              style: {
+                  fontWeight: '500',
+                  marginBottom: '0.5rem',
+                  textTransform: 'uppercase',
+                  fontSize: '0.8rem'
+              }
+          },
+          uiDataCardSectionWrapper: {
+              style: {
+                  marginBottom: '2rem',
+              }
+          },
+          uiDataCardWrapper: {
+              classes: "flex-shrink-0 self-center",
+              style: {
+                  borderRadius: "10px",
+                  boxShadow: '0px 0px 2px 2px #ebf0f5',
+                  padding: '2rem',
+                  fontSize: '1rem',
+                  maxWidth: '60rem',
+                  margin: '2rem',
+                  width: "100%",
+                  height: "unset",
+                  background: "white"
+              }
+          },
+          uiDataCardButton: {
+              style: {
+                  marginLeft: "auto"
+              }
+          }
+      };
+  }
+
+  function uiBlockLinesTheme() {
+      return {
+          uiBlockLinesWrapper: {}
+      };
+  }
+
+  function uiIconTheme() {
+      return {
+          uiIcon: {
+              style: {
+                  color: colors().default.color
+              }
+          }
+      };
+  }
+
+  function uiSearchBoxTheme() {
+      return {
+          uiSearchBoxWrapper: {},
+          uiSearchBoxIcon: {
+              style: {
+                  color: colors().default.color
+              }
+          },
+          uiSearchBoxInput: {},
+          uiSearchBoxClearIcon: {
+              style: {
+                  color: colors().default.color
+              }
+          },
+      };
+  }
+
+  function uiProgressTheme() {
+      return {
+          uiProgressFlowWrapper: {},
+          uiProgressFlowStepWrapper: {
+              style: {
+                  margin: "1rem"
+              }
+          },
+          uiProgressFlowArrowWrapper: {
+              style: {
+                  position: "relative",
+                  top: "4rem",
+                  height: "4rem",
+              },
+              styleNS: {
+                  width: "4rem",
+              }
+          },
+          uiProgressFlowArrow: {
+              style: {
+                  height: "100%",
+                  width: "4rem",
+                  transform: "rotate(90deg)",
+                  fill: colors().default.color
+              },
+              styleNS: {
+                  transform: "rotate(0deg)",
+              }
+          },
+          uiProgressCardIndicator: {
+              style: {
+                  position: "relative",
+                  height: "3.6rem",
+                  width: "5rem",
+                  borderRadius: "50%",
+                  border: "solid 1px white"
+              }
+          },
+          uiProgressCardWrapper: {
+              style: {
+                  textAlign: "center",
+                  padding: "1rem 0 1rem 1rem",
+              }
+          },
+          uiProgressCardOuterWrapper: {},
+          uiProgressCardSubheading: {
+              style: {
+                  textAlign: "start",
+                  fontWeight: "200",
+                  opacity: "0.8"
+              }
+          },
+          uiProgressCardHeading: {
+              style: {
+                  textAlign: "start",
+                  fontWeight: "600",
+                  fontSize: "1.25rem",
+                  textTransform: "uppercase"
+              }
+          },
+          uiProgressCardWarn: {
+              style: {
+                  color: "#5a5a5a",
+                  background: "#f9ceba"
+              }
+          },
+          uiProgressCardWaiting: {
+              style: {
+                  color: "#5a5a5a",
+                  background: "#f9ceba"
+              }
+          },
+          uiProgressCardError: {
+              style: {
+                  color: "#5a5a5a",
+                  background: "#f5b7b8"
+              }
+          },
+          uiProgressCardComplete: {
+              style: {
+                  color: "#5a5a5a",
+                  background: "#d1e6c7"
+              }
+          },
+          uiProgressCardIncomplete: {
+              style: {
+                  color: "#5a5a5a",
+                  background: "#bfdbf1"
+              }
+          },
+          uiProgressCardIconWarn: {
+              style: {
+                  color: colors().warn.color,
+                  background: colors().warn.background,
+                  boxShadow: "0px 0px 0px 2px " + colors().warn.background,
+              }
+          },
+          uiProgressCardIconWaiting: {
+              style: {
+                  color: colors().warn.color,
+                  background: colors().warn.background,
+                  boxShadow: "0px 0px 0px 2px " + colors().warn.background,
+              }
+          },
+          uiProgressCardIconError: {
+              style: {
+                  color: colors().error.color,
+                  background: colors().error.background,
+                  boxShadow: "0px 0px 0px 2px " + colors().error.background,
+              }
+          },
+          uiProgressCardIconComplete: {
+              style: {
+                  color: "#fff",
+                  background: "#94c47d",
+                  boxShadow: "0px 0px 0px 2px #94c47d",
+              }
+          },
+          uiProgressCardIconIncomplete: {
+              style: {
+                  color: "#fff",
+                  background: "#70acdf",
+                  boxShadow: "0px 0px 0px 2px #70acdf",
+              }
+          }
+      };
+  }
+
+  /** NOTE !! The order that the theme defaults are created matter
+  --> The !!--> [ LAST ]<--!! items written to markup have a !!--> [ HIGHER ]<--!! specificity <--  */
+  function themeDefaults() {
+      function addItem(item) {
+          return lodash__default['default'].assign({ style: {} }, item);
+      }
+      return {
+          body: {
+              style: colors().body.style
+          },
+          /** uiCard.defaults  */
+          uiCardGroup: addItem(uiCardTheme().uiCardGroup),
+          uiCardCounter: addItem(uiCardTheme().uiCardCounter),
+          uiCardHeader: addItem(uiCardTheme().uiCardHeader),
+          uiCardIcon: addItem(uiCardTheme().uiCardIcon),
+          uiCardImage: addItem(uiCardTheme().uiCardImage),
+          uiCardSubheading: addItem(uiCardTheme().uiCardSubheading),
+          uiCardWrapper: addItem(uiCardTheme().uiCardWrapper),
+          uiCardContentWrapper: addItem(uiCardTheme().uiCardContentWrapper),
+          uiCardContextDefault: addItem(uiCardTheme().uiCardContextDefault),
+          uiCardContextError: addItem(uiCardTheme().uiCardContextError),
+          uiCardContextNeutral: addItem(uiCardTheme().uiCardContextNeutral),
+          uiCardContextWarn: addItem(uiCardTheme().uiCardContextWarn),
+          /** uiButton.defaults  */
+          uiButton: addItem(uiButtonTheme().uiButton),
+          uiNavButton: addItem(uiButtonTheme().uiNavButton),
+          uiButtonAlt: addItem(uiButtonTheme().uiButtonAlt),
+          uiButtonError: addItem(uiButtonTheme().uiButtonError),
+          uiButtonInfo: addItem(uiButtonTheme().uiButtonInfo),
+          uiButtonWarn: addItem(uiButtonTheme().uiButtonWarn),
+          uiButtonNeutral: addItem(uiButtonTheme().uiButtonNeutral),
+          /** uiIcon.defaults  */
+          uiIcon: addItem(uiIconTheme().uiIcon),
+          /** uiInput.defaults  */
+          uiInputWrapper: addItem(uiInputTheme().uiInputWrapper),
+          uiInput: addItem(uiInputTheme().uiInput),
+          uiInputLabel: addItem(uiInputTheme().uiInputLabel),
+          uiInputFieldset: addItem(uiInputTheme().uiInputFieldset),
+          /** uiInput.defaults  */
+          uiRadioButton: addItem(uiInputTheme().uiRadioButton),
+          uiRadioButtonChecked: addItem(uiInputTheme().uiRadioButtonChecked),
+          /** uiLayout.defaults  */
+          uiLayout: addItem(uiLayoutTheme().uiLayout),
+          uiPostContentWrapper: addItem(uiLayoutTheme().uiPostContentWrapper),
+          uiPreContentWrapper: addItem(uiLayoutTheme().uiPreContentWrapper),
+          /** uiHeaderFooter.defaults  */
+          uiHeaderWrapper: addItem(uiHeaderFooterTheme().uiHeaderWrapper),
+          uiHeader: addItem(uiHeaderFooterTheme().uiHeader),
+          uiCustomHeader: addItem(uiHeaderFooterTheme().uiCustomHeader),
+          uiSubheader: addItem(uiHeaderFooterTheme().uiSubheader),
+          uiFooter: addItem(uiHeaderFooterTheme().uiFooter),
+          /** uiPanel.defaults  */
+          uiPanel: addItem(uiPanelTheme().uiPanel),
+          uiPanelHeader: addItem(uiPanelTheme().uiPanelHeader),
+          uiPanelSubheader: addItem(uiPanelTheme().uiPanelSubheader),
+          uiPanelHeaderButton: addItem(uiPanelTheme().uiPanelHeaderButton),
+          /** uiLogin.defaults  */
+          uiHelpInputLines: addItem(uiLoginTheme().uiHelpInputLines),
+          uiHelpInputWrapper: addItem(uiLoginTheme().uiHelpInputWrapper),
+          uiLogin: addItem(uiLoginTheme().uiLogin),
+          uiLoginHeader: addItem(uiLoginTheme().uiLoginHeader),
+          uiLoginButton: addItem(uiLoginTheme().uiLoginButton),
+          uiLoginResetButton: addItem(uiLoginTheme().uiLoginResetButton),
+          uiLoginButtonWrapper: addItem(uiLoginTheme().uiLoginButtonWrapper),
+          uiLoginForm: addItem(uiLoginTheme().uiLoginForm),
+          uiLoginFormInputWrapper: addItem(uiLoginTheme().uiLoginFormInputWrapper),
+          uiLoginInput: addItem(uiLoginTheme().uiLoginInput),
+          uiLoginInputWrapper: addItem(uiLoginTheme().uiLoginInputWrapper),
+          uiLoginLines: addItem(uiLoginTheme().uiLoginLines),
+          uiLoginPostLines: addItem(uiLoginTheme().uiLoginPostLines),
+          uiLoginWrapper: addItem(uiLoginTheme().uiLoginWrapper),
+          uiLoginInputFieldset: addItem(uiLoginTheme().uiLoginInputFieldset),
+          uiLoginInputLabel: addItem(uiLoginTheme().uiLoginInputLabel),
+          uiLoginResetHeader: addItem(uiLoginTheme().uiLoginResetHeader),
+          uiLoginResetReturn: addItem(uiLoginTheme().uiLoginResetReturn),
+          /** uiTable.defaults  */
+          uiTable: addItem(uiTableTheme().uiTable),
+          uiTableHeader: addItem(uiTableTheme().uiTableHeader),
+          uiTableHeaderCell: addItem(uiTableTheme().uiTableHeaderCell),
+          uiTableRow: addItem(uiTableTheme().uiTableRow),
+          uiTableRowCell: addItem(uiTableTheme().uiTableRowCell),
+          uiTableItem: addItem(uiTableTheme().uiTableItem),
+          uiTableItemDate: addItem(uiTableTheme().uiTableItemDate),
+          uiTableItemIcon: addItem(uiTableTheme().uiTableItemIcon),
+          uiTableItemRow: addItem(uiTableTheme().uiTableItemRow),
+          uiTableItemSize: addItem(uiTableTheme().uiTableItemSize),
+          uiTableItemTime: addItem(uiTableTheme().uiTableItemTime),
+          uiTableItemTitle: addItem(uiTableTheme().uiTableItemTitle),
+          uiTableItemType: addItem(uiTableTheme().uiTableItemType),
+          /** uiDialog.defaults  */
+          uiDialogButtonWrapper: addItem(uiDialogTheme().uiDialogButtonWrapper),
+          uiDialogCancelButton: addItem(uiDialogTheme().uiDialogCancelButton),
+          uiDialogConfirmButton: addItem(uiDialogTheme().uiDialogConfirmButton),
+          uiDialogContextDefault: addItem(uiDialogTheme().uiDialogContextDefault),
+          uiDialogContextAlt: addItem(uiDialogTheme().uiDialogContextAlt),
+          uiDialogContextError: addItem(uiDialogTheme().uiDialogContextError),
+          uiDialogContextNeutral: addItem(uiDialogTheme().uiDialogContextNeutral),
+          uiDialogContextWarn: addItem(uiDialogTheme().uiDialogContextWarn),
+          uiDialogFeedbackButtonWrapper: addItem(uiDialogTheme().uiDialogFeedbackButtonWrapper),
+          uiDialogFeedbackTitle: addItem(uiDialogTheme().uiDialogFeedbackTitle),
+          uiDialogFeedbackSubTitle: addItem(uiDialogTheme().uiDialogFeedbackTitle),
+          uiDialogFeedbackLabel: addItem(uiDialogTheme().uiDialogFeedbackLabel),
+          uiDialogFeedbackWrapper: addItem(uiDialogTheme().uiDialogFeedbackWrapper),
+          uiDialogLinkButton: addItem(uiDialogTheme().uiDialogLinkButton),
+          uiDialogLoginWrapper: addItem(uiDialogTheme().uiDialogLoginWrapper),
+          uiDialogNotificationWrapper: addItem(uiDialogTheme().uiDialogNotificationWrapper),
+          uiDialogText: addItem(uiDialogTheme().uiDialogText),
+          uiDialogIcon: addItem(uiDialogTheme().uiDialogIcon),
+          uiDialogTitle: addItem(uiDialogTheme().uiDialogTitle),
+          uiDialogWrapper: addItem(uiDialogTheme().uiDialogWrapper),
+          uiDialogFailMessage: addItem(uiDialogTheme().uiDialogFailMessage),
+          /** uiNavbar.defaults */
+          uiNavbarCopyright: addItem(uiNavbarTheme().uiNavbarCopyright),
+          uiNavbarImage: addItem(uiNavbarTheme().uiNavbarImage),
+          uiNavbarLink: addItem(uiNavbarTheme().uiNavbarLink),
+          uiNavbarLogout: addItem(uiNavbarTheme().uiNavbarLogout),
+          uiNavbarLogoutIcon: addItem(uiNavbarTheme().uiNavbarLogoutIcon),
+          uiNavbarLogoutLabel: addItem(uiNavbarTheme().uiNavbarLogoutLabel),
+          uiNavbarName: addItem(uiNavbarTheme().uiNavbarName),
+          uiNavbarNameVersion: addItem(uiNavbarTheme().uiNavbarNameVersion),
+          uiNavbarPoweredBy: addItem(uiNavbarTheme().uiNavbarPoweredBy),
+          uiNavbarProgress: addItem(uiNavbarTheme().uiNavbarProgress),
+          uiNavbarSalutation: addItem(uiNavbarTheme().uiNavbarSalutation),
+          uiNavbarText: addItem(uiNavbarTheme().uiNavbarText),
+          uiNavbarVersion: addItem(uiNavbarTheme().uiNavbarVersion),
+          /** uiProgress.defaults */
+          uiProgressFlowArrowWrapper: addItem(uiProgressTheme().uiProgressFlowArrowWrapper),
+          uiProgressFlowArrow: addItem(uiProgressTheme().uiProgressFlowArrow),
+          uiProgressFlowStepWrapper: addItem(uiProgressTheme().uiProgressFlowStepWrapper),
+          uiProgressFlowWrapper: addItem(uiProgressTheme().uiProgressFlowWrapper),
+          uiProgressCardIndicator: addItem(uiProgressTheme().uiProgressCardIndicator),
+          uiProgressCardHeading: addItem(uiProgressTheme().uiProgressCardHeading),
+          uiProgressCardSubheading: addItem(uiProgressTheme().uiProgressCardSubheading),
+          uiProgressCardOuterWrapper: addItem(uiProgressTheme().uiProgressCardOuterWrapper),
+          uiProgressCardWrapper: addItem(uiProgressTheme().uiProgressCardWrapper),
+          uiProgressCardComplete: addItem(uiProgressTheme().uiProgressCardComplete),
+          uiProgressCardError: addItem(uiProgressTheme().uiProgressCardError),
+          uiProgressCardIncomplete: addItem(uiProgressTheme().uiProgressCardIncomplete),
+          uiProgressCardWarn: addItem(uiProgressTheme().uiProgressCardWarn),
+          uiProgressCardWaiting: addItem(uiProgressTheme().uiProgressCardWaiting),
+          uiProgressCardIconComplete: addItem(uiProgressTheme().uiProgressCardIconComplete),
+          uiProgressCardIconError: addItem(uiProgressTheme().uiProgressCardIconError),
+          uiProgressCardIconIncomplete: addItem(uiProgressTheme().uiProgressCardIconIncomplete),
+          uiProgressCardIconWaiting: addItem(uiProgressTheme().uiProgressCardIconWaiting),
+          uiProgressCardIconWarn: addItem(uiProgressTheme().uiProgressCardIconWarn),
+          /** uiActionCard.defaults */
+          uiActionCardButton: addItem(uiActionCardTheme().uiActionCardButton),
+          uiActionCardContent: addItem(uiActionCardTheme().uiActionCardContent),
+          uiActionCardHeader: addItem(uiActionCardTheme().uiActionCardHeader),
+          uiActionCardImage: addItem(uiActionCardTheme().uiActionCardImage),
+          uiActionCardImageWrapper: addItem(uiActionCardTheme().uiActionCardImageWrapper),
+          uiActionCardInnerWrapper: addItem(uiActionCardTheme().uiActionCardInnerWrapper),
+          uiActionCardLines: addItem(uiActionCardTheme().uiActionCardLines),
+          uiActionCardWrapper: addItem(uiActionCardTheme().uiActionCardWrapper),
+          /** uiDataCard.defaults */
+          uiDataCardCategoryLabel: addItem(uiDataCardTheme().uiDataCardCategoryLabel),
+          uiDataCardGridWrapper: addItem(uiDataCardTheme().uiDataCardGridWrapper),
+          uiDataCardHeader: addItem(uiDataCardTheme().uiDataCardHeader),
+          uiDataCardHeaderWrapper: addItem(uiDataCardTheme().uiDataCardHeaderWrapper),
+          uiDataCardSectionItemLabel: addItem(uiDataCardTheme().uiDataCardSectionItemLabel),
+          uiDataCardSectionItemValue: addItem(uiDataCardTheme().uiDataCardSectionItemValue),
+          uiDataCardSectionItemWrapper: addItem(uiDataCardTheme().uiDataCardSectionItemWrapper),
+          uiDataCardSectionLabel: addItem(uiDataCardTheme().uiDataCardSectionLabel),
+          uiDataCardSectionWrapper: addItem(uiDataCardTheme().uiDataCardSectionWrapper),
+          uiDataCardWrapper: addItem(uiDataCardTheme().uiDataCardWrapper),
+          uiDataCardButton: addItem(uiDataCardTheme().uiDataCardButton),
+          /** uiItem.defaults */
+          uiItemActionButton: addItem(uiItemTheme().uiItemActionButton),
+          uiItemButtonsInnerWrapper: addItem(uiItemTheme().uiItemButtonsInnerWrapper),
+          uiItemButtonsWrapper: addItem(uiItemTheme().uiItemButtonsWrapper),
+          uiItemGridContainer: addItem(uiItemTheme().uiItemGridContainer),
+          uiItemHeading: addItem(uiItemTheme().uiItemHeading),
+          uiItemIcon: addItem(uiItemTheme().uiItemIcon),
+          uiItemListAccordionIcon: addItem(uiItemTheme().uiItemListAccordionIcon),
+          uiItemListTitle: addItem(uiItemTheme().uiItemListTitle),
+          uiItemListTitleIcon: addItem(uiItemTheme().uiItemListTitleIcon),
+          uiItemListGroupLabel: addItem(uiItemTheme().uiItemListGroupLabel),
+          uiItemListAccordionTitleWrapper: addItem(uiItemTheme().uiItemListAccordionTitleWrapper),
+          uiItemListAccordionWrapper: addItem(uiItemTheme().uiItemListAccordionWrapper),
+          uiItemListContainer: addItem(uiItemTheme().uiItemListContainer),
+          uiItemRowActions: addItem(uiItemTheme().uiItemRowActions),
+          uiItemRowHeaderWrapper: addItem(uiItemTheme().uiItemRowHeaderWrapper),
+          uiItemRowInnerWrapper: addItem(uiItemTheme().uiItemRowInnerWrapper),
+          uiItemRowWrapper: addItem(uiItemTheme().uiItemRowWrapper),
+          uiItemSubheading: addItem(uiItemTheme().uiItemSubheading),
+          uiItemTableContainer: addItem(uiItemTheme().uiItemTableContainer),
+          uiItemTableInfo: addItem(uiItemTheme().uiItemTableInfo),
+          uiItemTableHeader: addItem(uiItemTheme().uiItemTableHeader),
+          uiItemTableHeaderDate: addItem(uiItemTheme().uiItemTableHeaderDate),
+          uiItemTableHeaderDocumentName: addItem(uiItemTheme().uiItemTableHeaderDocumentName),
+          uiItemTableHeaderIcon: addItem(uiItemTheme().uiItemTableHeaderIcon),
+          uiItemTableHeaderMarker: addItem(uiItemTheme().uiItemTableHeaderMarker),
+          uiItemTableHeaderSize: addItem(uiItemTheme().uiItemTableHeaderSize),
+          uiItemTableIcon: addItem(uiItemTheme().uiItemTableIcon),
+          uiItemTableInfoIcon: addItem(uiItemTheme().uiItemTableInfoIcon),
+          uiItemTableRow: addItem(uiItemTheme().uiItemTableRow),
+          uiItemEditButton: addItem(uiItemTheme().uiItemEditButton),
+          uiItemEditFormWrapper: addItem(uiItemTheme().uiItemEditFormWrapper),
+          uiItemEditHeader: addItem(uiItemTheme().uiItemEditHeader),
+          uiItemEditIcon: addItem(uiItemTheme().uiItemEditIcon),
+          uiItemEditLabel: addItem(uiItemTheme().uiItemEditLabel),
+          uiItemEditWrapper: addItem(uiItemTheme().uiItemEditWrapper),
+          uiItemViewRowWrapper: addItem(uiItemTheme().uiItemViewRowWrapper),
+          uiItemViewWrapper: addItem(uiItemTheme().uiItemViewWrapper),
+          uiItemViewIcon: addItem(uiItemTheme().uiItemViewIcon),
+          uiItemViewField: addItem(uiItemTheme().uiItemViewField),
+          uiCategoryItemIcon: addItem(uiItemTheme().uiCategoryItemIcon),
+          uiCategoryItemLabel: addItem(uiItemTheme().uiCategoryItemLabel),
+          uiCategoryItemWrapper: addItem(uiItemTheme().uiCategoryItemWrapper),
+          uiCategoryItemArrow: addItem(uiItemTheme().uiCategoryItemArrow),
+          uiCategoryItemMarker: addItem(uiItemTheme().uiCategoryItemMarker),
+          /** uiPdf.defaults */
+          uiPdfPanel: addItem(uiPdfTheme().uiPdfPanel),
+          uiPdfBottomBar: addItem(uiPdfTheme().uiPdfBottomBar),
+          uiPdfStartButton: addItem(uiPdfTheme().uiPdfStartButton),
+          uiPdfFieldOverlay: addItem(uiPdfTheme().uiPdfFieldOverlay),
+          uiPdfTopBar: addItem(uiPdfTheme().uiPdfTopBar),
+          uiPdfBackButton: addItem(uiPdfTheme().uiPdfBackButton),
+          uiPdfDownloadButton: addItem(uiPdfTheme().uiPdfDownloadButton),
+          uiPdfZoomInButton: addItem(uiPdfTheme().uiPdfZoomInButton),
+          uiPdfZoomOutButton: addItem(uiPdfTheme().uiPdfZoomOutButton),
+          uiPdfSubheader: addItem(uiPdfTheme().uiPdfSubheader),
+          /** uiBlockLines.defaults */
+          uiBlockLinesWrapper: addItem(uiBlockLinesTheme().uiBlockLinesWrapper),
+          /** uiSearchBox.defaults */
+          uiSearchBoxIcon: addItem(uiSearchBoxTheme().uiSearchBoxIcon),
+          uiSearchBoxClearIcon: addItem(uiSearchBoxTheme().uiSearchBoxClearIcon),
+          uiSearchBoxInput: addItem(uiSearchBoxTheme().uiSearchBoxInput),
+          uiSearchBoxWrapper: addItem(uiSearchBoxTheme().uiSearchBoxWrapper),
+          uiDisabled: {
+              style: {
+                  filter: "grayscale(0.9)",
+                  opacity: "0.4"
+              }
+          },
+      };
+  }
+
+  var theme = stream__default['default']();
+  function applyTheme(newTheme) {
+      var _a;
+      colors().update(newTheme.colors || {});
+      var mergedTheme = lodash__default['default'].reduce(themeDefaults(), function (acc, value, key) {
+          var _key = key;
+          if (newTheme[_key]) {
+              acc[_key] = lodash__default['default'].merge(value, newTheme[_key]);
+          }
+          else {
+              acc[_key] = value;
+          }
+          return acc;
+      }, {});
+      var uiSheet = jss__default['default'].createStyleSheet({});
+      theme(createThemeClasses(mergedTheme, uiSheet));
+      uiSheet.attach();
+      // Apply body style classes
+      var bodyClass = theme().body;
+      (_a = document.getElementById("page")) === null || _a === void 0 ? void 0 : _a.classList.add(bodyClass);
+  }
+  function loadTheme() {
+      var path = application().themePath;
+      return path
+          ? m.request(path).then(function (themeObj) {
+              applyTheme(themeObj);
+              applyThemeUiWidgets();
+          }).catch(defaultTheme)
+          : defaultTheme();
+  }
+  function defaultTheme() {
+      applyTheme({});
+      applyThemeUiWidgets();
+      return Promise.resolve();
+  }
+  function applyThemeUiWidgets() {
+      // Apply theme to ui-widgets
+      uiWidgets.updateClasses({
+          inputWrapper: theme().uiInputWrapper,
+          input: theme().uiInput,
+          label: theme().uiInputLabel,
+          button: "ripple",
+          navButton: "ripple",
+          radio: theme().uiRadioButton,
+          radioChecked: theme().uiRadioButtonChecked
+      });
+      // Add ui-widgets theme().uiButton context presets
+      uiWidgets.updateButtonContext({
+          default: theme().uiButton,
+          alt: joinClasses([theme().uiButtonAlt, theme().uiButton]),
+          neutral: joinClasses([theme().uiButtonNeutral, theme().uiButton]),
+          info: joinClasses([theme().uiButtonInfo, theme().uiButton]),
+          warn: joinClasses([theme().uiButtonWarn, theme().uiButton]),
+          error: joinClasses([theme().uiButtonError, theme().uiButton]),
+      });
+  }
+
+  var size = stream__default['default']();
+  function setSize() {
+      size({
+          height: window.innerHeight,
+          width: window.innerWidth
+      });
+  }
+  function onResize() {
+      setSize();
+      m.redraw();
+  }
+  // Update window size stream after a small delay
+  window.addEventListener("resize", lodash__default['default'].debounce(onResize, 250));
+  // Set initial size
+  setSize();
+
+  var homeRoute = "/root/list?noreturn=true";
+  function home() {
+      m.route.set(homeRoute);
+  }
+  function back() {
+      history.back();
+  }
+  function redirect(_a) {
+      var url = _a.url;
+      window.location.href = url;
+  }
+  function reload() {
+      window.location.reload();
+  }
+  function noreturn() {
+      return Boolean(m.route.param("noreturn"));
+  }
+  function getFirstFile(item) {
+      return lodash__default['default'].head(item.files);
+  }
+  function actionItem(data, action, actionId, opts) {
+      // Navigate to file
+      if (action === "open" /* open */) {
+          var item = data;
+          // Handle special document "open" action
+          var fileObj = getFirstFile(item);
+          if (fileObj && fileObj.remoteUrl) {
+              window.location.href = fileObj.remoteUrl;
+          }
+          var url = lodash__default['default'].get(item.props, "url");
+          if (typeof url === "string") {
+              window.location.href = url;
+          }
+          return;
+      }
+      // Validate PDF viewer requests
+      if (action === "pdf" /* pdf */) {
+          var fileObj = getFirstFile(data);
+          // Open files if they are not pdf (or unsupported IE11)
+          if (isIE11 || fileObj && fileObj.type.indexOf("pdf") === -1) {
+              actionItem(data, "open" /* open */, actionId, opts);
+              return;
+          }
+      }
+      // Route to action with id
+      if (actionId) {
+          m.route.set("/:itemGuid/:action/:actionGuid", {
+              itemGuid: data._id,
+              action: action,
+              actionGuid: actionId
+          }, opts);
+          return;
+      }
+      // Route to action
+      m.route.set("/:itemGuid/:action", {
+          itemGuid: data._id,
+          action: action
+      }, opts);
+  }
+  // Perform default action (model-defined) with given item
+  function selectItem(_a, item, opts) {
+      var action = _a.action;
+      actionItem(item, action, undefined, opts);
+  }
+  // Perform "edit" action on given item
+  function editItem(item, opts) {
+      actionItem(item, "edit" /* edit */, undefined, opts);
+  }
+  function newItem(_a, opts) {
+      var _id = _a._id;
+      m.route.set("/:modelGuid/new", {
+          modelGuid: _id
+      }, opts);
+  }
+  function relogin() {
+      return new Promise(function (resolve) { return dialog({
+          title: "Your session has expired",
+          message: "Please login again to continue",
+          context: "warn" /* warn */,
+          type: exports.DialogType.login,
+          login: {
+              onSuccess: resolve
+          }
+      }); });
+  }
+  function requestHelper(options) {
+      return new Promise(function (resolve, reject) {
+          m.request(options).then(resolve).catch(function (err) {
+              if (err.code === 440) {
+                  relogin().then(function () { return resolve(sdxRequest(options)); });
+              }
+              else {
+                  reject(err);
+              }
+          });
+      });
+  }
+  function sdxRequest(urlOrOpts, options) {
+      if (typeof urlOrOpts === "string") {
+          return requestHelper(lodash__default['default'].extend(options, { url: urlOrOpts }));
+      }
+      else {
+          return requestHelper(urlOrOpts);
+      }
+  }
+  function resetAuth(shortid, fullid) {
+      var auth = application().auth;
+      if (auth && auth.reset) {
+          var _a = auth.reset, username = _a.username, endpoint = _a.endpoint;
+          var body = new FormData();
+          body.append("username", username);
+          body.append("password", shortid);
+          return m.request({
+              method: "POST",
+              url: endpoint,
+              body: body
+          }).then(function () { return dialog({
+              message: "We have sent your new PIN to " + fullid,
+              duration: 2000
+          }); }).catch(function (err) { return errNotification(err); });
+      }
+      else {
+          return Promise.resolve(errNotification(new Error("No authentication configuration")));
+      }
+  }
+
+  var jsonActions = {
+      actionCardConfirm: function (args) { return dialog(lodash__default['default'].assign(args, {
+          type: exports.DialogType.confirm,
+          cancelButton: args.cancelButton,
+          confirmButton: lodash__default['default'].assign({
+              onclick: function () {
+                  window.open(args.href, args.target);
+              }
+          }, args.confirmButton)
+      })); },
+      dialog: function (args) { return dialog(args); },
+      openWindow: function (args) { return window.open(args.href, args.target); }
+  };
+  function jsonAction(config) {
+      return jsonActions[config.type](config.props);
+  }
+
+  var ActionCard = /** @class */ (function () {
+      function ActionCard() {
+      }
+      ActionCard.prototype.oninit = function (_a) {
+          var applyTheme = _a.attrs.data.applyTheme;
+          if (applyTheme) {
+              this.themeHandler = new ResponsiveThemeHandler(applyTheme);
+          }
+      };
+      ActionCard.prototype.view = function (_a) {
+          var _b;
+          var _c = _a.attrs.data, src = _c.src, header = _c.header, lines = _c.lines, linesAsList = _c.linesAsList, buttonLabel = _c.buttonLabel, buttonIcon = _c.buttonIcon, href = _c.href, _d = _c.target, target = _d === void 0 ? "_self" : _d, confirm = _c.confirm, buttonContext = _c.buttonContext, context = _c.context;
+          context = context || "alt" /* alt */;
+          var overwrite = (_b = this.themeHandler) === null || _b === void 0 ? void 0 : _b.classes;
+          var openRef = function () { return window.open(href, target); };
+          return m__default['default'](".flex.items-center.justify-center.w-100.overflow-hidden.ma3", {
+              class: joinClasses([
+                  overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiActionCardWrapper,
+                  theme().uiActionCardWrapper,
+                  theme().uiCardWrapper,
+                  colors().getContextClasses(context),
+              ])
+          }, m__default['default'](".flex.w-100.h-100.pa2", m__default['default'](".flex.flex-column.h-100.mr4", {
+              class: joinClasses([
+                  overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiActionCardInnerWrapper,
+                  theme().uiActionCardInnerWrapper
+              ])
+          }, m__default['default']('h4.w-100.flex-auto', {
+              class: joinClasses([
+                  overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiActionCardHeader,
+                  theme().uiActionCardHeader,
+                  theme().uiCardHeader
+              ])
+          }, header), m__default['default'](".w-100.flex-auto", buildComponent({
+              type: "sdx-blockLines",
+              data: linesAsList ? {
+                  blockSelector: "ul",
+                  lines: lodash__default['default'].map(lines, function (line) {
+                      return {
+                          selector: "li",
+                          child: line
+                      };
+                  })
+              } : { lines: lines }
+          })), href || buttonLabel ? m__default['default'](uiWidgets.Button, {
+              classes: joinClasses([
+                  overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiActionCardButton,
+                  theme().uiActionCardButton,
+              ]),
+              label: buttonLabel,
+              icon: buttonIcon,
+              context: buttonContext || ButtonContextMapper(context),
+              onclick: function () { return confirm
+                  ? jsonAction({
+                      type: "actionCardConfirm" /* actionCardConfirm */,
+                      props: {
+                          icon: confirm.icon,
+                          title: confirm.title,
+                          message: confirm.message,
+                          confirmButton: confirm.confirmButton,
+                          cancelButton: confirm.cancelButton,
+                          href: href,
+                          target: target
+                      }
+                  })
+                  : openRef(); }
+          }) : null), src ? m__default['default'](".flex.justify-center.items-center", {
+              class: joinClasses([
+                  overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiActionCardImageWrapper,
+                  theme().uiActionCardImageWrapper
+              ]),
+          }, m__default['default']("img", {
+              class: joinClasses([
+                  overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiActionCardImage,
+                  theme().uiActionCardImage
+              ]),
+              src: src
+          })) : null));
+      };
+      return ActionCard;
+  }());
+
+  function buildPart(part) {
+      if (typeof part === "string") {
+          return m__default['default']("p", part);
+      }
+      else if (part.hasOwnProperty("selector")) {
+          var tag = part;
+          return m__default['default'](tag.selector, tag.content);
+      }
+      else {
+          var link = part;
+          return m__default['default']("a.link.mv2.pa2.bn.br2.w-40.tc.dim.pointer", {
+              href: link.href,
+              class: joinClasses([theme().uiButton])
+          }, link.text);
+      }
+  }
+  // Wrapper class for basic part building function
+  var Basic = /** @class */ (function () {
+      function Basic() {
+      }
+      Basic.prototype.view = function (_a) {
+          var data = _a.attrs.data;
+          return m__default['default'](".ph4", lodash__default['default'].map(data, function (part) { return buildPart(part); }));
+      };
+      return Basic;
+  }());
+
+  // Wrapper class for basic part building function
+  var Header = /** @class */ (function () {
+      function Header() {
+      }
+      Header.prototype.view = function (_a) {
+          var _b = _a.attrs.data, text = _b.text, _c = _b.key, key = _c === void 0 ? "sdx-header" : _c, _d = _b.style, style = _d === void 0 ? {} : _d, _e = _b.styleNS, styleNS = _e === void 0 ? {} : _e, _f = _b.styleM, styleM = _f === void 0 ? {} : _f, _g = _b.styleL, styleL = _g === void 0 ? {} : _g, _h = _b.classes, classes = _h === void 0 ? "" : _h;
+          return m__default['default'](".f3.f2-l.fw5.mv3.mv4-l", {
+              class: joinClasses([
+                  createResponsiveClass({
+                      key: key,
+                      classes: classes,
+                      style: style,
+                      styleNS: styleNS,
+                      styleL: styleL,
+                      styleM: styleM,
+                  }),
+                  theme().uiCustomHeader,
+                  colors().default.color
+              ])
+          }, text);
+      };
+      return Header;
+  }());
+
+  var BlockLines = /** @class */ (function () {
+      function BlockLines() {
+      }
+      BlockLines.prototype.oninit = function (_a) {
+          var applyTheme = _a.attrs.data.applyTheme;
+          if (applyTheme) {
+              this.themeHandler = new ResponsiveThemeHandler(applyTheme);
+          }
+      };
+      BlockLines.prototype.view = function (_a) {
+          var _b;
+          var _c = _a.attrs.data, _d = _c.lines, lines = _d === void 0 ? [] : _d, _e = _c.blockSelector, blockSelector = _e === void 0 ? "div" : _e;
+          var overwrite = (_b = this.themeHandler) === null || _b === void 0 ? void 0 : _b.classes;
+          return m__default['default'](blockSelector, {
+              class: joinClasses([
+                  overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiBlockLinesWrapper,
+                  theme().uiBlockLinesWrapper,
+              ])
+          }, typeof lines === 'string' ?
+              m__default['default']("p", lines)
+              : lodash__default['default'].map(lines, function (line) {
+                  if (typeof line === "string") {
+                      return m__default['default']("p", m__default['default'].trust(line));
+                  }
+                  else {
+                      return m__default['default'](line.selector, {
+                          class: joinClasses([
+                              line.classes,
+                              line.colorSelector ? colors()[line.colorSelector].color : "",
+                              line.bgColorSelector ? colors()[line.bgColorSelector].background : "",
+                          ]),
+                      }, m__default['default'].trust(line.child));
+                  }
+              }));
+      };
+      return BlockLines;
+  }());
+
+  var Wrapper = /** @class */ (function () {
+      function Wrapper() {
+      }
+      Wrapper.prototype.view = function (_a) {
+          var _b = _a.attrs.data, children = _b.children, style = _b.style, styleNS = _b.styleNS, styleM = _b.styleM, styleL = _b.styleL, classes = _b.classes, key = _b.key;
+          var className = createResponsiveClass({ key: key, style: style, styleNS: styleNS, styleM: styleM, styleL: styleL, classes: classes });
+          return m__default['default']("div", {
+              class: className
+          }, lodash__default['default'].map(children, function (child) {
+              return typeof child === 'string' ? child : buildComponent(child);
+          }));
+      };
+      return Wrapper;
+  }());
+
+  var DataCardSectionItem = /** @class */ (function () {
+      function DataCardSectionItem() {
+      }
+      DataCardSectionItem.prototype.view = function (_a) {
+          var _b = _a.attrs, itemLabel = _b.itemLabel, value = _b.value, overwrite = _b.overwrite, context = _b.context;
+          return m__default['default']("div", {
+              class: joinClasses([
+                  theme().uiDataCardSectionItemWrapper,
+              ])
+          }, m__default['default']("span", {
+              class: joinClasses([
+                  overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDataCardSectionItemLabel,
+                  theme().uiDataCardSectionItemLabel,
+                  !context || context === "default" /* default */
+                      ? colors().body.classes.color
+                      : colors().getContextClasses(context)
+              ])
+          }, itemLabel), typeof value === "string"
+              ? m__default['default']("div", {
+                  class: joinClasses([
+                      overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDataCardSectionItemValue,
+                      theme().uiDataCardSectionItemValue,
+                      !context || context === "default" /* default */
+                          ? colors().body.classes.color
+                          : colors().getContextClasses(context)
+                  ])
+              }, value)
+              : m__default['default']("div", lodash__default['default'].map(value, function (line) {
+                  return m__default['default']("div", {
+                      class: joinClasses([
+                          overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDataCardSectionItemValue,
+                          theme().uiDataCardSectionItemValue,
+                          !context || context === "default" /* default */
+                              ? colors().body.classes.color
+                              : colors().getContextClasses(context)
+                      ])
+                  }, line);
+              })));
+      };
+      return DataCardSectionItem;
+  }());
+
+  var DataCardSection = /** @class */ (function () {
+      function DataCardSection() {
+      }
+      DataCardSection.prototype.view = function (_a) {
+          var _b = _a.attrs, dataMap = _b.dataMap, keys = _b.keys, label = _b.label, overwrite = _b.overwrite, context = _b.context;
+          return m__default['default']("div", {
+              class: joinClasses([
+                  overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDataCardSectionWrapper,
+                  theme().uiDataCardSectionWrapper
+              ])
+          }, label ? m__default['default']("div", {
+              class: joinClasses([
+                  overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDataCardSectionLabel,
+                  theme().uiDataCardSectionLabel,
+                  context ? colors().getContextClasses(context) : ""
+              ])
+          }, label) : null, lodash__default['default'].map(keys, function (key) {
+              if (!dataMap[key]) {
+                  console.error('Valid dataMap keys are - ', keys);
+                  console.error("dataCard key " + key + " doesn't exist on your dataMap -- do you have typo?");
+                  return null;
+              }
+              var _a = dataMap[key], itemLabel = _a[0], value = _a[1];
+              return m__default['default'](DataCardSectionItem, { itemLabel: itemLabel, value: value, overwrite: overwrite, context: context });
+          }));
+      };
+      return DataCardSection;
+  }());
+
+  var DataCard = /** @class */ (function () {
+      function DataCard() {
+          this.getDisplayComponents = function (_a) {
+              var displayType = _a.displayType, context = _a.context, detailed = _a.detailed, overview = _a.overview, overwrite = _a.overwrite, dataMap = _a.dataMap;
+              if (displayType === "detailed" /* detailed */) {
+                  return detailed
+                      ? lodash__default['default'].map(detailed, function (_a) {
+                          var label = _a.label, keys = _a.keys;
+                          return m__default['default'](DataCardSection, { dataMap: dataMap, keys: keys, label: label, overwrite: overwrite, context: context });
+                      })
+                      : lodash__default['default'].map(dataMap, function (_a) {
+                          var itemLabel = _a[0], value = _a[1];
+                          return m__default['default'](DataCardSectionItem, { overwrite: overwrite, itemLabel: itemLabel, value: value, context: context });
+                      });
+              }
+              else {
+                  return overview
+                      ? m__default['default'](DataCardSection, { dataMap: dataMap, keys: overview, label: "", overwrite: overwrite, context: context })
+                      : lodash__default['default'].map(dataMap, function (_a) {
+                          var itemLabel = _a[0], value = _a[1];
+                          return m__default['default'](DataCardSectionItem, { overwrite: overwrite, itemLabel: itemLabel, value: value, context: context });
+                      });
+              }
+          };
+      }
+      DataCard.prototype.oninit = function (_a) {
+          var data = _a.attrs.data;
+          if (data === null || data === void 0 ? void 0 : data.applyTheme) {
+              this.themeHandler = new ResponsiveThemeHandler(data === null || data === void 0 ? void 0 : data.applyTheme);
+          }
+      };
+      DataCard.prototype.view = function (_a) {
+          var _b;
+          var data = _a.attrs.data;
+          var pre = data.pre, post = data.post, dataMap = data.dataMap, displayType = data.displayType, _c = data.config, config = _c === void 0 ? {} : _c, onclick = data.onclick, header = data.header, categoryLabel = data.categoryLabel, button = data.button, _d = data.context, context = _d === void 0 ? "default" /* default */ : _d, buttonContext = data.buttonContext;
+          var detailed = config.detailed, overview = config.overview;
+          var overwrite = (_b = this.themeHandler) === null || _b === void 0 ? void 0 : _b.classes;
+          return m__default['default'](".flex.flex-column", {
+              class: joinClasses([
+                  overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDataCardWrapper,
+                  theme().uiDataCardWrapper,
+                  theme().uiCardWrapper,
+                  colors().getContextClasses(context)
+              ]),
+              onclick: function () {
+                  if (!button && onclick)
+                      return onclick();
+                  return null;
+              },
+          }, header || categoryLabel ? m__default['default'](".flex.flex-row", {
+              class: joinClasses([
+                  overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDataCardHeaderWrapper,
+                  theme().uiDataCardHeaderWrapper
+              ])
+          }, [
+              header ? m__default['default']("span", {
+                  class: joinClasses([
+                      overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDataCardHeader,
+                      theme().uiDataCardHeader
+                  ])
+              }, header) : null,
+              categoryLabel ? m__default['default']("div", {
+                  class: joinClasses([
+                      overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDataCardCategoryLabel,
+                      theme().uiDataCardCategoryLabel
+                  ])
+              }, categoryLabel) : null
+          ]) : null, (pre === null || pre === void 0 ? void 0 : pre.length) ? lodash__default['default'].map(pre, buildComponent)
+              : null, 
+          //Render dataList
+          this.getDisplayComponents({ displayType: displayType, detailed: detailed, overview: overview, overwrite: overwrite, dataMap: dataMap, context: context }), button ? m__default['default'](uiWidgets.Button, {
+              context: buttonContext || ButtonContextMapper(context),
+              classes: joinClasses([
+                  overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDataCardButton,
+                  theme().uiDataCardButton
+              ]),
+              onclick: function () {
+                  if (button.action)
+                      return jsonAction(button.action);
+                  if (onclick)
+                      return onclick();
+                  return null;
+              },
+              label: button.label,
+              icon: button.icon
+          }) : null, (post === null || post === void 0 ? void 0 : post.length) ? lodash__default['default'].map(post, buildComponent)
+              : null);
+      };
+      return DataCard;
+  }());
+
+  var ProgressCard = /** @class */ (function () {
+      function ProgressCard() {
+      }
+      ProgressCard.prototype.mergeData = function (overwrites) {
+          var status = overwrites.status, disabled = overwrites.disabled, onclick = overwrites.onclick, heading = overwrites.heading, subheading = overwrites.subheading, icons = overwrites.icons, stepNumber = overwrites.stepNumber, style = overwrites.style, link = overwrites.link, _a = overwrites.children, children = _a === void 0 ? null : _a, _b = overwrites.post, post = _b === void 0 ? [] : _b;
+          this.data = {
+              status: status || "incomplete" /* incomplete */,
+              disabled: disabled || false,
+              heading: heading || "",
+              subheading: subheading || "",
+              onclick: onclick || lodash__default['default'].noop,
+              style: style || {},
+              stepNumber: stepNumber || "",
+              //Undefined check happens as Setting an icon to null will ensure no icon is displayed 
+              //when combined with stepNumber allows the stepNumber to be displayed in a any status
+              icons: {
+                  complete: (icons === null || icons === void 0 ? void 0 : icons.complete) === undefined ? "fas fa-check fa-2x" : icons === null || icons === void 0 ? void 0 : icons.complete,
+                  incomplete: (icons === null || icons === void 0 ? void 0 : icons.incomplete) || stepNumber ? "" : "fal fa-ellipsis-h fa-2x",
+                  error: (icons === null || icons === void 0 ? void 0 : icons.error) === undefined ? "fas fa-exclamation fa-2x" : icons === null || icons === void 0 ? void 0 : icons.error,
+                  warn: (icons === null || icons === void 0 ? void 0 : icons.warn) === undefined ? "fas fa-times fa-2x" : icons === null || icons === void 0 ? void 0 : icons.warn,
+                  waiting: (icons === null || icons === void 0 ? void 0 : icons.waiting) === undefined ? "fal fa-hourglass-half fa-2x" : icons === null || icons === void 0 ? void 0 : icons.waiting
+              },
+              link: {
+                  style: (link === null || link === void 0 ? void 0 : link.style) || {},
+                  text: (link === null || link === void 0 ? void 0 : link.text) || "",
+                  href: (link === null || link === void 0 ? void 0 : link.href) || "",
+                  target: (link === null || link === void 0 ? void 0 : link.target) || "_blank"
+              },
+              post: post,
+              children: children
+          };
+      };
+      ProgressCard.prototype.getStatusClass = function (status) {
+          switch (status) {
+              case "complete" /* complete */:
+                  return theme().uiProgressCardComplete;
+              case "warn" /* warn */:
+                  return theme().uiProgressCardWarn;
+              case "waiting" /* waiting */:
+                  return theme().uiProgressCardWaiting;
+              case "error" /* error */:
+                  return theme().uiProgressCardError;
+              default:
+                  return theme().uiProgressCardIncomplete;
+          }
+      };
+      ProgressCard.prototype.getIconStatusClass = function (status) {
+          switch (status) {
+              case "complete" /* complete */:
+                  return theme().uiProgressCardIconComplete;
+              case "warn" /* warn */:
+                  return theme().uiProgressCardIconWarn;
+              case "waiting" /* waiting */:
+                  return theme().uiProgressCardIconWaiting;
+              case "error" /* error */:
+                  return theme().uiProgressCardIconError;
+              default:
+                  return theme().uiProgressCardIconIncomplete;
+          }
+      };
+      ProgressCard.prototype.statusComp = function (_a) {
+          var status = _a.status, stepNumber = _a.stepNumber, icons = _a.icons;
+          var iconStyle = status === "incomplete" /* incomplete */ && stepNumber
+              ? {
+                  fontSize: "1.5rem",
+                  fontWeight: "600",
+                  margin: "auto"
+              }
+              : {
+                  margin: "auto"
+              };
+          var iconText = status === "incomplete" /* incomplete */ || !icons[status] ? stepNumber : "";
+          return m__default['default'](".flex.items-center.justify-center", {
+              class: joinClasses([
+                  theme().uiProgressCardIndicator,
+                  this.getIconStatusClass(status)
+              ])
+          }, m__default['default']("i", {
+              class: icons[status] || "",
+              style: iconStyle
+          }, iconText));
+      };
+      ProgressCard.prototype.view = function (_a) {
+          var data = _a.attrs.data;
+          this.mergeData(data);
+          var _b = this.data, status = _b.status, style = _b.style, onclick = _b.onclick, disabled = _b.disabled, heading = _b.heading, subheading = _b.subheading, link = _b.link, post = _b.post, children = _b.children;
+          return m__default['default'](".flex.flex-column", {
+              onclick: onclick,
+              style: lodash__default['default'].assign({ zIndex: "1" }, style),
+              class: joinClasses([
+                  theme().uiCardWrapper,
+                  theme().uiProgressCardWrapper,
+                  this.getStatusClass(status),
+                  disabled ? theme().uiDisabled : "pointer",
+              ])
+          }, m__default['default'](".flex.flex-row.items-center.w-100", this.statusComp(this.data), m__default['default']("div", {
+              style: {
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.2)",
+                  width: "100%",
+              }
+          })), m__default['default'](".flex.flex-column.w-100", {
+              style: {
+                  marginTop: "2rem",
+                  paddingRight: "1rem"
+              }
+          }, m__default['default'](".w-100", {
+              class: theme().uiProgressCardSubheading
+          }, subheading), m__default['default'](".w-100", {
+              class: theme().uiProgressCardHeading
+          }, heading)), link.href ? m__default['default'](uiWidgets.ButtonLink, {
+              href: link.href,
+              target: link.target,
+              style: link.style,
+              label: link.text,
+          }) : null, lodash__default['default'].map(post, buildComponent), children);
+      };
+      return ProgressCard;
+  }());
+
+  var ProgressFlow = /** @class */ (function () {
+      function ProgressFlow() {
+      }
+      ProgressFlow.prototype.view = function (_a) {
+          var data = _a.attrs.data;
+          return m__default['default'](".flex.flex-wrap.items-center", {
+              class: theme().uiProgressFlowWrapper
+          }, data.map(function (card) { return m__default['default'](".flex", {
+              class: theme().uiProgressFlowStepWrapper
+          }, buildComponent({ type: 'sdx-progressCard', data: card })); }));
+      };
+      return ProgressFlow;
+  }());
+
+  function registerDefault() {
+      registerComponent("basic", Basic);
+      registerComponent("sdx-actionCard", ActionCard);
+      registerComponent("sdx-header", Header);
+      registerComponent("sdx-blockLines", BlockLines);
+      registerComponent("sdx-wrapper", Wrapper);
+      registerComponent("sdx-dataCard", DataCard);
+      registerComponent("sdx-progressCard", ProgressCard);
+      registerComponent("sdx-progressFlow", ProgressFlow);
+  }
+
+  // Application service creators
+  var mockChannel = {
+      bind: function () { return null; },
+  };
+  function pusherService(_a) {
+      var mock = _a.mock, apiKey = _a.apiKey, cloudChannel = _a.cloudChannel, companyChannel = _a.companyChannel, userChannel = _a.userChannel, applicationChannel = _a.applicationChannel, applicationUserChannel = _a.applicationUserChannel;
+      if (mock) {
+          return {
+              pusher: {
+                  connection: {
+                      bind: function (_evt, cb) { return setImmediate(cb); },
+                      unbind: function () { return null; }
+                  }
+              },
+              cloudChannel: mockChannel,
+              companyChannel: mockChannel,
+              userChannel: mockChannel,
+              applicationChannel: mockChannel,
+              applicationUserChannel: mockChannel
+          };
+      }
+      var pusher = new Pusher__default['default'](apiKey, { cluster: "eu" });
+      return {
+          pusher: pusher,
+          cloudChannel: pusher.subscribe(cloudChannel),
+          companyChannel: pusher.subscribe(companyChannel),
+          userChannel: pusher.subscribe(userChannel),
+          applicationChannel: pusher.subscribe(applicationChannel),
+          applicationUserChannel: pusher.subscribe(applicationUserChannel)
+      };
+  }
+
+  function loadApplication(conf) {
+      if (lodash__default['default'].isString(conf)) {
+          return m.request(conf);
+      }
+      else {
+          return Promise.resolve(conf);
+      }
+  }
+  function loadThemeBranding() {
+      return Promise.all([loadTheme(), loadBranding()]);
+  }
+  // Register default ui-builder custom components
+  registerDefault();
+  function bootstrap(appConf) {
+      // Replace history state with page path, prevent entry from login POST requesting resubmission
+      window.history.replaceState(null, "", window.location.href);
+      // Initialise core components
+      var pusher;
+      return loadApplication(appConf)
+          .then(function (app) {
+          application(app);
+          // Listen for common application-level messages
+          pusher = pusherService(application().pusher);
+          pusher.applicationUserChannel.bind("reload" /* reload */, reload);
+          pusher.applicationUserChannel.bind("redirect" /* redirect */, redirect);
+          pusher.cloudChannel.bind("reloadbranding" /* reloadBranding */, loadThemeBranding);
+          pusher.companyChannel.bind("reloadbranding" /* reloadBranding */, loadThemeBranding);
+          pusher.applicationChannel.bind("reloadbranding" /* reloadBranding */, loadThemeBranding);
+          pusher.applicationUserChannel.bind("notification" /* notification */, dialogRedraw);
+          // Load branding and confirm Pusher connection
+          return Promise.all([
+              loadThemeBranding(),
+              new Promise(function (resolve) {
+                  pusher.pusher.connection.bind("connected", function () {
+                      pusher.pusher.connection.unbind("connected");
+                      resolve();
+                  });
+              }),
+              loadProfile()
+          ]);
+      })
+          .catch(errNotification)
+          .then(function () {
+          return { application: application(), pusher: pusher };
+      });
+  }
+
+  var Files = /** @class */ (function () {
+      function Files(config) {
+          if (config === void 0) { config = {}; }
+          this.complete = stream__default['default'](0);
+          this.total = stream__default['default'](0);
+          this.percent = stream__default['default'].lift(function (complete, total) {
+              return complete ? (complete / total) : 0;
+          }, this.complete, this.total);
+          this.config = config;
+      }
+      Files.prototype.uploadList = function (fileList) {
+          var _this = this;
+          var uploadPath = this.config.fileUpload;
+          // Reset former upload progress
+          this.total(0);
+          this.complete(0);
+          if (!uploadPath) {
+              return [Promise.resolve()];
+          }
+          return lodash__default['default'].map(fileList, function (_a) {
+              var guid = _a[0], file = _a[1];
+              _this.total(_this.total() + 1);
+              var body = new FormData();
+              body.append("file", file, file.name);
+              body.append("filename", guid);
+              body.append("file_name", file.name);
+              body.append("file_type", file.type);
+              body.append("file_size", String(file.size));
+              body.append("file_lastModified", String(file.lastModified));
+              body.append("guid", guid);
+              return sdxRequest({
+                  method: "POST",
+                  url: uploadPath,
+                  deserialize: simpleResponse,
+                  body: body
+              }).then(function () { return _this.complete(_this.complete() + 1); });
+          });
+      };
+      Files.prototype.canUploadAssets = function () {
+          return Boolean(this.config.assetUpload);
+      };
+      Files.prototype.uploadAssets = function (fileList, category) {
+          var _this = this;
+          var uploadPath = this.config.assetUpload;
+          // Reset former upload progress
+          this.total(0);
+          this.complete(0);
+          if (!uploadPath) {
+              return [Promise.reject(new Error("No path set"))];
+          }
+          // Get upload category and subcategory
+          var catTag = pickByProperty(category.content, { ctx: "category" });
+          var subTag = pickByProperty(category.content, { ctx: "subcategory" });
+          if (!catTag) {
+              return [Promise.reject(new Error("Missing category tag"))];
+          }
+          return lodash__default['default'].map(fileList, function (_a) {
+              var file = _a.file, name = _a.name, type = _a.type, size = _a.size;
+              // Don't upload file objects lacking in file content
+              if (!file) {
+                  return Promise.resolve();
+              }
+              _this.total(_this.total() + 1);
+              var body = new FormData();
+              body.append("file", file, file.name);
+              body.append("upload_name", uiWidgets.fileNameExtSplit(name)[0]);
+              body.append("upload_filename", name);
+              body.append("upload_filetype", type);
+              body.append("upload_filesize", size.toString());
+              body.append("upload_origin", "customer");
+              body.append("upload_category", catTag.val);
+              body.append("upload_subcategory", subTag ? subTag.val : "");
+              body.append("upload_transaction_type", "CUSTOMER");
+              body.append("upload_reference", "");
+              return sdxRequest({
+                  method: "POST",
+                  url: uploadPath,
+                  deserialize: simpleResponse,
+                  body: body
+              }).then(function () { return _this.complete(_this.complete() + 1); });
+          });
+      };
+      Files.prototype.getPercent = function () {
+          return this.percent;
+      };
+      return Files;
+  }());
+
+  function strToJSON(str) {
+      try {
+          return JSON.parse(str);
+      }
+      catch (_) {
+          return [];
+      }
+  }
+  function fullFileName(name, filetype) {
+      var _a = uiWidgets.fileNameExtSplit(name), fname = _a[0], ext = _a[1];
+      if (ext) {
+          return name;
+      }
+      else {
+          // Get file extension from filetype
+          return fname + fileExt(filetype);
+      }
+  }
+  function xformAsset(_a) {
+      var id = _a.id, uuid = _a.uuid, origin = _a.origin, href = _a.href, _b = _a.url, url = _b === void 0 ? href : _b, date = _a.date_deposited, name = _a.name, size = _a.size, viewed = _a.viewed, type = _a.filetype, category = _a.category, subcategory = _a.subcategory, reference = _a.reference, actions = _a.actionsjson, _c = _a.metadata, metadata = _c === void 0 ? [] : _c;
+      var item = {
+          _id: uuid,
+          modelId: "documents",
+          tags: [{
+                  ctx: "model",
+                  val: "documents"
+              }, {
+                  ctx: "origin",
+                  val: origin
+              }, {
+                  ctx: "category",
+                  val: category
+              }, {
+                  ctx: "subcategory",
+                  val: subcategory
+              }, {
+                  ctx: "reference",
+                  val: reference
+              }, {
+                  ctx: "viewed",
+                  val: String(viewed)
+              }],
+          files: [{
+                  _id: uuid,
+                  prop: "document-file",
+                  remoteUrl: url,
+                  name: fullFileName(name, type),
+                  size: size,
+                  type: type,
+                  lastModified: 0
+              }],
+          props: {
+              id: id,
+              title: name,
+              date: date,
+              viewed: viewed
+          },
+          actions: actions ? strToJSON(actions) : []
+      };
+      // Merge partial item data entries
+      return lodash__default['default'].reduce(metadata, lodash__default['default'].merge, item);
+  }
+
+  var homeCategory = {
+      _id: "root",
+      modelId: "category",
+      label: "Root",
+      icon: "fal fa-seedling",
+      type: "list" /* list */,
+      search: false,
+      content: [{
+              ctx: "root",
+              val: "root"
+          }],
+      tags: []
+  };
+  var nullModel = {
+      _id: "unknown",
+      readonly: true,
+      label: "Unknown",
+      icon: "fal fa-undefined",
+      action: "view" /* view */,
+      fields: [],
+      listType: "basic" /* basic */,
+      search: [],
+      heading: [],
+      subheading: []
+  };
+  var categoryModel = {
+      _id: "category",
+      category: true,
+      readonly: true,
+      label: "Category",
+      icon: "fal fa-filter",
+      action: "list" /* list */,
+      fields: [],
+      listType: "category" /* category */,
+      search: [],
+      heading: [],
+      subheading: []
+  };
+  var nullItem = {
+      _id: "cdcdcdcd-0000-0000-0000-cdcd0404cdcd",
+      modelId: "unknown",
+      readonly: true,
+      tags: [],
+      files: [],
+      props: {},
+      actions: []
+  };
+  var nullAction = {
+      _id: "cdcdcdcd-0000-0000-0000-cdcd0404cdcd",
+      type: "view" /* view */,
+      label: "Unknown"
+  };
+
+  /**
+   * Generate a list of categories from a given list of items, with respect to a data-driven config object
+   */
+  function createCategories(itemList, driven, parent) {
+      var _id = driven._id, readonly = driven.readonly, icon = driven.icon, type = driven.type, categoryTags = driven.tags, contentAll = driven.contentAll, countContent = driven.countContent, hideEmpty = driven.hideEmpty, search = driven.search, sort = driven.sort, group = driven.group, groupConf = driven.groupConf, ctx = driven.creationContext, child = driven.child;
+      var driverId = parent ? parent._id + "-" + _id : _id;
+      // Scope list to content tags
+      var content = parent ? parent.content : driven.content;
+      var contentItems = itemsForCategory(itemList, content, contentAll);
+      // Generate categories for driver creationContext
+      return lodash__default['default'](contentItems)
+          .map(function (_a) {
+          var tags = _a.tags;
+          return tags ? pickByProperty(tags, { ctx: ctx }) : null;
+      })
+          .compact()
+          .map(function (_a) {
+          var val = _a.val;
+          return val;
+      })
+          .uniq()
+          .map(function (val) {
+          var ctxTag = { ctx: ctx, val: val };
+          var category = {
+              _id: driverId + "-" + val,
+              modelId: "category",
+              readonly: readonly,
+              label: val,
+              icon: icon, type: type,
+              contentAll: true,
+              // Add context to content tags
+              content: lodash__default['default'].concat(content, ctxTag),
+              // Add context to content counter (when set)
+              countContent: countContent
+                  ? lodash__default['default'].concat(content, ctxTag, countContent)
+                  : undefined,
+              tags: categoryTags,
+              hideEmpty: hideEmpty, search: search, sort: sort, group: group, groupConf: groupConf
+          };
+          if (child) {
+              // Update parent and child tagging to create hierarchy
+              var parentCategory = lodash__default['default'].extend({}, category, {
+                  content: lodash__default['default'].concat(child.tags, ctxTag)
+              });
+              var childCategory = lodash__default['default'].extend({}, child, {
+                  tags: parentCategory.content,
+                  // Enforce "contentAll" tag matching for child folders
+                  contentAll: true
+              });
+              // Generate next level of categories
+              var childCategories = createCategories(contentItems, childCategory, category);
+              return lodash__default['default'].concat(childCategories, parentCategory);
+          }
+          else {
+              return [category];
+          }
+      })
+          .flatten()
+          .value();
+  }
+
+  var DataSource = /** @class */ (function () {
+      function DataSource(src) {
+          this.src = src;
+          this.stream = stream__default['default']([]);
+      }
+      DataSource.prototype.load = function () {
+          if (this.src.path) {
+              return sdxRequest(this.src.path).then(this.stream).catch(lodash__default['default'].noop);
+          }
+          else {
+              return Promise.resolve();
+          }
+      };
+      return DataSource;
+  }());
+
+  // declare const meiosisTracer: any;
+  /**
+   * Create item instance from model
+  */
+  function createItem(model) {
+      return lodash__default['default'].reduce(model.fields, function (item, field) {
+          // Apply default prop values
+          if (field.default) {
+              item.props[field.id] = field.default;
+          }
+          return item;
+      }, {
+          _id: uiWidgets.guid(),
+          modelId: model._id,
+          readonly: model.readonly,
+          tags: [{
+                  ctx: "model",
+                  val: model._id
+              }],
+          files: [],
+          props: {},
+          actions: []
+      });
+  }
+  function scopeList(sourceList, filterScope) {
+      return lodash__default['default'].filter(sourceList, function (_a) {
+          var scope = _a.src.scope;
+          return scope === filterScope;
+      });
+  }
+  function getUserSource(sourceList) {
+      var filtered = scopeList(sourceList, "user" /* User */);
+      return filtered.length ? filtered[0] : null;
+  }
+  function buildSources(sourceList, type) {
+      return lodash__default['default'].map(filterByProperty(sourceList, { type: type }), function (src) { return new DataSource(src); });
+  }
+  var Items = /** @class */ (function () {
+      function Items(config) {
+          var _this = this;
+          if (config === void 0) { config = {}; }
+          this.remotePath = "./";
+          this.config = config;
+          if (this.config.remotePath) {
+              this.remotePath = this.config.remotePath;
+          }
+          var sourceList = this.config.sourceList || [];
+          // Models
+          this.modelSources = buildSources(sourceList, "model" /* Model */);
+          // Combine loaded models with special category model
+          this.modelList = stream__default['default'].merge(lodash__default['default'].map(this.modelSources, function (src) { return src.stream; }))
+              .map(function (modelLists) { return lodash__default['default'].concat([categoryModel], lodash__default['default'].flatten(modelLists)); });
+          // Assets
+          this.assetSources = buildSources(sourceList, "asset" /* Asset */);
+          // Transform assets into "typical" items
+          this.assetList = stream__default['default'].merge(lodash__default['default'].map(this.assetSources, function (src) { return src.stream; }))
+              .map(function (assetLists) { return lodash__default['default'].map(lodash__default['default'].flatten(assetLists), xformAsset); });
+          // Items
+          this.itemSources = buildSources(sourceList, "item" /* Item */);
+          // Patch item files lacking remoteUrl property
+          this.itemList = stream__default['default'].merge(lodash__default['default'].map(this.itemSources, function (src) { return src.stream; }))
+              // .map((itemLists) => lodash.flatten(itemLists));
+              .map(function (itemLists) { return lodash__default['default'].map(lodash__default['default'].flatten(itemLists), lodash__default['default'].bind(_this.patchRemoteUrl, _this)); });
+          lodash__default['default'].bind(this.patchRemoteUrl, this);
+          // Combine items and assets
+          this.dataList = stream__default['default'].lift(function (assets, items) {
+              var list = lodash__default['default'].concat(assets, items);
+              // Add default "root" category if required
+              var root = pickById(list, "root");
+              if (!root) {
+                  list.push(homeCategory);
+              }
+              // "Unpack" data-driven objects into their respective categories
+              var drivers = removeByProperty(list, { modelId: "driven" });
+              return lodash__default['default'].concat(list, lodash__default['default'](drivers)
+                  .map(function (driver) { return createCategories(list, driver); })
+                  .flatten()
+                  .value());
+          }, this.assetList, this.itemList);
+          // // Trace items
+          // meiosisTracer({
+          // 	streams: [
+          // 		this.itemList
+          // 	]
+          // });
+      }
+      Items.prototype.loaded = function () {
+          return this.itemList().length > 1;
+      };
+      /** Load DataSources if they haven't been loaded yet */
+      Items.prototype.initialLoad = function () {
+          return this.loaded() ? Promise.resolve() : this.load();
+      };
+      /** Load all DataSources */
+      Items.prototype.load = function () {
+          // TODO User Promise.allSettled when fully supported
+          return Promise.all([
+              this.loadApplication(),
+              this.loadUser()
+          ]);
+      };
+      /** Load all Application scoped DataSources */
+      Items.prototype.loadApplication = function () {
+          return this.loadScope("application" /* Application */);
+      };
+      /** Load all User Scoped DataSources */
+      Items.prototype.loadUser = function () {
+          return this.loadScope("user" /* User */);
+      };
+      Items.prototype.loadScope = function (scope) {
+          return Promise.all([
+              Promise.all(lodash__default['default'].map(scopeList(this.modelSources, scope), function (src) { return src.load(); })),
+              Promise.all(lodash__default['default'].map(scopeList(this.assetSources, scope), function (src) { return src.load(); })),
+              Promise.all(lodash__default['default'].map(scopeList(this.itemSources, scope), function (src) { return src.load(); })),
+          ]);
+      };
+      /** Load assets from a specific sjr and merge with existing loaded assets */
+      Items.prototype.updateAssets = function (params) {
+          var _this = this;
+          var userAssets = getUserSource(this.assetSources);
+          if (userAssets && userAssets.src.path) {
+              return sdxRequest(userAssets.src.path, { params: params })
+                  .then(function (list) { return _this.addAssets(list); });
+          }
+          return Promise.resolve(0);
+      };
+      /** Add new assets to existing loaded assets, will not replace */
+      Items.prototype.addAssets = function (assets) {
+          var userAssets = getUserSource(this.assetSources);
+          if (userAssets) {
+              var addList_1 = userAssets.stream();
+              var addedCount_1 = 0;
+              lodash__default['default'].each(assets, function (asset) {
+                  if (pickByProperty(addList_1, { uuid: asset.uuid }) === undefined) {
+                      ++addedCount_1;
+                      addList_1.push(asset);
+                  }
+              });
+              userAssets.stream(addList_1);
+              return addedCount_1;
+          }
+          return 0;
+      };
+      Items.prototype.viewAsset = function (_a) {
+          var uuid = _a.uuid;
+          var userAssets = getUserSource(this.assetSources);
+          if (userAssets) {
+              var updateList = userAssets.stream();
+              // Replace asset with version marked as viewed
+              var assets = removeByProperty(updateList, { uuid: uuid });
+              if (assets.length) {
+                  var viewed = assets[0];
+                  viewed.viewed = true;
+                  updateList.push(viewed);
+                  userAssets.stream(updateList);
+              }
+          }
+      };
+      /** Accessor to model list stream */
+      Items.prototype.model = function () {
+          return this.modelList;
+      };
+      /** Accessor to items/asset list stream */
+      Items.prototype.data = function () {
+          return this.dataList;
+      };
+      /** Add new, or update existing item loaded from the itemList configuration */
+      Items.prototype.upsertUserItem = function (item) {
+          var userItems = getUserSource(this.itemSources);
+          if (userItems) {
+              var updateList = userItems.stream();
+              // Remove former version of item (if present)
+              removeByProperty(updateList, { _id: item._id });
+              updateList.push(item);
+              userItems.stream(updateList);
+              return this.saveUserData(userItems.stream());
+          }
+          else {
+              return Promise.reject(new Error("User item source not found"));
+          }
+      };
+      /** Delete item from loaded from the itemList configuration */
+      Items.prototype.removeUserItem = function (_a) {
+          var _id = _a._id;
+          var userItems = getUserSource(this.itemSources);
+          if (userItems) {
+              var updateList = userItems.stream();
+              removeByProperty(updateList, { _id: _id });
+              userItems.stream(updateList);
+              return this.saveUserData(userItems.stream());
+          }
+          else {
+              return Promise.reject(new Error("User item source not found"));
+          }
+      };
+      Items.prototype.saveUserData = function (list) {
+          var updatePath = this.config.itemUpdate;
+          if (!updatePath) {
+              return Promise.resolve();
+          }
+          return sdxRequest({
+              method: "POST",
+              url: updatePath,
+              deserialize: simpleResponse,
+              body: list
+          });
+      };
+      // Assemble remoteUrl property in "travel-wallet" style items based on _id
+      Items.prototype.patchRemoteUrl = function (item) {
+          var _this = this;
+          var dat = item;
+          if (dat.files && dat.files.length) {
+              return lodash__default['default'].assign({}, dat, {
+                  files: lodash__default['default'].map(dat.files, function (file) { return lodash__default['default'].assign({}, file, {
+                      remoteUrl: file.remoteUrl ? file.remoteUrl : "" + _this.remotePath + file._id
+                  }); })
+              });
+          }
+          else {
+              return item;
+          }
+      };
+      return Items;
+  }());
+
+  var ItemSelect = /** @class */ (function () {
+      function ItemSelect(modelStream, itemStream) {
+          // Item selection handlers
+          this.modelId = stream__default['default'](nullModel._id);
+          this.itemId = stream__default['default'](nullItem._id);
+          this.actionId = stream__default['default'](nullAction._id);
+          this.pickModel = pickByIdStream(modelStream, this.modelId, nullModel);
+          this.pickItem = pickByIdStream(itemStream, this.itemId, nullItem);
+          this.pickAction = stream__default['default'].lift(function (item, id) { return ("actions" in item ? pickById(item.actions, id) : null) || nullAction; }, this.pickItem, this.actionId);
+          this.readonly = stream__default['default'].lift(function (model, item) { return Boolean(model.readonly || item.readonly); }, this.pickModel, this.pickItem);
+      }
+      ItemSelect.prototype.selectItem = function (id) {
+          this.itemId(id);
+          this.selectModel(this.pickItem().modelId);
+      };
+      ItemSelect.prototype.getItem = function () {
+          return this.pickItem();
+      };
+      ItemSelect.prototype.isReadonly = function () {
+          return this.readonly();
+      };
+      ItemSelect.prototype.isCategory = function () {
+          return this.pickModel().category || false;
+      };
+      ItemSelect.prototype.selectModel = function (id) {
+          this.modelId(id);
+      };
+      ItemSelect.prototype.getModel = function () {
+          return this.pickModel();
+      };
+      ItemSelect.prototype.selectAction = function (id) {
+          this.actionId(id);
+      };
+      ItemSelect.prototype.getAction = function () {
+          return this.pickAction();
+      };
+      return ItemSelect;
+  }());
+
+  var Vault = /** @class */ (function () {
+      function Vault(files, items, qry) {
+          this.saving = stream__default['default'](false);
+          this.files = files;
+          this.items = items;
+          this.qry = qry;
+      }
+      Vault.prototype.uploadAssets = function (item, fileList) {
+          return this.saveIndicator(Promise.all(this.files.uploadAssets(fileList, item)));
+      };
+      Vault.prototype.upsertItem = function (item, fileList) {
+          if (this.qry.isReadonly()) {
+              return Promise.reject(new Error("Cannot modify item"));
+          }
+          // Submit files
+          var promiseList = this.files.uploadList(fileList);
+          // Add/Update item
+          promiseList.push(this.items.upsertUserItem(item));
+          return this.saveIndicator(Promise.all(promiseList));
+      };
+      Vault.prototype.removeItem = function (item) {
+          if (this.qry.isReadonly()) {
+              return Promise.reject(new Error("Cannot remove item"));
+          }
+          return this.saveIndicator(this.items.removeUserItem(item));
+      };
+      /* Manage save indicator state, handling success or error */
+      Vault.prototype.saveIndicator = function (promise) {
+          var _this = this;
+          this.saving(true);
+          m__default['default'].redraw();
+          return promise.then(function () { return _this.saving(false); }).catch(function (err) {
+              _this.saving(false);
+              throw err;
+          });
+      };
+      return Vault;
+  }());
+
+  var NavbarType;
+  (function (NavbarType) {
+      NavbarType["HEADER"] = "header";
+      NavbarType["FOOTER"] = "footer";
+      NavbarType["SUBHEADER"] = "subheader";
+  })(NavbarType || (NavbarType = {}));
+  var LogoutSize;
+  (function (LogoutSize) {
+      LogoutSize["SMALL"] = "small";
+      LogoutSize["LARGE"] = "large";
+      LogoutSize["DEFAULT"] = "default";
+  })(LogoutSize || (LogoutSize = {}));
+
+  function getContextClass(context) {
+      if (context === void 0) { context = "default" /* default */; }
+      switch (context) {
+          case "error" /* error */: return theme().uiDialogContextError;
+          case "warn" /* warn */: return theme().uiDialogContextWarn;
+          case "neutral" /* neutral */: return theme().uiDialogContextNeutral;
+          case "alt" /* alt */: return theme().uiDialogContextAlt;
+          default: return theme().uiDialogContextDefault;
+      }
+  }
+  function getAnimateInClass(position) {
+      switch (position) {
+          case exports.DialogPosition.center: return "fade-in";
+          case exports.DialogPosition.top: return "notify-top-in";
+          case exports.DialogPosition.bottom: return "notify-bottom-in";
+          case exports.DialogPosition.topLeft: return "notify-left-in";
+          case exports.DialogPosition.bottomLeft: return "notify-left-in";
+          case exports.DialogPosition.topRight: return "notify-right-in";
+          case exports.DialogPosition.bottomRight: return "notify-right-in";
+          default: return "notify-top-in";
+      }
+  }
+  function getAnimateOutClass(position) {
+      switch (position) {
+          case exports.DialogPosition.center: return "fade-out";
+          case exports.DialogPosition.top: return "notify-top-out";
+          case exports.DialogPosition.bottom: return "notify-bottom-out";
+          case exports.DialogPosition.topLeft: return "notify-left-out";
+          case exports.DialogPosition.bottomLeft: return "notify-left-out";
+          case exports.DialogPosition.topRight: return "notify-right-out";
+          case exports.DialogPosition.bottomRight: return "notify-right-out";
+          default: return "notify-top-out";
+      }
+  }
+  function getPositionClasses(position) {
+      switch (position) {
+          case exports.DialogPosition.center: return ".mw-90-pa2.w-50-ns.w-100.tc";
+          case exports.DialogPosition.top: return ".br4.p3.z-max.w-50-ns.w-100.f5.tc.pointer";
+          case exports.DialogPosition.bottom: return ".br4.p3.z-max.w-50-ns.w-100.f5.tc.pointer";
+          case exports.DialogPosition.topLeft: return ".pa2.pointer.z-max.w-30-ns.w-100.tc";
+          case exports.DialogPosition.topRight: return ".pa2.pointer.z-max.w-30-ns.w-100.tc";
+          case exports.DialogPosition.bottomLeft: return ".pa2.pointer.z-max.w-30-ns.w-100.tc";
+          case exports.DialogPosition.bottomRight: return ".pointer.z-max.w-30-ns.w-100.tc";
+          default: return ".br4.p3.z-max.w-50-ns.w-100.f5.tc.pointer";
+      }
+  }
+  function createConfig(_a) {
+      var _b = _a.context, context = _b === void 0 ? "alt" /* alt */ : _b, buttonContext = _a.buttonContext, _c = _a.type, type = _c === void 0 ? exports.DialogType.notification : _c, _d = _a.message, message = _d === void 0 ? "" : _d, duration = _a.duration, _e = _a.position, position = _e === void 0 ? exports.DialogPosition.top : _e, _f = _a.icon, icon = _f === void 0 ? "" : _f, _g = _a.title, title = _g === void 0 ? "" : _g, _h = _a.subTitle, subTitle = _h === void 0 ? "" : _h, _j = _a.confirmButton, confirmButton = _j === void 0 ? {} : _j, _k = _a.cancelButton, cancelButton = _k === void 0 ? {} : _k, _l = _a.submitButton, submitButton = _l === void 0 ? {} : _l, _m = _a.priority, priority = _m === void 0 ? false : _m, login = _a.login, _o = _a.applyTheme, applyTheme = _o === void 0 ? {} : _o, _p = _a.useProfile, useProfile = _p === void 0 ? null : _p, _q = _a.postUrl, postUrl = _q === void 0 ? null : _q;
+      return {
+          context: context,
+          buttonContext: buttonContext || ButtonContextMapper(context),
+          type: type,
+          message: message,
+          icon: icon,
+          title: title,
+          subTitle: subTitle,
+          duration: type === exports.DialogType.notification && duration
+              ? duration
+              : (!type || type === exports.DialogType.notification ? 3000 : 0),
+          position: position,
+          confirmButton: confirmButton,
+          cancelButton: cancelButton,
+          submitButton: submitButton,
+          priority: priority,
+          login: {
+              onSuccess: (login === null || login === void 0 ? void 0 : login.onSuccess) ? login.onSuccess : function () { return null; },
+              onFailure: (login === null || login === void 0 ? void 0 : login.onFailure) ? login.onFailure : function () { return null; }
+          },
+          applyTheme: applyTheme,
+          useProfile: useProfile,
+          postUrl: postUrl
+      };
+  }
+  var DialogHandler = /** @class */ (function () {
+      function DialogHandler() {
+          this.priorityQueue = [];
+          this.notificationQueue = [];
+          this.confirmQueue = [];
+          this.loginQueue = [];
+          this.queue = [];
+          this.active = stream__default['default'](false);
+          this.visible = stream__default['default'](false);
+      }
+      Object.defineProperty(DialogHandler.prototype, "config", {
+          get: function () {
+              return this._config;
+          },
+          enumerable: false,
+          configurable: true
+      });
+      Object.defineProperty(DialogHandler.prototype, "getQueue", {
+          //For testing only
+          get: function () {
+              return this.queue;
+          },
+          enumerable: false,
+          configurable: true
+      });
+      Object.defineProperty(DialogHandler.prototype, "getActiveDialog", {
+          get: function () {
+              return this.activeDialog;
+          },
+          enumerable: false,
+          configurable: true
+      });
+      DialogHandler.prototype.insert = function (dialogValue) {
+          //Store notification to type queues
+          if (dialogValue.priority)
+              this.priorityQueue.push(dialogValue);
+          else if (dialogValue.type === exports.DialogType.notification)
+              this.notificationQueue.push(dialogValue);
+          else if (dialogValue.type === exports.DialogType.confirm)
+              this.confirmQueue.push(dialogValue);
+          else if (dialogValue.type === exports.DialogType.login)
+              this.loginQueue.push(dialogValue);
+          else
+              this.notificationQueue.push(dialogValue);
+          //Add the notification queues to the general queue in priority order
+          this.queue = lodash__default['default'].concat(this.priorityQueue, this.loginQueue, this.confirmQueue, this.notificationQueue);
+      };
+      DialogHandler.prototype.next = function () {
+          if (!this.visible() && !this.active() && this.queue.length) {
+              //Create the new activeDialog and confirm and set active/visible
+              this.activeDialog = this.queue[0];
+              this._config = createConfig(this.activeDialog);
+              //Remove the last dialog from the respective queues
+              if (this.activeDialog.priority)
+                  this.priorityQueue.shift();
+              else if (this.activeDialog.type === exports.DialogType.notification)
+                  this.notificationQueue.shift();
+              else if (this.activeDialog.type === exports.DialogType.confirm)
+                  this.confirmQueue.shift();
+              else if (this.activeDialog.type === exports.DialogType.login)
+                  this.loginQueue.shift();
+              else
+                  this.notificationQueue.shift();
+              this.queue.shift();
+              this.active(true);
+              this.visible(true);
+          }
+      };
+      return DialogHandler;
+  }());
+
+  var DialogWrapper = /** @class */ (function () {
+      function DialogWrapper() {
+      }
+      DialogWrapper.prototype.onbeforeremove = function (_a) {
+          var dom = _a.dom, visible = _a.attrs.visible;
+          dom.classList.remove("fade-in");
+          dom.classList.add("fade-out");
+          return new Promise(function (resolve) {
+              dom.addEventListener("animationend", function () {
+                  visible(false);
+                  // Invoke DialogComponent onbeforeupdate reflecting visible state change
+                  m__default['default'].redraw();
+                  resolve();
+              });
+          });
+      };
+      DialogWrapper.prototype.view = function (_a) {
+          var children = _a.children;
+          return m__default['default'](".fixed.w-100.h-100.left-0.top-0.flex.items-center.justify-center.pa3.bg-black-70.z-max", {
+              class: "fade-in",
+              tabIndex: -1
+          }, children);
+      };
+      return DialogWrapper;
+  }());
+
+  var DialogConfirm = /** @class */ (function () {
+      function DialogConfirm() {
+      }
+      DialogConfirm.prototype.oninit = function (_a) {
+          var applyTheme = _a.attrs.config.applyTheme;
+          if (applyTheme) {
+              this.themeHandler = new ResponsiveThemeHandler(applyTheme);
+          }
+      };
+      DialogConfirm.prototype.view = function (_a) {
+          var _b;
+          var _c = _a.attrs, config = _c.config, active = _c.active, visible = _c.visible;
+          var context = config.context, buttonContext = config.buttonContext, icon = config.icon, title = config.title, message = config.message, confirmButton = config.confirmButton, cancelButton = config.cancelButton;
+          var overwrite = (_b = this.themeHandler) === null || _b === void 0 ? void 0 : _b.classes;
+          return active() ? m__default['default'](DialogWrapper, { visible: visible }, m__default['default'](".w-75-ns.mw-90.measure.pa3", {
+              class: joinClasses([
+                  overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogWrapper,
+                  getContextClass(context),
+                  theme().uiDialogWrapper
+              ])
+          }, [
+              icon ? m__default['default']("i", {
+                  class: joinClasses([
+                      icon,
+                      overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogIcon,
+                      theme().uiDialogIcon
+                  ])
+              }) : null,
+              title ? m__default['default']("h2", {
+                  class: joinClasses([
+                      overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogTitle,
+                      theme().uiDialogTitle
+                  ])
+              }, title) : null,
+              message ? buildComponent({
+                  type: "sdx-blockLines",
+                  data: {
+                      lines: message,
+                      applyTheme: {
+                          uiBlockLinesWrapper: {
+                              classes: joinClasses([
+                                  overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogText,
+                                  theme().uiDialogText
+                              ])
+                          }
+                      }
+                  }
+              }) : null,
+              /* message ? m("p.mv4", {
+                  class: joinClasses([
+                      overwrite?.uiDialogText,
+                      theme().uiDialogText
+                  ])
+              }, message) : null, */
+              // Button wrapper
+              m__default['default'](".flex.items-end.justify-end", {
+                  class: joinClasses([
+                      overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogButtonWrapper,
+                      theme().uiDialogButtonWrapper
+                  ])
+              }, [
+                  m__default['default'](uiWidgets.Button, {
+                      classes: joinClasses([
+                          overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogCancelButton,
+                          theme().uiDialogCancelButton
+                      ]),
+                      label: cancelButton.label || "Cancel",
+                      icon: cancelButton.icon,
+                      rightIcon: cancelButton.rightIcon,
+                      type: "button",
+                      context: buttonContext,
+                      onclick: function () {
+                          active(false);
+                          if (cancelButton.onclick) {
+                              cancelButton.onclick();
+                          }
+                          m__default['default'].redraw();
+                      }
+                  }),
+                  confirmButton.onclick ? m__default['default'](uiWidgets.Button, {
+                      classes: joinClasses([
+                          overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogConfirmButton,
+                          theme().uiDialogConfirmButton
+                      ]),
+                      label: confirmButton.label || "Confirm",
+                      icon: confirmButton.icon,
+                      rightIcon: confirmButton.rightIcon,
+                      type: "button",
+                      context: buttonContext,
+                      onclick: function () {
+                          active(false);
+                          if (confirmButton.onclick) {
+                              confirmButton.onclick();
+                          }
+                          m__default['default'].redraw();
+                      }
+                  }) : null
+              ])
+          ])) : null;
+      };
+      return DialogConfirm;
+  }());
+
+  var wrapperClasses = function (position) {
+      switch (position) {
+          case exports.DialogPosition.bottom: {
+              return ".w-100.h-100.pa3.fixed.left-0.top-0.flex.justify-center.items-end.z-max";
+          }
+          case exports.DialogPosition.bottomLeft: {
+              return ".w-100.h-100.pa3.fixed.left-0.top-0.flex.items-end.z-max";
+          }
+          case exports.DialogPosition.bottomRight: {
+              return ".w-100.h-100.pa3.fixed.left-0.top-0.flex.flex-row-reverse.items-end.z-max";
+          }
+          case exports.DialogPosition.top: {
+              return ".w-100.h-100.pa3.fixed.left-0.top-0.flex.justify-center.items-start.z-max";
+          }
+          case exports.DialogPosition.topLeft: {
+              return ".w-100.h-100.pa3.fixed.left-0.top-0.z-max";
+          }
+          case exports.DialogPosition.topRight: {
+              return ".w-100.h-100.pa3.fixed.right-0.top-0.flex-row-reverse.z-max";
+          }
+          default: {
+              return ".flex.items-center.justify-center.w-100.h-100.pa3.fixed.left-0.top-0.z-max";
+          }
+      }
+  };
+  var DialogNotification = /** @class */ (function () {
+      function DialogNotification() {
+      }
+      DialogNotification.prototype.view = function (_a) {
+          var _this = this;
+          var _b;
+          var _c = _a.attrs, config = _c.config, active = _c.active, visible = _c.visible;
+          var position = config.position, title = config.title, message = config.message, context = config.context, duration = config.duration, applyTheme = config.applyTheme;
+          if (applyTheme) {
+              this.themeHandler = new ResponsiveThemeHandler(applyTheme);
+          }
+          var overwrite = (_b = this.themeHandler) === null || _b === void 0 ? void 0 : _b.classes;
+          if (duration && !this.timeout && active()) {
+              this.timeout = setTimeout(function () {
+                  active(false);
+                  m__default['default'].redraw();
+              }, duration);
+          }
+          return m__default['default'](wrapperClasses(position), {
+              style: {
+                  pointerEvents: "none",
+                  backgroundColor: 'rgba(0, 0, 0, 0)',
+                  tabIndex: -1
+              }
+          }, active() ? m__default['default'](getPositionClasses(position), {
+              class: joinClasses([
+                  getAnimateInClass(position),
+                  getContextClass(context),
+                  overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogNotificationWrapper,
+                  theme().uiDialogNotificationWrapper,
+              ]),
+              onclick: function () { return active(false); },
+              onbeforeremove: function (_a) {
+                  var dom = _a.dom;
+                  dom.classList.remove(getAnimateInClass(position));
+                  dom.classList.add(getAnimateOutClass(position));
+                  if (_this.timeout) {
+                      clearTimeout(_this.timeout);
+                  }
+                  _this.timeout = null;
+                  return new Promise(function (resolve) {
+                      dom.addEventListener("animationend", function () {
+                          visible(false);
+                          m__default['default'].redraw();
+                          resolve();
+                      });
+                  });
+              }
+          }, m__default['default'](".flex-row.center-items.justify-center", title ? m__default['default']("h4.w-100.pl3.pr3", {
+              class: joinClasses([
+                  overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogTitle,
+                  theme().uiDialogTitle
+              ])
+          }, title) : null, message ? m__default['default']("p.w-100.pa1", {
+              class: joinClasses([
+                  overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogText,
+                  theme().uiDialogText
+              ])
+          }, message) : null)) : null);
+      };
+      return DialogNotification;
+  }());
+
+  var PasswordReset = /** @class */ (function () {
+      function PasswordReset() {
+          this.resetId = stream__default['default']("");
+          this.mobileValid = stream__default['default']();
+          this.emailValid = stream__default['default']();
+      }
+      // TODO: Create "clean resetId" from resetId, validate and submit that value
+      PasswordReset.prototype.oninit = function (_a) {
+          var hash = _a.attrs.reset.hash;
+          this.mobileValid = this.resetId.map(function (mobile) {
+              // Take only numbers, and the last 9 (ignore countro code) before hashing
+              return hash === jsSha256.sha256(lodash__default['default'].replace(lodash__default['default'].toLower(mobile), /[^0-9]/g, '').slice(-9));
+          });
+          this.emailValid = this.resetId.map(function (email) {
+              // Trim leading/trailing spaces before hashing
+              return hash === jsSha256.sha256(lodash__default['default'].trim(lodash__default['default'].toLower(email)));
+          });
+      };
+      PasswordReset.prototype.view = function (_a) {
+          var _this = this;
+          var _b = _a.attrs, auth = _b.auth, reset = _b.reset, onReset = _b.onReset, onToggle = _b.onToggle;
+          var type = reset.type, inputLabel = reset.inputLabel, inputPlaceholder = reset.inputPlaceholder;
+          var _c = auth.onePanel, onePanel = _c === void 0 ? true : _c, _d = auth.helpBtnText, helpBtnText = _d === void 0 ? "SEND PIN" : _d, _e = auth.helpBtnIcon, helpBtnIcon = _e === void 0 ? "" : _e, _f = auth.loginFormClass, loginFormClass = _f === void 0 ? "" : _f, _g = auth.loginBtnClass, loginBtnClass = _g === void 0 ? "" : _g, _h = auth.returnLinkText, returnLinkText = _h === void 0 ? "Return" : _h, helpInputLines = auth.helpInputLines;
+          return m__default['default']("form[enctype=multipart/form-data]", {
+              onsubmit: function (evt) {
+                  evt.preventDefault();
+                  onReset(type === "email" /* Email */ ?
+                      lodash__default['default'].trim(lodash__default['default'].toLower(_this.resetId())) :
+                      lodash__default['default'].trim(lodash__default['default'].replace(lodash__default['default'].toLower(_this.resetId()), /[^0-9]/g, '').slice(-9)), _this.resetId());
+                  // Reset input to empty
+                  _this.resetId("");
+              },
+              class: joinClasses([
+                  loginFormClass,
+                  theme().uiLoginForm
+              ]),
+          }, [
+              m__default['default']("div", {
+                  class: joinClasses([theme().uiLoginFormInputWrapper]),
+              }, m__default['default'](uiWidgets.BaseInput, {
+                  field: lodash__default['default'].extend({}, {
+                      id: "resetpassword",
+                      instant: true,
+                      uiClass: {
+                          wrapper: joinClasses([theme().uiInputFieldset]),
+                          inputWrapper: joinClasses([theme().uiLoginInputWrapper, theme().uiInputWrapper]),
+                          input: joinClasses(["pa2", theme().uiLoginInput, theme().uiInput]),
+                          label: joinClasses([theme().uiLoginInputLabel, theme().uiInputLabel]),
+                      },
+                  }, type === "email" /* Email */
+                      ? {
+                          label: inputLabel ? inputLabel : "EMAIL",
+                          type: "email" /* email */,
+                          placeholder: inputPlaceholder ? inputPlaceholder : "Enter e-mail address",
+                          inputmode: "email"
+                      } : {
+                      label: inputLabel ? inputLabel : "MOBILE",
+                      type: "tel" /* tel */,
+                      placeholder: inputPlaceholder ? inputPlaceholder : "Enter mobile number",
+                      inputmode: "numeric",
+                      pattern: "[0-9]+"
+                  }),
+                  value: this.resetId
+              })),
+              helpInputLines ? lodash__default['default'].map(helpInputLines, function (line) { return m__default['default']("p.f5", {
+                  class: joinClasses([theme().uiLoginLines])
+              }, m__default['default'].trust(line)); }) : null,
+              m__default['default'](".flex.items-center.flex-row-reverse-ns", {
+                  class: joinClasses([theme().uiLoginButtonWrapper])
+              }, [
+                  m__default['default'](uiWidgets.Button, {
+                      label: helpBtnText,
+                      type: "submit",
+                      rightIcon: helpBtnIcon,
+                      classes: joinClasses([
+                          theme().uiLoginButton,
+                          loginBtnClass,
+                      ]),
+                      disabled: type === "email" /* Email */ ? !this.emailValid() : !this.mobileValid()
+                  }),
+                  onePanel ? m__default['default']("span.pv2.f6.pointer", {
+                      class: joinClasses([
+                          theme().uiLoginResetReturn,
+                          theme().uiLoginResetButton
+                      ]),
+                      onclick: onToggle
+                  }, returnLinkText) : null
+              ])
+          ]);
+      };
+      return PasswordReset;
+  }());
+
+  function loginForm(auth) {
+      var username = auth.username, pinInput = auth.pinInput;
+      var _a = theme(), uiLoginInputWrapper = _a.uiLoginInputWrapper, uiLoginInput = _a.uiLoginInput, uiInput = _a.uiInput, uiInputWrapper = _a.uiInputWrapper, uiLoginInputFieldset = _a.uiLoginInputFieldset, uiInputFieldset = _a.uiInputFieldset, uiLoginInputLabel = _a.uiLoginInputLabel, uiInputLabel = _a.uiInputLabel;
+      // Username field is common to all form configurations
+      var formFields = [{
+              key: "username",
+              input: {
+                  id: "username",
+                  type: "hidden" /* hidden */,
+                  readonly: true
+              },
+          }];
+      if (auth.type === "dobPostcode" /* DOBPostcode */) {
+          // Assemble DOB Postcode/PIN form config
+          var _b = auth.dobLabel, dobLabel = _b === void 0 ? "DOB" : _b, _c = auth.dobPlaceholder, dobPlaceholder = _c === void 0 ? "DOB e.g. 23/02/1973" : _c, _d = auth.postcodeLabel, postcodeLabel = _d === void 0 ? "Postcode" : _d, _e = auth.postcodePlaceholder, postcodePlaceholder = _e === void 0 ? "Postcode e.g. AB12 3CD" : _e;
+          formFields.push({
+              key: "dob",
+              input: {
+                  id: "dob", label: dobLabel,
+                  type: "dateInput" /* dateInput */,
+                  placeholder: dobPlaceholder, title: dobPlaceholder,
+                  required: true,
+                  uiClass: {
+                      wrapper: joinClasses([uiLoginInputFieldset, uiInputFieldset]),
+                      inputWrapper: joinClasses([uiLoginInputWrapper, uiInputWrapper]),
+                      input: joinClasses(["pa2", uiLoginInput, uiInput]),
+                      label: joinClasses([uiLoginInputLabel, uiInputLabel]),
+                  }
+              }
+          });
+          formFields.push(pinInput
+              ? {
+                  key: "pin",
+                  input: {
+                      id: "pin", label: postcodeLabel,
+                      type: "password" /* password */,
+                      placeholder: postcodePlaceholder, title: postcodePlaceholder,
+                      pattern: "[0-9]*", inputmode: "numeric",
+                      required: true, instant: true,
+                      uiClass: {
+                          wrapper: joinClasses([uiLoginInputFieldset, uiInputFieldset]),
+                          inputWrapper: joinClasses([uiLoginInputWrapper, uiInputWrapper]),
+                          input: joinClasses(["pa2", uiLoginInput, uiInput]),
+                          label: joinClasses([uiLoginInputLabel, uiInputLabel]),
+                      }
+                  }
+              }
+              : {
+                  key: "postcode",
+                  input: {
+                      id: "postcode", label: postcodeLabel,
+                      type: "text" /* text */,
+                      placeholder: postcodePlaceholder, title: postcodePlaceholder,
+                      required: true, instant: true,
+                      uiClass: {
+                          wrapper: joinClasses([uiLoginInputFieldset, uiInputFieldset]),
+                          inputWrapper: joinClasses([uiLoginInputWrapper, uiInputWrapper]),
+                          input: joinClasses(["pa2", uiLoginInput, uiInput]),
+                          label: joinClasses([uiLoginInputLabel, uiInputLabel]),
+                      }
+                  }
+              });
+          // Add computed fields for validation
+          formFields.push({
+              key: "dob-format",
+              computed: {
+                  keys: ["dob"],
+                  map: "dateStr-format"
+              }
+          });
+          formFields.push({
+              key: "dob-valid",
+              computed: {
+                  keys: ["dob-format"],
+                  map: "test-dob"
+              }
+          });
+          if (pinInput) {
+              formFields.push({
+                  key: "pin-valid",
+                  computed: {
+                      keys: ["pin"],
+                      map: "strLength-6"
+                  }
+              });
+          }
+          else {
+              formFields.push({
+                  key: "postcode-remove-whitespace",
+                  computed: {
+                      keys: ["postcode"],
+                      map: "remove-whitespace"
+                  }
+              });
+              formFields.push({
+                  key: "postcode-upper",
+                  computed: {
+                      keys: ["postcode-remove-whitespace"],
+                      map: "upper"
+                  }
+              });
+              formFields.push({
+                  key: "postcode-valid",
+                  computed: {
+                      keys: ["postcode-upper"],
+                      map: "test-postcode"
+                  }
+              });
+          }
+          formFields.push({
+              key: "form-valid",
+              computed: {
+                  keys: ["dob-valid", pinInput ? "pin-valid" : "postcode-valid"],
+                  merge: "and"
+              }
+          });
+          formFields.push({
+              key: "password",
+              input: {
+                  id: "password",
+                  type: "hidden" /* hidden */,
+                  autocomplete: "off",
+                  readonly: true
+              },
+              computed: {
+                  keys: ["dob-format", pinInput ? "pin" : "postcode-upper"],
+                  merge: "join-underscore"
+              }
+          });
+      }
+      else {
+          // Assemble Password/PIN form config
+          var _f = auth.passwordLabel, passwordLabel = _f === void 0 ? "PASSWORD" : _f, _g = auth.passwordPlaceholder, passwordPlaceholder = _g === void 0 ? "PASSWORD" : _g;
+          formFields.push(pinInput
+              ? {
+                  key: "password",
+                  input: {
+                      id: "password", label: passwordLabel,
+                      type: "password" /* password */,
+                      placeholder: passwordPlaceholder,
+                      autocomplete: "current-password",
+                      pattern: "[0-9]+", inputmode: "numeric",
+                      required: true, instant: true,
+                      uiClass: {
+                          wrapper: joinClasses([uiLoginInputFieldset, uiInputFieldset]),
+                          inputWrapper: joinClasses([uiLoginInputWrapper, uiInputWrapper]),
+                          input: joinClasses(["pa2", uiLoginInput, uiInput]),
+                          label: joinClasses([uiLoginInputLabel, uiInputLabel]),
+                      },
+                  }
+              }
+              : {
+                  key: "password",
+                  input: {
+                      id: "password", label: passwordLabel,
+                      type: "password" /* password */,
+                      placeholder: passwordPlaceholder,
+                      autocomplete: "current-password",
+                      required: true, instant: true,
+                      uiClass: {
+                          wrapper: joinClasses([uiLoginInputFieldset, uiInputFieldset]),
+                          inputWrapper: joinClasses([uiLoginInputWrapper, uiInputWrapper]),
+                          input: joinClasses(["pa2", uiLoginInput, uiInput]),
+                          label: joinClasses([uiLoginInputLabel, uiInputLabel]),
+                      }
+                  }
+              });
+          // Add computed fields for validation
+          formFields.push({
+              key: "form-valid",
+              computed: {
+                  keys: ["password"],
+                  map: pinInput ? "strLength-6" : "strLength"
+              }
+          });
+      }
+      // Build form from config
+      var form = buildFormFields(formFields);
+      // Set fixed username
+      form.streamMap["username"].value(username);
+      return form;
+  }
+
+  function loginSubmit(endpoint, config) {
+      return function (evt) {
+          evt.preventDefault();
+          m.request({
+              method: "POST",
+              url: endpoint,
+              body: new FormData(evt.target),
+              deserialize: simpleResponse
+          }).then(config.onSuccess).catch(config.onFailure);
+      };
+  }
+
+  var LoginForm = /** @class */ (function () {
+      function LoginForm() {
+          this.toggleHelp = false;
+      }
+      LoginForm.prototype.oninit = function (_a) {
+          var auth = _a.attrs.auth;
+          this.form = loginForm(auth);
+      };
+      LoginForm.prototype.view = function (_a) {
+          var _this = this;
+          var _b = _a.attrs, auth = _b.auth, config = _b.config, minimal = _b.minimal;
+          var endpoint = auth.endpoint, _c = auth.onePanel, onePanel = _c === void 0 ? true : _c, title = auth.title, lines = auth.lines, _d = auth.postLines, postLines = _d === void 0 ? [] : _d, helpTitle = auth.helpTitle, helpLines = auth.helpLines, _e = auth.postHelpLines, postHelpLines = _e === void 0 ? [] : _e, _f = auth.loginFormClass, loginFormClass = _f === void 0 ? "" : _f, _g = auth.loginBtnText, loginBtnText = _g === void 0 ? "Login" : _g, _h = auth.loginBtnIcon, loginBtnIcon = _h === void 0 ? "" : _h, _j = auth.loginBtnClass, loginBtnClass = _j === void 0 ? "" : _j, reset = auth.reset, _k = auth.helpLinkText, helpLinkText = _k === void 0 ? "Trouble logging in?" : _k;
+          return m__default['default'](".flex.flex-column", {
+              class: (onePanel ? "" : "flex-row-l items-stretch ph1-l") + " " + (minimal ? '' : theme().uiLoginWrapper)
+          }, [
+              // Login form
+              !this.toggleHelp ? m__default['default'](".flex-column.w-100", {
+                  class: joinClasses([
+                      theme().uiLogin
+                  ])
+              }, [
+                  minimal ? null : m__default['default'](".f3.f2-l.fw5", {
+                      class: joinClasses([colors().default.color, theme().uiLoginHeader])
+                  }, m__default['default'].trust(title)),
+                  lines
+                      ? lodash__default['default'].map(lines, function (line) {
+                          return m__default['default']("p.f5", {
+                              class: joinClasses([theme().uiLoginLines])
+                          }, m__default['default'].trust(line));
+                      })
+                      : null,
+                  m__default['default']("form[enctype=multipart/form-data][method=post][accept=utf-8].w-100 " + (minimal ? '' : '.justify-between'), {
+                      action: endpoint,
+                      class: joinClasses([
+                          loginFormClass,
+                          theme().uiLoginForm
+                      ]),
+                      onsubmit: config ? loginSubmit(endpoint, config) : undefined
+                  }, [
+                      m__default['default']("div", {
+                          class: joinClasses([theme().uiLoginFormInputWrapper]),
+                      }, lodash__default['default'].map(this.form.fields, assembleFormField)),
+                      minimal ? null : lodash__default['default'].map(postLines, function (line) { return m__default['default']("p.f5", {
+                          class: joinClasses([theme().uiLoginPostLines])
+                      }, m__default['default'].trust(line)); }),
+                      m__default['default'](".flex.items-center " + (minimal ? '.flex-column' : '.flex-row-reverse-ns.flex-column'), {
+                          class: joinClasses([theme().uiLoginButtonWrapper])
+                      }, m__default['default'](uiWidgets.Button, {
+                          label: loginBtnText,
+                          type: "submit",
+                          rightIcon: loginBtnIcon,
+                          classes: joinClasses([
+                              theme().uiLoginButton,
+                              theme().uiButton,
+                              loginBtnClass,
+                          ]),
+                          disabled: Boolean(!this.form.streamMap["form-valid"].value())
+                      }), 
+                      // Show reset form (onePanel layout only)
+                      onePanel && reset ? m__default['default']("span.pv2.nt2.fr.f6.pointer", {
+                          class: joinClasses([
+                              theme().uiLoginResetButton
+                          ]),
+                          onclick: function () { return _this.toggleHelp = true; }
+                      }, helpLinkText) : null)
+                  ]),
+              ]) : null,
+              // Help form
+              !onePanel || this.toggleHelp ? m__default['default'](".flex-column.w-100", {
+                  class: joinClasses([
+                      theme().uiLogin
+                  ])
+              }, [
+                  minimal ? null : m__default['default'](".f3.f2-l.fw5.mv3.mv4-l", {
+                      class: joinClasses([theme().uiLoginResetHeader, theme().uiLoginHeader])
+                  }, m__default['default'].trust(helpTitle)),
+                  lodash__default['default'].map(helpLines, function (line) { return m__default['default']("p.f5", m__default['default'].trust(line)); }),
+                  reset ? m__default['default'](PasswordReset, {
+                      auth: auth,
+                      reset: reset,
+                      onReset: function (shortId, fullId) {
+                          _this.toggleHelp = false;
+                          resetAuth(shortId, fullId);
+                      },
+                      onToggle: function () { return _this.toggleHelp = false; }
+                  }) : null,
+                  lodash__default['default'].map(postHelpLines, function (line) { return m__default['default']("p.f5", m__default['default'].trust(line)); })
+              ]) : null
+          ]);
+      };
+      return LoginForm;
+  }());
+
+  var DialogLogin = /** @class */ (function () {
+      function DialogLogin() {
+          this.shake = false;
+      }
+      DialogLogin.prototype.oninit = function (_a) {
+          var _this = this;
+          var _b = _a.attrs, active = _b.active, _c = _b.config, login = _c.login, applyTheme = _c.applyTheme;
+          if (applyTheme) {
+              this.themeHandler = new ResponsiveThemeHandler(applyTheme);
+          }
+          this.loginSuccess = function () {
+              active(false);
+              return login.onSuccess();
+          };
+          this.loginFailure = function () {
+              _this.shake = true;
+              _this.failMessage = "Invalid credentials - please try again";
+              return login.onFailure();
+          };
+      };
+      DialogLogin.prototype.onupdate = function () {
+          // Remove the shake class if present
+          if (this.shake) {
+              this.shake = false;
+          }
+      };
+      DialogLogin.prototype.view = function (_a) {
+          var _b;
+          var _c = _a.attrs, config = _c.config, active = _c.active, visible = _c.visible;
+          var context = config.context, title = config.title, message = config.message;
+          var auth = application().auth;
+          var overwrite = (_b = this.themeHandler) === null || _b === void 0 ? void 0 : _b.classes;
+          return active() ? m__default['default'](DialogWrapper, {
+              visible: visible,
+          }, m__default['default'](".measure-wide.pa3", {
+              class: joinClasses([
+                  theme().uiDialogLoginWrapper,
+                  theme().uiDialogWrapper,
+                  getContextClass(context),
+                  this.shake ? "shake" : ''
+              ])
+          }, m__default['default'](".pa2", [
+              m__default['default']("h2.w-100", {
+                  class: joinClasses([
+                      overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogTitle,
+                      context === "default" /* default */ ? theme().uiDialogTitle : getContextClass(context),
+                  ])
+              }, title),
+              m__default['default']("p.tc", {
+                  class: joinClasses([
+                      this.failMessage ? "red" : "",
+                      theme().uiDialogFailMessage,
+                  ])
+              }, this.failMessage ? this.failMessage : message)
+          ]), auth ? m__default['default'](LoginForm, {
+              auth: auth,
+              config: {
+                  onSuccess: this.loginSuccess,
+                  onFailure: this.loginFailure
+              },
+              minimal: true
+          }) : null)) : null;
+      };
+      return DialogLogin;
+  }());
+
+  var DialogFeedback = /** @class */ (function () {
+      function DialogFeedback() {
+      }
+      DialogFeedback.prototype.oninit = function (_a) {
+          var _b = _a.attrs.config, applyTheme = _b.applyTheme, useProfile = _b.useProfile;
+          var _c = useProfile ? useProfile() : profile() || {}, _d = _c.email, email = _d === void 0 ? "" : _d, _e = _c.mobile, mobile = _e === void 0 ? "" : _e;
+          var uiClass = {
+              wrapper: joinClasses([theme().uiInputFieldset]),
+              inputWrapper: joinClasses(["ba b--light-gray mb2", theme().uiInputWrapper]),
+              input: joinClasses([theme().uiInput]),
+              label: joinClasses([theme().uiInputLabel]),
+          };
+          this.feedbackFormFields = buildFormFields([{
+                  key: "feedback",
+                  group: "feedback",
+                  input: {
+                      id: "feedback",
+                      type: "textarea" /* textarea */, required: true,
+                      uiClass: uiClass
+                  }
+              }, {
+                  key: "email",
+                  group: "email",
+                  input: {
+                      id: "email",
+                      type: "email" /* email */, required: true,
+                      uiClass: uiClass
+                  }
+              }, {
+                  key: "phone_number",
+                  group: "phone_number",
+                  input: {
+                      id: "phone_number",
+                      type: "tel" /* tel */, required: true,
+                      uiClass: uiClass
+                  }
+              }]);
+          if (email) {
+              this.feedbackFormFields.streamMap["email"].value(email);
+          }
+          if (mobile) {
+              this.feedbackFormFields.streamMap["phone_number"].value(mobile);
+          }
+          if (applyTheme) {
+              this.themeHandler = new ResponsiveThemeHandler(applyTheme);
+          }
+      };
+      DialogFeedback.prototype.view = function (_a) {
+          var _this = this;
+          var _b;
+          var _c = _a.attrs, config = _c.config, active = _c.active, visible = _c.visible;
+          var title = config.title, subTitle = config.subTitle, cancelButton = config.cancelButton, submitButton = config.submitButton, postUrl = config.postUrl;
+          var overwrite = (_b = this.themeHandler) === null || _b === void 0 ? void 0 : _b.classes;
+          var feedbackFormGroup = lodash__default['default'].groupBy(this.feedbackFormFields ? this.feedbackFormFields.fields : [], "group");
+          return active() ? m__default['default'](DialogWrapper, { visible: visible }, m__default['default'](".w-75-ns.mw-90.measure", {
+              class: joinClasses([
+                  overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogFeedbackWrapper,
+                  overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogWrapper,
+                  theme().uiDialogFeedbackWrapper,
+                  theme().uiDialogWrapper
+              ])
+          }, [
+              m__default['default'](".pa3", [
+                  m__default['default']("h2.w-100.tc", {
+                      class: joinClasses([
+                          overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogFeedbackTitle,
+                          theme().uiDialogFeedbackTitle
+                      ])
+                  }, title),
+                  m__default['default']("h5.w-100.tc", {
+                      class: joinClasses([
+                          overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogFeedbackSubTitle,
+                          theme().uiDialogFeedbackSubTitle
+                      ])
+                  }, subTitle),
+                  m__default['default']("p.f6.b.pt3.mv1", {
+                      class: joinClasses([
+                          overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogFeedbackLabel,
+                          theme().uiDialogFeedbackLabel
+                      ])
+                  }, "Feedback"),
+                  m__default['default']("p.f6.pt1.ma0", lodash__default['default'].map(feedbackFormGroup["feedback"], assembleFormField)),
+                  m__default['default']("p.f6.b.pt3.mv1", {
+                      class: joinClasses([
+                          overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogFeedbackLabel,
+                          theme().uiDialogFeedbackLabel
+                      ])
+                  }, "Email Address"),
+                  m__default['default']("p.f6.ma0", "We may need to contact you if we need more information on the feedback you have provided."),
+                  m__default['default']("p.f6.pt1.ma0", lodash__default['default'].map(feedbackFormGroup["email"], assembleFormField)),
+                  m__default['default']("p.f6.b.pt3.mv1", {
+                      class: joinClasses([
+                          overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogFeedbackLabel,
+                          theme().uiDialogFeedbackLabel
+                      ])
+                  }, "Phone Number"),
+                  m__default['default']("p.f6.pt1.ma0", lodash__default['default'].map(feedbackFormGroup["phone_number"], assembleFormField)),
+              ]),
+              //Button wrapper
+              m__default['default'](".flex.flex-column.w-100.items-center.pa3", {
+                  class: joinClasses([
+                      theme().uiDialogFeedbackButtonWrapper,
+                      overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogText,
+                      theme().uiDialogButtonWrapper
+                  ]),
+              }, [
+                  m__default['default'](uiWidgets.Button, {
+                      classes: joinClasses([
+                          overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogConfirmButton,
+                          theme().uiDialogConfirmButton
+                      ]),
+                      label: submitButton.label || "Confirm",
+                      type: "button",
+                      onclick: function () {
+                          if (postUrl) {
+                              m__default['default'].request({
+                                  url: postUrl,
+                                  method: "POST",
+                                  body: {
+                                      dialogFeedbackEmail: _this.feedbackFormFields.streamMap["email"].value(),
+                                      dialogFeedbackPhone: _this.feedbackFormFields.streamMap["phone_number"].value(),
+                                      dialogFeedbackText: _this.feedbackFormFields.streamMap["feedback"].value()
+                                  }
+                              }).then(function () {
+                                  dialog({
+                                      message: "Thank you for your feedback",
+                                      position: exports.DialogPosition.center,
+                                      priority: true
+                                  });
+                                  active(false);
+                              }).catch(function () {
+                                  active(false);
+                                  dialog({
+                                      type: exports.DialogType.notification,
+                                      position: exports.DialogPosition.center,
+                                      context: "error" /* error */,
+                                      duration: 0,
+                                      title: "Sorry!",
+                                      message: "You're feedback failed to send, please try again later."
+                                  });
+                              });
+                          }
+                          else {
+                              active(false);
+                          }
+                          if (submitButton.onclick) {
+                              submitButton.onclick();
+                          }
+                          m__default['default'].redraw();
+                      }
+                  }),
+                  m__default['default']("span.dim.pointer.pa1.underline", {
+                      class: joinClasses([
+                          theme().uiDialogLinkButton,
+                          overwrite === null || overwrite === void 0 ? void 0 : overwrite.uiDialogLinkButton,
+                      ]),
+                      onclick: function () {
+                          active(false);
+                          if (cancelButton.onclick) {
+                              cancelButton.onclick();
+                          }
+                      }
+                  }, "Back")
+              ])
+          ])) : null;
+      };
+      return DialogFeedback;
+  }());
+
+  var DialogComponent = /** @class */ (function () {
+      function DialogComponent() {
+          this.dialogHandler = new DialogHandler();
+      }
+      DialogComponent.prototype.oninit = function (_a) {
+          var _this = this;
+          var useStream = _a.attrs.useStream;
+          var dialogStream = useStream ? useStream : dialog;
+          dialogStream.map(function (newDialog) { return _this.dialogHandler.insert(newDialog); });
+      };
+      DialogComponent.prototype.onbeforeupdate = function () {
+          this.dialogHandler.next();
+      };
+      DialogComponent.prototype.view = function () {
+          var _a = this.dialogHandler, active = _a.active, visible = _a.visible, config = _a.config;
+          if (config) {
+              switch (config.type) {
+                  case exports.DialogType.notification: return m__default['default'](DialogNotification, { config: config, active: active, visible: visible });
+                  case exports.DialogType.confirm: return m__default['default'](DialogConfirm, { config: config, active: active, visible: visible });
+                  case exports.DialogType.login: return m__default['default'](DialogLogin, { config: config, active: active, visible: visible });
+                  case exports.DialogType.feedback: return m__default['default'](DialogFeedback, { config: config, active: active, visible: visible });
+                  default: return m__default['default'](DialogNotification, { config: config, active: active, visible: visible });
+              }
+          }
+          return null;
+      };
+      return DialogComponent;
+  }());
+
+  var NavbarCopyright = /** @class */ (function () {
+      function NavbarCopyright() {
+      }
+      NavbarCopyright.prototype.view = function (_a) {
+          var classes = _a.attrs.classes;
+          var copyright = branding().copyright;
+          var version = application().version;
+          return m__default['default']("span.ma2.f7", {
+              class: joinClasses([
+                  classes,
+                  theme().uiNavbarCopyright
+              ]),
+              title: version
+          }, copyright ? [m__default['default'].trust("&copy; "), copyright] : null);
+      };
+      return NavbarCopyright;
+  }());
+
+  var NavbarImage = /** @class */ (function () {
+      function NavbarImage() {
+      }
+      NavbarImage.prototype.view = function (_a) {
+          var _b = _a.attrs, src = _b.src, classes = _b.classes, height = _b.height, width = _b.width, link = _b.link, linkToVaultRoot = _b.linkToVaultRoot;
+          return src ? m__default['default']("img", {
+              src: src,
+              onclick: function () {
+                  var _a;
+                  if (link === null || link === void 0 ? void 0 : link.href) {
+                      window.open(link.href, link.target || "_self");
+                  }
+                  if (linkToVaultRoot) {
+                      window.open((_a = application().auth) === null || _a === void 0 ? void 0 : _a.endpoint, (link === null || link === void 0 ? void 0 : link.target) || "_self");
+                  }
+              },
+              class: joinClasses([
+                  (link === null || link === void 0 ? void 0 : link.href) ? "pointer" : "",
+                  classes,
+                  theme().uiNavbarImage
+              ]),
+              height: height,
+              width: width
+          }) : null;
+      };
+      return NavbarImage;
+  }());
+
+  var NavbarLink = /** @class */ (function () {
+      function NavbarLink() {
+      }
+      NavbarLink.prototype.view = function (_a) {
+          var _b = _a.attrs, classes = _b.classes, href = _b.href, textContent = _b.textContent;
+          return m__default['default']("a.link.mh2.flex.self-stretch.items-center", {
+              class: joinClasses([
+                  classes,
+                  theme().uiNavbarLink
+              ]),
+              href: href
+          }, textContent);
+      };
+      return NavbarLink;
+  }());
+
+  function toPercent(pct) {
+      return (pct * 100).toFixed(0) + "%";
+  }
+  function getLogoutWrapperClasses(size) {
+      switch (size) {
+          case LogoutSize.SMALL: return 'flex dn-l';
+          case LogoutSize.LARGE: return 'dn flex-l';
+          default: return 'flex';
+      }
+  }
+  function filterNavList(navList, logout) {
+      var hideLogout = !(application().auth && logout);
+      return lodash__default['default'].reject(navList, lodash__default['default'].matches({ hideLogout: hideLogout }));
+  }
+
+  function logout(path) {
+      m__default['default'].request(path).then(reload);
+  }
+  var NavbarLogout = /** @class */ (function () {
+      function NavbarLogout() {
+      }
+      NavbarLogout.prototype.view = function (_a) {
+          var _b = _a.attrs, classes = _b.classes, size = _b.size;
+          // We can safely assume auth is defined here
+          var auth = application().auth;
+          var logoutPath = auth.logoutPath, _c = auth.logoutLabel, logoutLabel = _c === void 0 ? "Logout" : _c, _d = auth.logoutIcon, logoutIcon = _d === void 0 ? "fal fa-sign-out-alt" : _d;
+          return m__default['default']("span.mh2.self-stretch.items-center.pointer", {
+              class: joinClasses([
+                  classes,
+                  getLogoutWrapperClasses(size),
+                  theme().uiNavbarLogout,
+                  "ripple"
+              ]),
+              onclick: function () { return logout(logoutPath); }
+          }, [
+              logoutLabel ? m__default['default']("span.mr2", {
+                  class: joinClasses([theme().uiNavbarLogoutLabel]),
+              }, logoutLabel) : null,
+              m__default['default']("i.fal.fa-fw.fw4[aria-hidden=true]" + (logoutLabel ? '' : '.fal.fa-2x'), {
+                  class: joinClasses([
+                      theme().uiNavbarLogoutIcon,
+                      logoutIcon
+                  ])
+              })
+          ]);
+      };
+      return NavbarLogout;
+  }());
+
+  var NavbarText = /** @class */ (function () {
+      function NavbarText() {
+      }
+      NavbarText.prototype.view = function (_a) {
+          var _b = _a.attrs, classes = _b.classes, textContent = _b.textContent;
+          return m__default['default']("span.ma2", {
+              class: joinClasses([
+                  classes,
+                  theme().uiNavbarText
+              ]),
+          }, textContent);
+      };
+      return NavbarText;
+  }());
+
+  var NavbarPoweredBy = /** @class */ (function () {
+      function NavbarPoweredBy() {
+      }
+      NavbarPoweredBy.prototype.view = function (_a) {
+          var classes = _a.attrs.classes;
+          var _b = branding().poweredBy, poweredBy = _b === void 0 ? {
+              src: "https://cloud.sdxmessaging.com/resources/sdx/poweredby.svg",
+              title: "Powered by Secure Digital Exchange Limited",
+              href: "https://www.sdxmessaging.com/",
+          } : _b;
+          return m__default['default']("a.link.ma2.h-75[target=_blank][rel=noreferrer noopener]", {
+              href: poweredBy.href
+          }, m__default['default']("img.w-100.h-100.mw3.mw4-l.o-80", {
+              class: joinClasses([
+                  classes,
+                  theme().uiNavbarPoweredBy
+              ]),
+              src: poweredBy.src,
+              title: poweredBy.title
+          }));
+      };
+      return NavbarPoweredBy;
+  }());
+
+  var NavbarProgress = /** @class */ (function () {
+      function NavbarProgress() {
+      }
+      NavbarProgress.prototype.view = function (_a) {
+          var _b = _a.attrs, saving = _b.saving, progress = _b.progress, classes = _b.classes;
+          var isSaving = saving ? saving() : false;
+          var progressNum = isSaving && progress ? progress() : 0;
+          return m__default['default']("span.ma2.f3", {
+              class: joinClasses([
+                  progressNum ? undefined : "dn",
+                  classes,
+                  theme().uiNavbarProgress
+              ])
+          }, [
+              toPercent(progressNum),
+              m__default['default']("i.ma2.f3.fal.fa-spinner", {
+                  class: isSaving ? "fa-spin" : "dn"
+              })
+          ]);
+      };
+      return NavbarProgress;
+  }());
+
+  var NavbarVersion = /** @class */ (function () {
+      function NavbarVersion() {
+      }
+      NavbarVersion.prototype.view = function (_a) {
+          var classes = _a.attrs.classes;
+          var version = application().version;
+          return m__default['default']("span.ma2.f7", {
+              class: joinClasses([
+                  classes,
+                  theme().uiNavbarVersion
+              ]),
+          }, version);
+      };
+      return NavbarVersion;
+  }());
+
+  var NavbarName = /** @class */ (function () {
+      function NavbarName() {
+      }
+      NavbarName.prototype.view = function (_a) {
+          var classes = _a.attrs.classes;
+          var name = application().name;
+          return m__default['default']("span.ma2.f7", {
+              class: joinClasses([
+                  classes,
+                  theme().uiNavbarName
+              ])
+          }, name);
+      };
+      return NavbarName;
+  }());
+
+  var NavbarSalutation = /** @class */ (function () {
+      function NavbarSalutation() {
+      }
+      NavbarSalutation.prototype.view = function (_a) {
+          var _b = _a.attrs, classes = _b.classes, salutation = _b.salutation;
+          var _c = profile(), firstName = _c.firstName, lastName = _c.lastName;
+          var _salutation = lodash__default['default'].assign({
+              pre: "Welcome, ",
+              showFirstName: true,
+              showLastName: false,
+              post: "!"
+          }, salutation);
+          var showFirstName = _salutation.showFirstName, showLastName = _salutation.showLastName, pre = _salutation.pre, post = _salutation.post;
+          return m__default['default']("span.ma2", {
+              class: joinClasses([
+                  classes,
+                  theme().uiNavbarSalutation
+              ]),
+          }, "" + pre + (showFirstName ? firstName : "") + (showFirstName && showLastName ? " " : "") + (showLastName ? lastName : "") + post);
+      };
+      return NavbarSalutation;
+  }());
+
+  var NavbarBuilder = /** @class */ (function () {
+      function NavbarBuilder() {
+      }
+      NavbarBuilder.prototype.view = function (_a) {
+          var attrs = _a.attrs;
+          var navList = attrs.navList, saving = attrs.saving, progress = attrs.progress, logout = attrs.logout;
+          var auth = application().auth;
+          return lodash__default['default'].map(navList, function (navItem) {
+              var classes = "" + createResponsiveClass(navItem);
+              if (navItem.type === 0 /* spacer */)
+                  return m__default['default'](".center", { classes: classes });
+              else if (navItem.type === 1 /* divider */)
+                  return m__default['default']("span", { classes: classes }, "|");
+              else if (navItem.type === 8 /* copyright */)
+                  return m__default['default'](NavbarCopyright, { classes: classes });
+              else if (navItem.type === 9 /* poweredBy */)
+                  return m__default['default'](NavbarPoweredBy, { classes: classes });
+              else if (navItem.type === 10 /* progress */)
+                  return m__default['default'](NavbarProgress, { saving: saving, progress: progress, classes: classes });
+              else if (navItem.type === 11 /* version */)
+                  return m__default['default'](NavbarVersion, { classes: classes });
+              else if (navItem.type === 12 /* name */)
+                  return m__default['default'](NavbarName, { classes: classes });
+              else if (navItem.type === 13 /* nameVersion */)
+                  return m__default['default'](NavbarName, { classes: classes });
+              else if (navItem.type === 14 /* salutation */) {
+                  return m__default['default'](NavbarSalutation, { salutation: navItem.salutation, classes: classes });
+              }
+              else if (navItem.type === 2 /* image */) {
+                  var src = navItem.src, height = navItem.height, width = navItem.width, link = navItem.link, linkToVaultRoot = navItem.linkToVaultRoot;
+                  return m__default['default'](NavbarImage, { src: src, height: height, width: width, classes: classes, link: link, linkToVaultRoot: linkToVaultRoot });
+              }
+              else if (navItem.type === 3 /* text */) {
+                  var text = navItem.text;
+                  return m__default['default'](NavbarText, { textContent: text, classes: classes });
+              }
+              else if (navItem.type === 4 /* link */) {
+                  var text = navItem.text, href = navItem.href;
+                  return m__default['default'](NavbarLink, { href: href, textContent: text, classes: classes });
+              }
+              else if (navItem.type === 5 /* logout */
+                  || navItem.type === 7 /* logoutLarge */
+                  || navItem.type === 6 /* logoutSmall */) {
+                  var size = LogoutSize.DEFAULT;
+                  if (navItem.type === 5 /* logout */)
+                      size = LogoutSize.DEFAULT;
+                  if (navItem.type === 7 /* logoutLarge */)
+                      size = LogoutSize.LARGE;
+                  if (navItem.type === 6 /* logoutSmall */)
+                      size = LogoutSize.SMALL;
+                  return auth && logout ? m__default['default'](NavbarLogout, { size: size, classes: classes }) : null;
+              }
+              return buildComponent(navItem);
+          });
+      };
+      return NavbarBuilder;
+  }());
+
+  var Navbar = /** @class */ (function () {
+      function Navbar() {
+      }
+      Navbar.prototype.view = function (_a) {
+          var _b = _a.attrs, type = _b.type, saving = _b.saving, progress = _b.progress, logout = _b.logout;
+          if (type === NavbarType.HEADER) {
+              var navList = filterNavList(branding().header || [], logout);
+              return navList.length
+                  ? m__default['default'](NavbarBuilder, { saving: saving, progress: progress, logout: logout, navList: navList })
+                  : null;
+          }
+          else if (type === NavbarType.FOOTER) {
+              var navList = filterNavList(branding().footer || [], logout);
+              return navList.length
+                  ? m__default['default'](NavbarBuilder, { saving: saving, progress: progress, logout: logout, navList: navList })
+                  : null;
+          }
+          else if (type === NavbarType.SUBHEADER) {
+              var navList = filterNavList(branding().subheader || [], logout);
+              return navList.length
+                  ? m__default['default'](".flex.items-center.self-center.w-100.flex-shrink-0", {
+                      class: joinClasses([theme().uiSubheader]),
+                  }, m__default['default'](NavbarBuilder, { saving: saving, progress: progress, logout: logout, navList: navList })) : null;
+          }
+          return null;
+      };
+      return Navbar;
+  }());
+
+  var Layout = /** @class */ (function () {
+      function Layout() {
+      }
+      Layout.prototype.view = function (_a) {
+          var _b = _a.attrs, saving = _b.saving, progress = _b.progress, fullScreen = _b.fullScreen, responsiveHeader = _b.responsiveHeader, responsiveFooter = _b.responsiveFooter, _c = _b.logout, logout = _c === void 0 ? true : _c, header = _b.header, footer = _b.footer, children = _a.children;
+          var showFooter = filterNavList(branding().footer || [], logout).length > 0;
+          var showHeader = filterNavList(branding().header || [], logout).length > 0;
+          var showSubheader = filterNavList(branding().subheader || [], logout).length > 0;
+          var fsStyle = fullScreen ? {
+              "max-width": "unset"
+          } : {};
+          return [
+              // Toast notification
+              m__default['default'](DialogComponent),
+              // Header
+              showHeader ? m__default['default'](".flex.items-center.justify-center.z-1", {
+                  class: joinClasses([theme().uiHeaderWrapper])
+              }, m__default['default']("nav.items-center.self-center.w-100.z-1.h3.flex-shrink-0", {
+                  class: joinClasses([
+                      theme().uiHeader,
+                      responsiveHeader ? "dn flex-l" : "flex"
+                  ]),
+                  style: fsStyle
+              }, header ? header : m__default['default'](Navbar, {
+                  type: NavbarType.HEADER,
+                  saving: saving, progress: progress, logout: logout
+              }))) : null,
+              // Central
+              m__default['default']("main.flex-auto.flex.flex-column.self-center.w-100.h-100.overflow-x-hidden", {
+                  class: joinClasses([theme().uiLayout]),
+                  style: fsStyle
+              }, 
+              // Subheader
+              showSubheader ? m__default['default'](Navbar, {
+                  type: NavbarType.SUBHEADER,
+                  saving: saving, progress: progress, logout: logout
+              }) : null, children),
+              // Footer
+              showFooter ? m__default['default'](".flex.items-center.justify-center.z-1", m__default['default']("nav.w-100.items-center.flex-shrink-0", {
+                  class: joinClasses([
+                      theme().uiFooter,
+                      responsiveFooter ? "dn flex-l" : "flex"
+                  ]),
+                  style: fsStyle
+              }, footer ? footer : m__default['default'](Navbar, {
+                  type: NavbarType.FOOTER,
+                  saving: saving, progress: progress, logout: logout
+              }))) : null
+          ];
+      };
+      return Layout;
+  }());
+
+  var Panel = /** @class */ (function () {
+      function Panel() {
+      }
+      Panel.prototype.view = function (_a) {
+          var _b = _a.attrs, header = _b.header, headerClass = _b.headerClass, subheader = _b.subheader, subheaderClass = _b.subheaderClass, content = _b.content, footer = _b.footer;
+          return [
+              hasChildren(header)
+                  ? m__default['default'](".flex.justify-between.items-center.flex-shrink-0", {
+                      class: joinClasses([
+                          headerClass,
+                          theme().uiPanelHeader
+                      ])
+                  }, header)
+                  : null,
+              hasChildren(subheader)
+                  ? m__default['default'](".flex-shrink-0", {
+                      class: joinClasses([
+                          theme().uiPanelSubheader,
+                          subheaderClass
+                      ])
+                  }, subheader)
+                  : null,
+              content,
+              footer
+          ];
+      };
+      return Panel;
+  }());
+
+  var CustomPanel = /** @class */ (function () {
+      function CustomPanel() {
+      }
+      CustomPanel.prototype.view = function (_a) {
+          var _b = _a.attrs, action = _b.action, item = _b.item;
+          var component = action.comp;
+          return m__default['default'](Panel, {
+              header: [
+                  noreturn() ? null : m__default['default'](uiWidgets.NavButton, {
+                      label: item.returnButtonLabel || "Return",
+                      icon: item.returnButtonIcon || "fal fa-chevron-left nl2",
+                      classes: joinClasses([
+                          "dim",
+                          theme().uiPanelHeaderButton
+                      ]),
+                      onclick: back,
+                  })
+              ],
+              content: m__default['default'](".flex-auto.overflow-x-hidden.overflow-y-auto.safari-bug", component
+                  // TODO Consider passing IItemWidget props to component
+                  ? buildComponent(component)
+                  : m__default['default']("span.ma3.db.truncate", {
+                      class: colors().default.classes.color
+                  }, "No Component Found"))
+          });
+      };
+      return CustomPanel;
+  }());
+
+  function customDefaultRoute(items, qry, layoutAttrs) {
+      return {
+          onmatch: function (_a) {
+              var itemGuid = _a.itemGuid;
+              routeString(BrandingRoute.comp);
+              return items.initialLoad()
+                  .then(function () {
+                  qry.selectItem(itemGuid);
+                  // Find first component action on item
+                  var item = qry.getItem();
+                  var actionList = item.actions || [];
+                  var action = pickByProperty(actionList, { type: "comp" /* custom */ });
+                  if (action) {
+                      qry.selectAction(action._id);
+                  }
+                  else {
+                      home();
+                  }
+              });
+          },
+          render: function () { return m__default['default'](Layout, layoutAttrs, m__default['default'](CustomPanel, {
+              modelList: items.model()(),
+              itemList: items.data(),
+              model: qry.getModel(),
+              item: qry.getItem(),
+              action: qry.getAction()
+          })); }
+      };
+  }
+  function customRoute(items, qry, layoutAttrs) {
+      return {
+          onmatch: function (_a) {
+              var itemGuid = _a.itemGuid, actionGuid = _a.actionGuid;
+              routeString(BrandingRoute.comp);
+              return items.initialLoad()
+                  .then(function () {
+                  qry.selectItem(itemGuid);
+                  qry.selectAction(actionGuid);
+              });
+          },
+          render: function () { return m__default['default'](Layout, layoutAttrs, m__default['default'](CustomPanel, {
+              modelList: items.model()(),
+              itemList: items.data(),
+              model: qry.getModel(),
+              item: qry.getItem(),
+              action: qry.getAction()
+          })); }
+      };
+  }
+
+  function addClasses(field, uiClass) {
+      return lodash__default['default'].extend({}, field, {
+          uiClass: uiClass
+      });
+  }
+  // Build a form using a model
+  function buildModelFields(_a) {
+      var fields = _a.fields;
+      var modelForm = lodash__default['default'].map(fields, function (field) {
+          return {
+              key: field.id,
+              input: getWidgetType(field.type) === 2 /* File */
+                  ? addClasses(field, {
+                      input: "",
+                      wrapper: "mb2",
+                  })
+                  : addClasses(field, {
+                      input: "pa2",
+                      wrapper: "mb2 bb b--black-20",
+                  }),
+          };
+      });
+      return buildFormFields(modelForm);
+  }
+  // Apply item values to a built form
+  function applyItemValues(form, item, _a) {
+      var fields = _a.fields;
+      // Get form field and item values for each model field (by id)
+      lodash__default['default'].forEach(fields, function (_a) {
+          var id = _a.id;
+          var formField = lodash__default['default'].find(form.fields, lodash__default['default'].matches({ key: id }));
+          if (formField) {
+              var type = formField.type, value = formField.value, files = formField.files;
+              if (type === 1 /* Prop */ && value) {
+                  value(getProp(item.props, id));
+              }
+              else if (type === 2 /* File */ && files) {
+                  files(getFiles(item.files, id));
+              }
+          }
+      });
+  }
+  function formToItem(builtForm) {
+      var fileList = [];
+      var props = {};
+      lodash__default['default'].forEach(builtForm.fields, function (_a) {
+          var type = _a.type, input = _a.input, value = _a.value, files = _a.files;
+          if (input && value) {
+              var id_1 = input.id;
+              if (type === 1 /* Prop */) {
+                  // Append props
+                  if (!lodash__default['default'].isUndefined(value())) {
+                      lodash__default['default'].set(props, id_1, value());
+                  }
+              }
+              else if (type === 2 /* File */ && files) {
+                  // Append files
+                  lodash__default['default'].each(files(), function (file) {
+                      if (file) {
+                          fileList.push([id_1, file]);
+                      }
+                  });
+              }
+          }
+      });
+      return {
+          files: fileList,
+          props: props
+      };
+  }
+
+  var Icon = /** @class */ (function () {
+      function Icon() {
+      }
+      Icon.prototype.view = function (_a) {
+          var _b = _a.attrs, icon = _b.icon, classes = _b.classes;
+          return typeof icon === "string" ? m__default['default']("i.fal.fa-fw.w2.mr2.tc.flex-shrink-0", {
+              class: joinClasses([icon, classes, theme().uiIcon])
+          }) : m__default['default']("img.img.mw2.mr2", {
+              src: icon.src,
+              class: joinClasses([icon.imageClass, classes, theme().uiIcon]),
+              height: icon.height,
+              width: icon.width
+          });
+      };
+      return Icon;
+  }());
+
+  function updateItem(data, form) {
+      var _a = formToItem(form), files = _a.files, props = _a.props;
+      var uploads = [];
+      // Update item files and props
+      var newItem = lodash__default['default'].assign({}, data, {
+          // Rebuild file list
+          files: lodash__default['default'](files).map(function (_a) {
+              var prop = _a[0], _b = _a[1], guid = _b.guid, name = _b.name, file = _b.file;
+              // Gather files to be uploaded
+              var fileMetadata = null;
+              if (file) {
+                  uploads.push([guid, file]);
+                  fileMetadata = {
+                      _id: guid,
+                      prop: prop,
+                      name: name,
+                      size: file.size,
+                      type: file.type,
+                      lastModified: file.lastModified
+                  };
+              }
+              // Check for existing file
+              var oldFile = pickByProperty(data.files, { _id: guid });
+              if (oldFile) {
+                  // Update file if new entry set
+                  if (fileMetadata) {
+                      lodash__default['default'].merge(oldFile, fileMetadata);
+                  }
+                  return oldFile;
+              }
+              else {
+                  // Return new file
+                  return fileMetadata;
+              }
+          }).compact().value(),
+          props: props
+      });
+      return [newItem, uploads];
+  }
+  var ItemEdit = /** @class */ (function () {
+      function ItemEdit() {
+      }
+      ItemEdit.prototype.oninit = function (_a) {
+          var _b = _a.attrs, item = _b.item, model = _b.model;
+          // Assemble form from model, set values from item
+          this.form = buildModelFields(model);
+          applyItemValues(this.form, item, model);
+      };
+      ItemEdit.prototype.view = function (_a) {
+          var _this = this;
+          var _b = _a.attrs, model = _b.model, item = _b.item, isNew = _b.isNew, onCancel = _b.onCancel, onSave = _b.onSave, onRemove = _b.onRemove;
+          return m__default['default'](Panel, {
+              header: [
+                  m__default['default'](uiWidgets.NavButton, {
+                      label: "Cancel",
+                      classes: joinClasses([
+                          "dim",
+                          theme().uiNavButton
+                      ]),
+                      onclick: onCancel
+                  }),
+                  m__default['default'](uiWidgets.NavButton, {
+                      label: "Done",
+                      classes: joinClasses([
+                          "dim",
+                          theme().uiNavButton
+                      ]),
+                      onclick: function (evt) {
+                          // Block redraw so validation states remain
+                          evt.redraw = false;
+                          var form = document.getElementById("item-editor");
+                          // // Submit form (IE11 not supported)
+                          // if (form && form.reportValidity()) {
+                          // 	this.save(item as IDataItem, onSave);
+                          // }
+                          // Submit form (IE11 supported)
+                          if (!form.checkValidity()) {
+                              // Create the temporary button, click and remove it
+                              var tmpSubmit = document.createElement("button");
+                              form.appendChild(tmpSubmit);
+                              tmpSubmit.click();
+                              form.removeChild(tmpSubmit);
+                          }
+                          else {
+                              _this.save(item, onSave);
+                          }
+                      }
+                  })
+              ],
+              content: m__default['default'](".flex-auto.overflow-x-hidden.overflow-y-auto.pa2.safari-bug", {
+                  class: joinClasses([theme().uiItemEditWrapper])
+              }, [
+                  // Display heading for new items
+                  isNew ? m__default['default'](".pv2.mb2.flex.flex-row.bb.b--black-20", {
+                      class: joinClasses([theme().uiItemEditHeader])
+                  }, [
+                      m__default['default'](Icon, {
+                          classes: joinClasses([theme().uiItemEditIcon]),
+                          icon: model.icon
+                      }),
+                      m__default['default']("span.truncate", {
+                          class: joinClasses([theme().uiItemEditLabel])
+                      }, "New " + model.label)
+                  ]) : null,
+                  m__default['default']("form#item-editor.flex.flex-column", {
+                      class: joinClasses([theme().uiItemEditFormWrapper]),
+                      onsubmit: function () {
+                          _this.save(item, onSave);
+                          return false;
+                      }
+                  }, [
+                      // Present form
+                      lodash__default['default'].map(this.form.fields, assembleFormField),
+                      isNew ? null
+                          : m__default['default'](uiWidgets.Button, {
+                              label: "Delete",
+                              icon: "fal fa-trash-alt",
+                              classes: joinClasses(["self-end mv2", theme().uiItemEditButton]),
+                              onclick: function () { return onRemove(item); }
+                          }),
+                      // Allow form submit on enter key (IE11)
+                      m__default['default']("input.dn[type=submit]")
+                  ]),
+                  // Custom components
+                  item.post ? m__default['default']("div", { class: joinClasses([theme().uiPostContentWrapper]) }, buildComponentList(item.post)) : null
+              ])
+          });
+      };
+      ItemEdit.prototype.save = function (data, onSave) {
+          // Serialise form into pending uploads, files and properties
+          var _a = updateItem(data, this.form), newItem = _a[0], uploads = _a[1];
+          onSave(newItem, uploads);
+      };
+      return ItemEdit;
+  }());
+
+  function categorySingleRoute(items, qry, layoutAttrs, onSave, onRemove) {
+      // NOTE as newItem is a managed locally variable
+      // ItemSelect isCategory state will be out of sync with rendered item
+      var newItem;
+      return {
+          onmatch: function (_a) {
+              var itemGuid = _a.itemGuid;
+              routeString(BrandingRoute.edit);
+              return items.initialLoad().then(function () {
+                  qry.selectItem(itemGuid);
+                  if (qry.isCategory()) {
+                      var category = qry.getItem();
+                      // Get model from category tags
+                      var modelTag = pickByProperty(category.content, { ctx: "model" });
+                      if (modelTag) {
+                          qry.selectModel(modelTag.val);
+                          var existingItem = pickByProperty(items.data()(), { modelId: modelTag.val });
+                          // Edit existing/Create new item
+                          newItem = existingItem ? existingItem : createItem(qry.getModel());
+                          return;
+                      }
+                  }
+                  back();
+              });
+          },
+          render: function () { return newItem ? m__default['default'](Layout, layoutAttrs, m__default['default'](ItemEdit, {
+              modelList: items.model()(),
+              itemList: items.data(),
+              model: qry.getModel(),
+              item: newItem,
+              isNew: true,
+              onCancel: back,
+              onSave: onSave,
+              onRemove: onRemove
+          })) : null; }
+      };
+  }
+  function itemNewRoute(items, qry, layoutAttrs, onSave, onRemove) {
+      var newItem;
+      return {
+          onmatch: function (_a) {
+              var modelGuid = _a.modelGuid;
+              routeString(BrandingRoute.edit);
+              return items.initialLoad().then(function () {
+                  qry.selectModel(modelGuid);
+                  // Create new item from model
+                  newItem = createItem(qry.getModel());
+              });
+          },
+          render: function () { return newItem ? m__default['default'](Layout, layoutAttrs, m__default['default'](ItemEdit, {
+              modelList: items.model()(),
+              itemList: items.data(),
+              model: qry.getModel(),
+              item: newItem,
+              isNew: true,
+              onCancel: back,
+              onSave: onSave,
+              onRemove: onRemove
+          })) : null; }
+      };
+  }
+  function itemEditRoute(items, qry, layoutAttrs, onSave, onRemove) {
+      return {
+          onmatch: function (_a) {
+              var itemGuid = _a.itemGuid;
+              routeString(BrandingRoute.edit);
+              return items.initialLoad().then(function () {
+                  qry.selectItem(itemGuid);
+                  // Return to default action if the editing is not permitted
+                  if (qry.isReadonly()) {
+                      selectItem(qry.getModel(), qry.getItem(), {
+                          replace: true
+                      });
+                  }
+              });
+          },
+          render: function () { return m__default['default'](Layout, layoutAttrs, m__default['default'](ItemEdit, {
+              modelList: items.model()(),
+              itemList: items.data(),
+              model: qry.getModel(),
+              item: qry.getItem(),
+              onCancel: back,
+              onSave: onSave,
+              onRemove: onRemove
+          })); }
+      };
+  }
+
+  var SearchBox = /** @class */ (function () {
+      function SearchBox() {
+          this.id = lodash__default['default'].uniqueId("search-");
+      }
+      SearchBox.prototype.view = function (_a) {
+          var _b = _a.attrs, placeholder = _b.placeholder, searchValue = _b.searchValue;
+          return m__default['default']("form.flex.flex-row.items-center.bg-light-gray", {
+              class: joinClasses([theme().uiSearchBoxWrapper]),
+              onsubmit: function () { return false; }
+          }, m__default['default']("label.fal.fa-fw.fa-search.w2.pv2.pl2.tc.pointer", {
+              class: joinClasses([theme().uiSearchBoxIcon, theme().uiIcon]),
+              for: this.id
+          }), m__default['default'](uiWidgets.BaseInput, {
+              field: {
+                  id: this.id,
+                  label: "",
+                  type: "search" /* search */,
+                  uiClass: {
+                      wrapper: "pa0 bn flex-auto",
+                      input: theme().uiSearchBoxInput
+                  },
+                  placeholder: placeholder,
+                  instant: true
+              },
+              value: searchValue
+          }), 
+          // Clear button when search has value
+          searchValue() ? m__default['default']("i.fal.fa-fw.fa-times.pa2.tc.pointer.dim", {
+              class: joinClasses([
+                  theme().uiSearchBoxClearIcon
+              ]),
+              title: "Reset Search",
+              onclick: function () { return searchValue(""); }
+          }) : null);
+      };
+      return SearchBox;
+  }());
+
+  var BaseItem = /** @class */ (function () {
+      function BaseItem() {
+      }
+      BaseItem.prototype.view = function (_a) {
+          var attrs = _a.attrs;
+          var model = attrs.model, item = attrs.item;
+          var icon = model.icon;
+          // Row wrapper
+          return m__default['default'](".flex-shrink-0", {
+              class: joinClasses([theme().uiItemRowWrapper])
+          }, [
+              // Row Inner
+              m__default['default']("div.justify-between", {
+                  class: joinClasses([theme().uiItemRowInnerWrapper]),
+                  onclick: function () { return selectItem(model, item); }
+              }, [
+                  // Row Header
+                  m__default['default']("div", {
+                      class: joinClasses([theme().uiItemRowHeaderWrapper])
+                  }, [
+                      icon ?
+                          typeof icon === "string" ?
+                              m__default['default']("div", { icon: icon }) :
+                              m__default['default']("img", { src: icon.src, height: icon.height, width: icon.width })
+                          : null,
+                      m__default['default']("div", {
+                          class: joinClasses([theme().uiItemHeading])
+                      }, this.heading(attrs)),
+                      this.subheading ?
+                          m__default['default']("div", {
+                              class: joinClasses([theme().uiItemSubheading])
+                          }, this.subheading(attrs))
+                          : null,
+                  ]),
+                  // Row buttons/actions
+                  // TODO hide region if no actions?
+                  m__default['default']("div", {
+                      class: joinClasses([theme().uiItemButtonsWrapper])
+                  }, m__default['default']("div", {
+                      class: joinClasses([theme().uiItemButtonsInnerWrapper])
+                  }, this.buttons(attrs)))
+              ])
+          ]);
+      };
+      BaseItem.prototype.heading = function (_a) {
+          var model = _a.model, item = _a.item;
+          return m__default['default']("span.ws-normal.mb1", extractFields(item, model.heading, model.category));
+      };
+      BaseItem.prototype.subheading = function (_a) {
+          var model = _a.model, item = _a.item;
+          var subheading = extractFields(item, model.subheading, model.category);
+          return subheading
+              ? m__default['default']("span.f6.ws-normal.silver.ma1", subheading)
+              : null;
+      };
+      BaseItem.prototype.buttons = function (_a) {
+          var item = _a.item, model = _a.model;
+          return lodash__default['default'].isArray(model.action) ? lodash__default['default'].map(model.action, function (data) {
+              return m__default['default'](uiWidgets.Button, {
+                  label: data.label,
+                  classes: data.classes + " " + theme().uiItemActionButton,
+                  icon: data.icon,
+                  onclick: function (evt) {
+                      evt.stopPropagation();
+                      actionItem(item, data.action);
+                  }
+              });
+          }) : null;
+      };
+      return BaseItem;
+  }());
+
+  var CategoryItem = /** @class */ (function () {
+      function CategoryItem() {
+          this.itemCount = stream__default['default']();
+      }
+      CategoryItem.prototype.oninit = function (_a) {
+          var _b = _a.attrs, item = _b.item, itemList = _b.itemList;
+          var _c = item, content = _c.content, _d = _c.countContent, countContent = _d === void 0 ? content : _d, contentAll = _c.contentAll;
+          this.itemCount = itemList.map(function (list) { return itemsForCategory(list, countContent, contentAll).length; });
+      };
+      CategoryItem.prototype.view = function (_a) {
+          var _b = _a.attrs, model = _b.model, item = _b.item;
+          var _c = item, label = _c.label, icon = _c.icon, type = _c.type;
+          return m__default['default'](".flex.items-center.justify-between.ma2.pv2.bb.b--black-20.dim.pointer", {
+              class: joinClasses([theme().uiCategoryItemWrapper]),
+              onclick: function () { return selectItem(model, item); }
+          }, [
+              m__default['default'](".flex.items-center.mr2.truncate", [
+                  m__default['default'](Icon, { classes: joinClasses([theme().uiCategoryItemIcon]), icon: icon }),
+                  m__default['default']("span", { class: joinClasses([theme().uiCategoryItemLabel]) }, label)
+              ]),
+              this.itemCount() ? m__default['default'](".silver.flex-shrink-0", [
+                  type === "single" /* single */
+                      ? m__default['default']("i.fal.fa-check", {
+                          class: joinClasses([colors().default.color, theme().uiCategoryItemMarker]),
+                      })
+                      : m__default['default']("span", {
+                          class: joinClasses([colors().default.color, theme().uiCategoryItemMarker]),
+                      }, this.itemCount()),
+                  m__default['default']("i.fal.fa-fw.fa-chevron-right.mh2.flex-shrink-0", {
+                      class: joinClasses([colors().default.color, theme().uiCategoryItemArrow]),
+                  })
+              ]) : null
+          ]);
+      };
+      return CategoryItem;
+  }());
+
+  var __extends = (this && this.__extends) || (function () {
+      var extendStatics = function (d, b) {
+          extendStatics = Object.setPrototypeOf ||
+              ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+              function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+          return extendStatics(d, b);
+      };
+      return function (d, b) {
+          extendStatics(d, b);
+          function __() { this.constructor = d; }
+          d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+      };
+  })();
+  var FileItem = /** @class */ (function (_super) {
+      __extends(FileItem, _super);
+      function FileItem() {
+          return _super !== null && _super.apply(this, arguments) || this;
+      }
+      FileItem.prototype.subheading = function (attrs) {
+          var _this = this;
+          var item = attrs.item, model = attrs.model;
+          return [
+              _super.prototype.subheading.call(this, attrs),
+              lodash__default['default'].map(item.files, function (fileObj) { return _this.fileProperties(fileObj, model); })
+          ];
+      };
+      FileItem.prototype.buttons = function (attrs) {
+          var item = attrs.item;
+          var actionList = item.actions || [];
+          return [
+              lodash__default['default'].map(actionList, function (_a) {
+                  var _id = _a._id, type = _a.type, label = _a.label;
+                  return m__default['default'](uiWidgets.Button, {
+                      label: label,
+                      classes: theme().uiItemActionButton,
+                      onclick: function (evt) {
+                          evt.stopPropagation();
+                          actionItem(item, type, _id);
+                      }
+                  });
+              }),
+              _super.prototype.buttons.call(this, attrs)
+          ];
+      };
+      FileItem.prototype.fileProperties = function (file, _a) {
+          var fileHeading = _a.fileHeading;
+          return lodash__default['default'].map(fileHeading, function (_a) {
+              var prop = _a.prop, classes = _a.classes;
+              return m__default['default']("span.ma1", {
+                  class: classes
+              }, getFileValue(file, prop));
+          });
+      };
+      return FileItem;
+  }(BaseItem));
+
+  var __extends$1 = (this && this.__extends) || (function () {
+      var extendStatics = function (d, b) {
+          extendStatics = Object.setPrototypeOf ||
+              ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+              function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+          return extendStatics(d, b);
+      };
+      return function (d, b) {
+          extendStatics(d, b);
+          function __() { this.constructor = d; }
+          d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+      };
+  })();
+  var LinkItem = /** @class */ (function (_super) {
+      __extends$1(LinkItem, _super);
+      function LinkItem() {
+          return _super !== null && _super.apply(this, arguments) || this;
+      }
+      LinkItem.prototype.subheading = function (attrs) {
+          var model = attrs.model, item = attrs.item;
+          var linkList = model.links || [];
+          return [
+              _super.prototype.subheading.call(this, attrs),
+              lodash__default['default'].map(linkList, function (link) {
+                  var props = item.props;
+                  var field = pickByProperty(model.fields, { id: link });
+                  var linkVal = props[link];
+                  if (field && linkVal) {
+                      var fieldType = (field ? field.type : null) || "url" /* url */;
+                      var href = uiWidgets.linkAttrs(fieldType, linkVal).href;
+                      return m__default['default'](".ma1.w-100.measure-narrow-l", {
+                          onclick: function (evt) { return evt.stopPropagation(); }
+                      }, m__default['default'](uiWidgets.ButtonLink, {
+                          label: linkVal,
+                          href: href,
+                          icon: uiWidgets.iconMap[fieldType],
+                          classes: "db tc truncate"
+                      }));
+                  }
+                  else {
+                      return null;
+                  }
+              })
+          ];
+      };
+      return LinkItem;
+  }(BaseItem));
+
+  var _a$1;
+  var widgetMap = (_a$1 = {},
+      // [ListType.basic]: BaseItem,
+      _a$1["category" /* category */] = CategoryItem,
+      _a$1["link" /* link */] = LinkItem,
+      _a$1["file" /* file */] = FileItem,
+      _a$1);
+  function getListWidget(_a) {
+      var listType = _a.listType;
+      if (widgetMap.hasOwnProperty(listType)) {
+          return widgetMap[listType];
+      }
+      else {
+          // Use the "default" widget
+          return BaseItem;
+      }
+  }
+
+  function sortItems(itemList, modelMap, sort) {
+      var sortConf = typeof sort === "string" ? { type: sort } : sort;
+      switch (sortConf.type) {
+          case "heading" /* heading */:
+              return itemList.map(function (list) { return lodash__default['default'].sortBy(list, function (item) {
+                  var model = modelMap[item.modelId];
+                  return model ? extractFields(item, model.heading, model.category) : "";
+              }); });
+          case "props" /* props */: {
+              var _a = sortConf.props, props_1 = _a === void 0 ? [] : _a, desc_1 = sortConf.desc;
+              return itemList.map(function (list) {
+                  var orderList = lodash__default['default'].sortBy(list, function (item) {
+                      var model = modelMap[item.modelId];
+                      return extractFields(item, props_1, model.category);
+                  });
+                  return desc_1 ? lodash__default['default'].reverse(orderList) : orderList;
+              });
+          }
+          case "ordinal" /* ordinal */: {
+              var desc_2 = sortConf.desc;
+              return itemList.map(function (list) {
+                  var orderList = lodash__default['default'].sortBy(list, ["ordinal"]);
+                  return desc_2 ? lodash__default['default'].reverse(orderList) : orderList;
+              });
+          }
+          // TODO Other sort methods
+          default:
+              return itemList;
+      }
+  }
+  function groupMapToList(groupMap) {
+      return lodash__default['default'].map(lodash__default['default'].sortBy(lodash__default['default'].keys(groupMap)), function (key) {
+          return {
+              label: key,
+              itemList: groupMap[key]
+          };
+      });
+  }
+  function groupItems(itemList, modelMap, order) {
+      switch (order.type) {
+          case "model" /* model */:
+              return itemList.map(function (list) {
+                  var groupedItemsMap = lodash__default['default'].groupBy(list, "modelId");
+                  var groupKeys = lodash__default['default'].sortBy(lodash__default['default'].keys(groupedItemsMap));
+                  return lodash__default['default'].map(groupKeys, function (key) {
+                      var model = modelMap[key];
+                      return {
+                          label: model ? model.label : "Unknown Model",
+                          itemList: groupedItemsMap[key]
+                      };
+                  });
+              });
+          case "rolodex" /* rolodex */:
+              return itemList.map(function (list) {
+                  return groupMapToList(lodash__default['default'].groupBy(list, function (item) {
+                      var model = modelMap[item.modelId];
+                      return model
+                          ? lodash__default['default'].head(String(extractFields(item, model.heading, model.category)))
+                          : "N/A";
+                  }));
+              });
+          case "tags" /* tags */: {
+              var ctx_1 = order.ctx;
+              return itemList.map(function (list) {
+                  return groupMapToList(lodash__default['default'].groupBy(list, function (_a) {
+                      var tags = _a.tags;
+                      var subTag = pickByProperty(tags, { ctx: ctx_1 });
+                      return subTag ? subTag.val : "N/A";
+                  }));
+              });
+          }
+          default:
+              return itemList.map(function (list) {
+                  return [{
+                          label: false,
+                          itemList: list
+                      }];
+              });
+      }
+  }
+
+  var ItemList = /** @class */ (function () {
+      function ItemList() {
+          this.taggedItemList = stream__default['default']([]);
+          this.modelMap = {};
+          this.filteredItems = stream__default['default']();
+          this.itemGroups = stream__default['default']();
+          this.listModels = false;
+          this.createModels = [];
+          this.searchValue = stream__default['default']("");
+          this.filter = stream__default['default']();
+          this.minimizeAccordion = stream__default['default']();
+          this.hideView = false;
+      }
+      ItemList.prototype.oninit = function (_a) {
+          var _this = this;
+          var _b = _a.attrs, _c = _b.item, contentAll = _c.contentAll, content = _c.content, _d = _c.sort, sort = _d === void 0 ? "none" /* none */ : _d, _e = _c.group, group = _e === void 0 ? {
+              type: "none" /* none */
+          } : _e, accordionMinimized = _c.accordionMinimized, modelList = _b.modelList, itemList = _b.itemList;
+          if (!lodash__default['default'].isArray(content)) {
+              return;
+          }
+          typeof accordionMinimized === "boolean" ? this.minimizeAccordion(accordionMinimized) : this.minimizeAccordion(true);
+          this.modelMap = lodash__default['default'].keyBy(modelList, "_id");
+          // Assemble list of models that could be created from this list
+          this.createModels = lodash__default['default'](content)
+              .filter({ ctx: "model" })
+              .map(function (_a) {
+              var val = _a.val;
+              return pickById(modelList, val);
+          })
+              .compact()
+              .filter(function (_a) {
+              var readonly = _a.readonly;
+              return !readonly;
+          })
+              .value();
+          // Scope itemList to item category
+          this.taggedItemList = itemList.map(function (list) { return itemsForCategory(list, content, contentAll); });
+          //Skip category view and reroute to category item for hideCategoryView: true
+          if (this.taggedItemList().length === 1 && this.taggedItemList()[0].hideCategoryView) {
+              var item = this.taggedItemList()[0];
+              selectItem(this.modelMap[item.modelId], this.taggedItemList()[0]);
+              this.hideView = true;
+          }
+          // Sort items
+          var sortedItems = sortItems(this.taggedItemList, this.modelMap, sort);
+          // Create filter regex from search value
+          this.filter = this.searchValue.map(function (current) { return new RegExp(current, "i"); });
+          // Apply filter to items
+          this.filteredItems = stream__default['default'].lift(function (sortedList, search) {
+              return lodash__default['default'].filter(sortedList, function (item) {
+                  var model = _this.modelMap[item.modelId];
+                  return model ? search.test(String(extractFields(item, model.search, model.category))) : false;
+              });
+          }, sortedItems, this.filter);
+          // Group items
+          this.itemGroups = groupItems(this.filteredItems, this.modelMap, group);
+      };
+      ItemList.prototype.view = function (vnode) {
+          var _this = this;
+          var _a = vnode.attrs.item, label = _a.label, _b = _a.search, search = _b === void 0 ? true : _b, pre = _a.pre, post = _a.post, returnButtonLabel = _a.returnButtonLabel, returnButtonIcon = _a.returnButtonIcon, accordion = _a.accordion, title = _a.title;
+          //hideView ensures that no content is drawn prior to reroute when hideCategoryView is tru
+          return this.hideView ? null : m__default['default'](Panel, {
+              header: [
+                  noreturn() ? null : m__default['default'](uiWidgets.NavButton, {
+                      label: returnButtonLabel || "Return",
+                      icon: returnButtonIcon || "fal fa-chevron-left nl2",
+                      classes: joinClasses([
+                          "dim",
+                          theme().uiPanelHeaderButton
+                      ]),
+                      onclick: back
+                  }),
+                  this.createModels.length ? this.listModels
+                      ? m__default['default'](uiWidgets.NavButton, {
+                          icon: "fal fa-chevron-up nl2",
+                          title: "Cancel",
+                          classes: joinClasses(["dim", theme().uiNavButton]),
+                          onclick: function () { return _this.listModels = false; }
+                      })
+                      : m__default['default'](uiWidgets.NavButton, {
+                          icon: "fal fa-plus nl2",
+                          title: "Create New...",
+                          classes: joinClasses(["dim", theme().uiNavButton]),
+                          onclick: function () { return _this.createNew(); }
+                      })
+                      : null
+              ],
+              subheader: [
+                  this.listModels ? lodash__default['default'].map(this.createModels, function (model) {
+                      return m__default['default'](".ma2.pv2.bb.b--black-20.dim.pointer", {
+                          onclick: function () { return newItem(model); }
+                      }, m__default['default'](".mr2.truncate", [
+                          m__default['default'](Icon, { icon: model.icon }),
+                          m__default['default']("span", "New " + model.label)
+                      ]));
+                  }) : null,
+                  search ? m__default['default'](SearchBox, {
+                      placeholder: "Search " + label,
+                      searchValue: this.searchValue
+                  }) : null
+              ],
+              // TODO Theme support for list/table/grid containers
+              // .flex.flex-column.items-center
+              content: m__default['default'](".safari-bug", {
+                  class: this.contentWrapperClass()
+              }, [
+                  pre ? m__default['default']("div", {
+                      class: joinClasses([theme().uiPreContentWrapper])
+                  }, buildComponentList(pre)) : null,
+                  this.viewDataCard(vnode),
+                  // Title and accordion controls
+                  accordion
+                      ? m__default['default'](".items-center.center-flex", {
+                          class: joinClasses([theme().uiItemListAccordionTitleWrapper])
+                      }, m__default['default'](".flex.pointer", {
+                          class: joinClasses([
+                              theme().uiItemListAccordionIcon
+                          ]),
+                          onclick: function () { return _this.minimizeAccordion(!_this.minimizeAccordion()); }
+                      }, m__default['default']("div", {
+                          class: joinClasses([
+                              theme().uiItemListTitleIcon,
+                              this.minimizeAccordion() ? "far fa-plus-square mr2" : "far fa-minus-square mr2",
+                          ]),
+                      }), m__default['default']("div", {
+                          class: joinClasses([
+                              colors().default.color,
+                              theme().uiItemListTitle
+                          ])
+                      }, title ? title : '')), m__default['default']("div", {
+                          class: joinClasses([
+                              theme().uiItemListAccordionWrapper
+                          ]),
+                          style: {
+                              transition: "height 0.5s ease 0.1s",
+                              overflow: "hidden",
+                              height: this.minimizeAccordion() ? "0px" : "100%"
+                          }
+                      }, this.viewContent(vnode)))
+                      : title
+                          ? m__default['default']("div", {
+                              class: joinClasses([
+                                  colors().default.color,
+                                  theme().uiItemListTitle
+                              ])
+                          }, title)
+                          : null,
+                  accordion ? null : this.viewContent(vnode),
+                  post ? m__default['default']("div", {
+                      class: joinClasses([theme().uiPostContentWrapper])
+                  }, buildComponentList(post)) : null
+              ])
+          });
+      };
+      ItemList.prototype.contentWrapperClass = function () {
+          return theme().uiItemListContainer;
+      };
+      ItemList.prototype.viewDataCard = function (vnode) {
+          var dataCard = vnode.attrs.item.dataCard;
+          var dataCardModel = dataCard ? this.modelMap["dataCard"] : null;
+          var dataCardConfig = dataCardModel && dataCard
+              ? lodash__default['default'].filter(dataCardModel.config, function (c) { return c._id === dataCard.modelId; })[0]
+              : null;
+          return dataCard && dataCardConfig && dataCard.dataMap && Object.keys(dataCard.dataMap).length !== 0
+              ? buildComponent({
+                  type: "sdx-dataCard",
+                  data: {
+                      pre: dataCard.pre,
+                      post: dataCard.post,
+                      header: dataCard.header,
+                      context: dataCard.context,
+                      buttonContext: dataCard.buttonContext,
+                      categoryLabel: dataCard.categoryLabel,
+                      button: dataCard.button,
+                      displayType: dataCard.displayType,
+                      dataMap: dataCard.dataMap,
+                      config: dataCardConfig
+                  }
+              })
+              : null;
+      };
+      ItemList.prototype.viewContent = function (vnode) {
+          var _this = this;
+          var _a = vnode.attrs, label = _a.item.label, modelList = _a.modelList, itemList = _a.itemList;
+          return this.taggedItemList().length
+              ? this.filteredItems().length
+                  ? lodash__default['default'].map(this.itemGroups(), function (_a) {
+                      var groupLabel = _a.label, groupList = _a.itemList;
+                      return [
+                          groupLabel ? m__default['default']("h4.mh2.mv3.silver", {
+                              class: joinClasses([theme().uiItemListGroupLabel])
+                          }, groupLabel) : null,
+                          lodash__default['default'].map(groupList, function (item) {
+                              var model = _this.modelMap[item.modelId];
+                              return m__default['default'](getListWidget(model), {
+                                  key: item._id,
+                                  modelList: modelList,
+                                  itemList: itemList,
+                                  item: item,
+                                  model: model
+                              });
+                          })
+                      ];
+                  })
+                  : m__default['default']("span.ma3.db.truncate", {
+                      class: colors().default.classes.color
+                  }, "No matching " + label)
+              : m__default['default']("span.ma3.db.truncate", {
+                  class: colors().default.classes.color
+              }, "Use this section to store " + label);
+      };
+      ItemList.prototype.createNew = function () {
+          if (this.createModels.length === 1) {
+              newItem(this.createModels[0]);
+          }
+          else {
+              this.listModels = true;
+          }
+      };
+      return ItemList;
+  }());
+
+  var ItemCard = /** @class */ (function () {
+      function ItemCard() {
+          var _this = this;
+          this.isCategory = false;
+          this.itemCount = stream__default['default'](0);
+          this.headerScale = stream__default['default'](1);
+          this.setHeaderScale = function () {
+              if (_this.headerSpan) {
+                  var scale = _this.headerSpan.offsetHeight / _this.headerSpan.scrollHeight;
+                  // --> only redraw if header scale has changed
+                  if (_this.headerScale() !== scale) {
+                      _this.headerScale(scale);
+                      m__default['default'].redraw();
+                  }
+              }
+          };
+      }
+      ItemCard.prototype.oninit = function (_a) {
+          var _b = _a.attrs, _c = _b.model.category, category = _c === void 0 ? false : _c, item = _b.item, itemList = _b.itemList;
+          this.isCategory = category;
+          if (this.isCategory) {
+              var _d = item, content = _d.content, _e = _d.countContent, countContent_1 = _e === void 0 ? content : _e, contentAll_1 = _d.contentAll;
+              this.itemCount = itemList.map(function (list) { return itemsForCategory(list, countContent_1, contentAll_1).length; });
+          }
+      };
+      ItemCard.prototype.oncreate = function (vnode) {
+          var _a;
+          this.headerSpan = (_a = vnode.dom.firstChild) === null || _a === void 0 ? void 0 : _a.firstChild;
+          this.setHeaderScale();
+          window.addEventListener("resize", this.setHeaderScale);
+          this.selectHandler = function (e) {
+              if (["Enter", " "].includes(e.key) && document.activeElement === vnode.dom) {
+                  selectItem(vnode.attrs.model, vnode.attrs.item);
+              }
+          };
+          window.addEventListener("keyup", this.selectHandler);
+      };
+      ItemCard.prototype.onremove = function () {
+          window.removeEventListener("resize", this.setHeaderScale);
+          if (this.selectHandler) {
+              window.removeEventListener("keyup", this.selectHandler);
+          }
+      };
+      ItemCard.prototype.view = function (_a) {
+          var _b = _a.attrs, model = _b.model, item = _b.item;
+          var context = item.cardContext || item.context || "alt" /* alt */;
+          var heading = this.isCategory
+              ? item.label
+              : extractFields(item, model.heading, model.category);
+          var subheading = this.isCategory
+              ? item.subheading
+              : extractFields(item, model.subheading, model.category);
+          var subheadingIcon = this.isCategory ? item.subheadingIcon : null;
+          var icon = this.isCategory ? item.icon : model.icon;
+          return m__default['default']("div.relative.pa2.ma3.f7.f6-ns.f5-l.pointer.flex-shrink-0", {
+              tabIndex: 0,
+              ariaLabel: heading,
+              title: heading,
+              style: item.style,
+              class: joinClasses([
+                  theme().uiCardWrapper,
+                  colors().getContextClasses(context),
+              ]),
+              onclick: function () { return selectItem(model, item); }
+          }, [
+              m__default['default'](".flex.flex-column.items-center.h-100.w-100.overflow-hidden", {
+                  class: joinClasses([theme().uiCardContentWrapper])
+              }, m__default['default']("span.flex-shrink-0", {
+                  class: joinClasses([theme().uiCardHeader]),
+                  style: {
+                      maxHeight: typeof icon === "string" ? "43%" : "13%",
+                      transformOrigin: "top",
+                      transform: "scale(" + this.headerScale() + ")"
+                  }
+              }, heading), typeof icon === "string"
+                  ? m__default['default']("i.flex-shrink-0", {
+                      class: joinClasses([
+                          theme().uiCardIcon,
+                          icon,
+                      ])
+                  })
+                  : m__default['default']("img", {
+                      src: icon.src,
+                      class: joinClasses([
+                          theme().uiCardImage,
+                          icon.imageClass
+                      ]),
+                      height: icon.height,
+                      width: icon.width
+                  }), subheading ? m__default['default'](".flex-shrink-0", {
+                  class: joinClasses([theme().uiCardSubheading])
+              }, m__default['default']("span", subheading), subheadingIcon ?
+                  m__default['default']("i.mh2", {
+                      class: subheadingIcon
+                  }) : null) : null),
+              this.itemCount()
+                  ? m__default['default']("span.absolute.tc.f5", {
+                      class: joinClasses([theme().uiCardCounter]),
+                      style: { "min-width": "0.65rem" }
+                  }, this.itemCount())
+                  : null
+          ]);
+      };
+      return ItemCard;
+  }());
+
+  var __extends$2 = (this && this.__extends) || (function () {
+      var extendStatics = function (d, b) {
+          extendStatics = Object.setPrototypeOf ||
+              ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+              function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+          return extendStatics(d, b);
+      };
+      return function (d, b) {
+          extendStatics(d, b);
+          function __() { this.constructor = d; }
+          d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+      };
+  })();
+  var ItemGrid = /** @class */ (function (_super) {
+      __extends$2(ItemGrid, _super);
+      function ItemGrid() {
+          return _super !== null && _super.apply(this, arguments) || this;
+      }
+      ItemGrid.prototype.contentWrapperClass = function () {
+          return theme().uiItemGridContainer;
+      };
+      ItemGrid.prototype.viewContent = function (vnode) {
+          var _this = this;
+          var _a = vnode.attrs, label = _a.item.label, modelList = _a.modelList, itemList = _a.itemList;
+          return this.taggedItemList().length
+              ? this.filteredItems().length
+                  ? lodash__default['default'].map(this.itemGroups(), function (_a) {
+                      var groupLabel = _a.label, groupList = _a.itemList;
+                      return [
+                          groupLabel ? m__default['default']("h4.mh2.mv3.silver", groupLabel) : null,
+                          // Card group container
+                          m__default['default']("div", {
+                              class: joinClasses([theme().uiCardGroup])
+                          }, lodash__default['default'].map(groupList, function (item) {
+                              var model = _this.modelMap[item.modelId];
+                              return m__default['default'](ItemCard, {
+                                  key: item._id,
+                                  modelList: modelList,
+                                  itemList: itemList,
+                                  item: item,
+                                  model: model
+                              });
+                          }))
+                      ];
+                  })
+                  : m__default['default']("span.ma3.db.truncate", {
+                      class: colors().default.classes.color
+                  }, "No matching " + label)
+              : m__default['default']("span.ma3.db.truncate", {
+                  class: colors().default.classes.color
+              }, "Use this section to store " + label);
+      };
+      return ItemGrid;
+  }(ItemList));
+
+  function addFiles(fileList) {
+      return function (_a) {
+          var files = _a.target.files;
+          var newFileList = fileList();
+          lodash__default['default'].each(files, function (file) {
+              newFileList.push({
+                  file: file,
+                  _id: uiWidgets.guid(),
+                  prop: "tableUpload",
+                  name: file.name,
+                  size: file.size,
+                  type: file.type,
+                  lastModified: file.lastModified
+              });
+          });
+          fileList(newFileList);
+      };
+  }
+  function removeFile(fileList, removeId) {
+      return function () {
+          var newFileList = fileList();
+          removeByProperty(newFileList, { _id: removeId });
+          fileList(newFileList);
+      };
+  }
+  function renameFile(fileList, updateId) {
+      return function (_a) {
+          var value = _a.target.value;
+          var newFileList = fileList();
+          var idx = lodash__default['default'].findIndex(newFileList, { _id: updateId });
+          if (idx === -1) {
+              return;
+          }
+          var updateFile = newFileList[idx];
+          var ext = uiWidgets.fileNameExtSplit(updateFile.name)[1];
+          updateFile.name = value + ext;
+          newFileList.splice(idx, 1, updateFile);
+          fileList(newFileList);
+      };
+  }
+  var TableUpload = /** @class */ (function () {
+      function TableUpload() {
+          this.fileList = stream__default['default']([]);
+      }
+      TableUpload.prototype.view = function (_a) {
+          var _this = this;
+          var _b = _a.attrs, numCols = _b.numCols, onUpload = _b.onUpload;
+          var numFiles = this.fileList().length;
+          var nameColSpan = numCols - 3;
+          return [
+              numFiles ? m__default['default']("tr.f5.tl", { class: joinClasses([theme().uiIcon]) }, m__default['default']("td.pa2", {
+                  colspan: numCols
+              }, [
+                  m__default['default']("i.fad.fa-fw.fa-list-ol.mr2"),
+                  "Outbox"
+              ])) : null,
+              // Pending files header
+              numFiles ? m__default['default']("tr.tl.fw4", {
+                  class: joinClasses([theme().uiTableHeader])
+              }, [
+                  // Delete indicator
+                  m__default['default']("td.w2.pa1.bb.b--black-10.tc", m__default['default']("i.fal.fa-fw.fa-trash-alt.w2")),
+                  // Name, type, size
+                  m__default['default']("td.pa1.bb.b--black-10", { colspan: nameColSpan }, "Document"),
+                  m__default['default']("td.pa1.bb.b--black-10.dn.dtc-l.tc", m__default['default']("i.fal.fa-fw.fa-file.w2")),
+                  m__default['default']("td.pa1.bb.b--black-10.dn.dtc-l", "Size")
+              ]) : null,
+              // Pending file rows
+              lodash__default['default'].map(this.fileList(), function (file) { return m__default['default']("tr", [
+                  m__default['default']("td.w2.ph1.pv2.bb.b--black-10.tc.dim.pointer", {
+                      onclick: removeFile(_this.fileList, file._id)
+                  }, m__default['default']("i.fal.fa-trash-alt.w2")),
+                  // Name editor
+                  m__default['default']("td.bb.b--black-10", { colspan: nameColSpan }, m__default['default']("input.input-reset.w-100.pl2.pv1.fw2.ba.b--black-10.br2.border-box.dark-gray.bg-washed-yellow[type=text]", {
+                      value: uiWidgets.fileNameExtSplit(file.name)[0],
+                      onchange: renameFile(_this.fileList, file._id)
+                  })),
+                  m__default['default']("td.ph1.pv2.bb.b--black-10.dn.dtc-l.tc", getFileValue(file, "type")),
+                  m__default['default']("td.ph1.pv2.bb.b--black-10.dn.dtc-l", getFileValue(file, "size")),
+              ]); }),
+              // File select area
+              m__default['default']("tr", m__default['default']("td.pv3", {
+                  colspan: numCols
+              }, m__default['default']("label.flex.flex-column.pointer[for=upload]", [
+                  m__default['default']("input#upload.clip[type=file][multiple=true]", {
+                      onchange: addFiles(this.fileList)
+                  }),
+                  m__default['default'](".pa3.f3.ba.b--dashed.br2", {
+                      class: "b--light-silver silver"
+                  }, [
+                      m__default['default']("i.fal.fa-file-upload.mr2"),
+                      m__default['default']("span", "Upload Document")
+                  ])
+              ]))),
+              numFiles ? m__default['default']("tr", m__default['default']("td", {
+                  colspan: numCols,
+              }, m__default['default'](uiWidgets.Button, {
+                  label: "Upload",
+                  icon: "fal fa-upload",
+                  classes: "w-100 pa3 br3 f4",
+                  onclick: function () { return onUpload(_this.fileList()).then(function () {
+                      // Empty pending upload list
+                      _this.fileList([]);
+                      m__default['default'].redraw();
+                  }); }
+              }))) : null
+          ];
+      };
+      return TableUpload;
+  }());
+
+  var TableItem = /** @class */ (function () {
+      function TableItem() {
+      }
+      TableItem.prototype.oncreate = function (vnode) {
+          this.selectHandler = function (e) {
+              if (["Enter", " "].includes(e.key) && document.activeElement === vnode.dom) {
+                  selectItem(vnode.attrs.model, vnode.attrs.item);
+              }
+          };
+          window.addEventListener("keyup", this.selectHandler);
+      };
+      TableItem.prototype.onremove = function () {
+          if (this.selectHandler) {
+              window.removeEventListener("keyup", this.selectHandler);
+          }
+      };
+      TableItem.prototype.view = function (vnode) {
+          var _a = vnode.attrs, item = _a.item, model = _a.model, file = _a.file;
+          return m__default['default']("tr.pointer", {
+              class: joinClasses([theme().uiTableItemRow, theme().uiTableRow]),
+              ariaLabel: item.props.title,
+              tabIndex: 0,
+              onclick: function () { return selectItem(model, item); }
+          }, [
+              // Viewed indicator
+              m__default['default']("td.f7.ph1.pv2.bb.b--black-10.tc", {
+                  class: joinClasses([theme().uiItemTableIcon, theme().uiIcon])
+              }, item.props.viewed ? null : m__default['default']("i.fas.fa-circle")),
+              // Date Deposited
+              m__default['default']("td.w4-ns.ph1.pv2.bb.b--black-10", { class: joinClasses([theme().uiTableItemDate]) }, parseDateStr(item.props.date)),
+              m__default['default']("td.w3-ns.ph1.pv2.bb.b--black-10", { class: joinClasses([theme().uiTableItemTime]) }, parseTimeStr(item.props.date)),
+              // Document Name, type, size
+              m__default['default']("td.ph1.pv2.bb.b--black-10.w-100.mw1.truncate", { class: joinClasses([theme().uiTableItemTitle]) }, item.props.title),
+              m__default['default']("td.ph1.pv2.bb.b--black-10.dn.dtc-l.tc", { class: joinClasses([theme().uiTableItemType]) }, getFileValue(file, "type")),
+              m__default['default']("td.ph1.pv2.bb.b--black-10.dn.dtc-l", { class: joinClasses([theme().uiTableItemSize]) }, getFileValue(file, "size"))
+          ]);
+      };
+      return TableItem;
+  }());
+
+  var __extends$3 = (this && this.__extends) || (function () {
+      var extendStatics = function (d, b) {
+          extendStatics = Object.setPrototypeOf ||
+              ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+              function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+          return extendStatics(d, b);
+      };
+      return function (d, b) {
+          extendStatics(d, b);
+          function __() { this.constructor = d; }
+          d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+      };
+  })();
+  var defaultGroupConf = [{
+          key: "office",
+          label: "Documents Received",
+          direction: "Received",
+          icon: "fad fa-inbox-in"
+      }, {
+          key: "customer",
+          label: "Documents Uploaded",
+          direction: "Sent",
+          icon: "fad fa-inbox-out"
+      }];
+  var ItemTable = /** @class */ (function (_super) {
+      __extends$3(ItemTable, _super);
+      function ItemTable() {
+          return _super !== null && _super.apply(this, arguments) || this;
+      }
+      ItemTable.prototype.contentWrapperClass = function () {
+          return theme().uiItemTableContainer;
+      };
+      ItemTable.prototype.viewContent = function (vnode) {
+          var _a = vnode.attrs, _b = _a.item, label = _b.label, _c = _b.groupConf, groupConf = _c === void 0 ? defaultGroupConf : _c, onUpload = _a.onUpload;
+          // TODO Only accept items of the same model in an itemTable, assume models are document for now
+          var model = this.modelMap.documents;
+          if (!model) {
+              return m__default['default']("span.ma3.db.truncate", {
+                  class: colors().default.classes.color
+              }, "No Document Model");
+          }
+          var numCols = 6;
+          var groupList = this.itemGroups();
+          return m__default['default']("table.w-100.f5.f4-ns[cellspacing=0]", {
+              class: joinClasses([theme().uiTable])
+          }, this.taggedItemList().length ? this.filteredItems().length
+              // Get groups keyed by each groupConf entry
+              ? lodash__default['default'].map(groupConf, function (_a) {
+                  var key = _a.key, groupLabel = _a.label, direction = _a.direction, icon = _a.icon;
+                  var itemGroup = pickByProperty(groupList, { label: key });
+                  var itemList = itemGroup ? itemGroup.itemList : [];
+                  return itemList.length ? [
+                      // Group label and heading
+                      groupLabel
+                          ? m__default['default']("tr.f5.tl", {
+                              class: joinClasses([theme().uiItemTableInfo])
+                          }, m__default['default']("td.pa2", {
+                              colspan: numCols
+                          }, [
+                              m__default['default']("i.fa-fw.mr2", {
+                                  class: joinClasses([theme().uiIcon, theme().uiItemTableInfoIcon, icon])
+                              }),
+                              groupLabel
+                          ]))
+                          : null,
+                      // Group heading
+                      m__default['default']("tr.tl.fw4", {
+                          class: joinClasses([theme().uiTableHeader, theme().uiItemTableHeader])
+                      }, [
+                          // Viewed indicator
+                          m__default['default']("td.w2.pa1.f7.bb.b--black-10.tc", {
+                              class: joinClasses([theme().uiTableHeader, theme().uiItemTableHeaderMarker])
+                          }, m__default['default']("i.fal.fa-fw.fa-circle")),
+                          // Date Deposited (sent or received)
+                          m__default['default']("td.pa1.bb.b--black-10[colspan=2]", {
+                              class: joinClasses([theme().uiTableHeader, theme().uiItemTableHeaderDate])
+                          }, "Date " + direction),
+                          // File heading fields
+                          m__default['default']("td.pa1.bb.b--black-10", {
+                              class: joinClasses([theme().uiTableHeader, theme().uiItemTableHeaderDocumentName])
+                          }, "Document Name"),
+                          m__default['default']("td.w2.pa1.bb.b--black-10.dn.dtc-l.tc", {
+                              class: joinClasses([theme().uiTableHeader, theme().uiItemTableHeaderIcon])
+                          }, m__default['default']("i.fal.fa-fw.fa-file")),
+                          m__default['default']("td.pa1.bb.b--black-10.dn.dtc-l", {
+                              class: joinClasses([theme().uiTableHeader, theme().uiItemTableHeaderSize])
+                          }, "Size")
+                      ]),
+                      // List each file as individual rows
+                      lodash__default['default'].map(itemList, function (item) { return lodash__default['default'].map(item.files, function (file) { return m__default['default'](TableItem, {
+                          item: item,
+                          model: model,
+                          file: file
+                      }); }); }),
+                  ] : null;
+              })
+              : m__default['default']("tr.f4.truncate", m__default['default']("td.pa3", {
+                  class: colors().default.classes.color,
+                  colspan: numCols
+              }, "No matching " + label))
+              : m__default['default']("tr.f4.truncate", m__default['default']("td.pa3", {
+                  class: colors().default.classes.color,
+                  colspan: numCols
+              }, "No content in " + label)), 
+          // Upload file area
+          onUpload ? m__default['default'](TableUpload, {
+              numCols: numCols,
+              onUpload: onUpload
+          }) : null);
+      };
+      return ItemTable;
+  }(ItemList));
+
+  var __extends$4 = (this && this.__extends) || (function () {
+      var extendStatics = function (d, b) {
+          extendStatics = Object.setPrototypeOf ||
+              ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+              function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+          return extendStatics(d, b);
+      };
+      return function (d, b) {
+          extendStatics(d, b);
+          function __() { this.constructor = d; }
+          d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+      };
+  })();
+  var ItemDataCardGrid = /** @class */ (function (_super) {
+      __extends$4(ItemDataCardGrid, _super);
+      function ItemDataCardGrid() {
+          return _super !== null && _super.apply(this, arguments) || this;
+      }
+      ItemDataCardGrid.prototype.contentWrapperClass = function () {
+          return theme().uiItemGridContainer;
+      };
+      ItemDataCardGrid.prototype.viewDataCard = function () {
+          return null;
+      };
+      ItemDataCardGrid.prototype.viewContent = function (vnode) {
+          var _this = this;
+          var _a = vnode.attrs.item, label = _a.label, dataCard = _a.dataCard;
+          var dataCardModel = dataCard ? this.modelMap["dataCard"] : null;
+          var dataCardConfig = dataCardModel && dataCard ? pickById(dataCardModel.config, dataCard.modelId) : null;
+          return this.taggedItemList().length
+              ? this.filteredItems().length
+                  ? lodash__default['default'].map(this.itemGroups(), function (_a) {
+                      var groupLabel = _a.label, groupList = _a.itemList;
+                      return [
+                          groupLabel ? m__default['default']("h4.mh2.mv3.silver", groupLabel) : null,
+                          // Card group container
+                          m__default['default']("div", {
+                              class: joinClasses([
+                                  theme().uiDataCardGridWrapper
+                              ])
+                          }, lodash__default['default'].map(groupList, function (item) {
+                              var _a, _b, _c, _d, _e, _f, _g, _h;
+                              var model = _this.modelMap[item.modelId];
+                              if (dataCardModel && dataCard) {
+                                  return buildComponent({
+                                      type: "sdx-dataCard",
+                                      data: {
+                                          applyTheme: (_a = item.dataCard) === null || _a === void 0 ? void 0 : _a.applyTheme,
+                                          pre: dataCard.pre || ((_b = item.dataCard) === null || _b === void 0 ? void 0 : _b.pre),
+                                          post: dataCard.post || ((_c = item.dataCard) === null || _c === void 0 ? void 0 : _c.post),
+                                          header: (_d = item.dataCard) === null || _d === void 0 ? void 0 : _d.header,
+                                          categoryLabel: (_e = item.dataCard) === null || _e === void 0 ? void 0 : _e.categoryLabel,
+                                          button: dataCard.button,
+                                          displayType: dataCard.displayType || "overview",
+                                          context: (_f = item === null || item === void 0 ? void 0 : item.dataCard) === null || _f === void 0 ? void 0 : _f.context,
+                                          buttonContext: (_g = item === null || item === void 0 ? void 0 : item.dataCard) === null || _g === void 0 ? void 0 : _g.buttonContext,
+                                          dataMap: (_h = item === null || item === void 0 ? void 0 : item.dataCard) === null || _h === void 0 ? void 0 : _h.dataMap,
+                                          config: dataCardConfig,
+                                          onclick: function () { selectItem(model, item); }
+                                      }
+                                  });
+                              }
+                              return null;
+                          }))
+                      ];
+                  })
+                  : m__default['default']("span.ma3.db.truncate", {
+                      class: colors().default.classes.color
+                  }, "No matching " + label)
+              : m__default['default']("span.ma3.db.truncate", {
+                  class: colors().default.classes.color
+              }, "Use this section to store " + label);
+      };
+      return ItemDataCardGrid;
+  }(ItemList));
+
+  function getListComponent(type) {
+      switch (type) {
+          case "grid" /* grid */:
+              return ItemGrid;
+          case "table" /* table */:
+              return ItemTable;
+          case "dataCard" /* dataCard */:
+              return ItemDataCardGrid;
+          default: return ItemList;
+      }
+  }
+  function itemListRoute(items, qry, layoutAttrs, onUpload) {
+      return {
+          onmatch: function (_a) {
+              var itemGuid = _a.itemGuid;
+              itemGuid === "root" ? routeString(BrandingRoute.root) : routeString(BrandingRoute.list);
+              return items.initialLoad().then(function () { return qry.selectItem(itemGuid); });
+          },
+          render: function () {
+              if (qry.isCategory()) {
+                  var item = qry.getItem();
+                  // TODO Consider moving component selection into onmatch handler
+                  var component = getListComponent(item.type);
+                  return m__default['default'](Layout, layoutAttrs, m__default['default'](component, {
+                      key: item._id,
+                      modelList: items.model()(),
+                      itemList: items.data(),
+                      item: item,
+                      onUpload: onUpload
+                  }));
+              }
+              else {
+                  return null;
+              }
+          }
+      };
+  }
+
+  var _a$2, _b$1;
+  var propMap$1 = (_a$2 = {},
+      _a$2["label" /* label */] = uiWidgets.BaseText,
+      _a$2["trusted" /* trusted */] = uiWidgets.Trusted,
+      _a$2["text" /* text */] = uiWidgets.BaseText,
+      _a$2["search" /* search */] = uiWidgets.BaseText,
+      _a$2["date" /* date */] = uiWidgets.BaseText,
+      _a$2["number" /* number */] = uiWidgets.BaseText,
+      _a$2["range" /* range */] = uiWidgets.BaseText,
+      _a$2["color" /* color */] = uiWidgets.BaseText,
+      _a$2["email" /* email */] = uiWidgets.Link,
+      _a$2["tel" /* tel */] = uiWidgets.Link,
+      _a$2["url" /* url */] = uiWidgets.Link,
+      _a$2["textarea" /* textarea */] = uiWidgets.BaseText,
+      _a$2["checkbox" /* checkbox */] = uiWidgets.Checkbox,
+      _a$2["select" /* select */] = uiWidgets.SelectText,
+      _a$2["radio" /* radio */] = uiWidgets.SelectText,
+      _a$2);
+  var fileMap$1 = (_b$1 = {},
+      _b$1["fileMulti" /* fileMulti */] = uiWidgets.FileList,
+      _b$1["file" /* file */] = uiWidgets.FileList,
+      _b$1["imageMulti" /* imageMulti */] = uiWidgets.ImageList,
+      _b$1["image" /* image */] = uiWidgets.ImagePreview,
+      _b$1["sign" /* sign */] = uiWidgets.ImagePreview,
+      _b$1);
+  function buildWidgets(_a, _b) {
+      var files = _a.files, props = _a.props;
+      var fields = _b.fields;
+      return lodash__default['default'](fields).map(function (field) {
+          var _a = field.type, type = _a === void 0 ? "text" /* text */ : _a;
+          if (propMap$1.hasOwnProperty(type)) {
+              // Assemble basic widget (manipulate specific property)
+              return {
+                  component: propMap$1[type],
+                  attrs: {
+                      field: field,
+                      value: getPropStream(props, field)
+                  }
+              };
+          }
+          else if (fileMap$1.hasOwnProperty(type)) {
+              // Assemble file widget (manipulate file list subset)
+              return {
+                  component: fileMap$1[type],
+                  attrs: {
+                      field: field,
+                      value: getFileStream(files, field)
+                  }
+              };
+          }
+          else {
+              // Unknown type
+              return null;
+          }
+      })
+          .compact()
+          .value();
+  }
+
+  var ItemView = /** @class */ (function () {
+      function ItemView() {
+          this.widgetList = [];
+      }
+      ItemView.prototype.oninit = function (_a) {
+          var _b = _a.attrs, item = _b.item, model = _b.model;
+          // Assemble widgets for each field
+          this.widgetList = buildWidgets(item, model);
+      };
+      ItemView.prototype.view = function (_a) {
+          var _b = _a.attrs, model = _b.model, item = _b.item, readonly = _b.readonly, onReturn = _b.onReturn, onEdit = _b.onEdit;
+          return m__default['default'](Panel, {
+              header: [
+                  m__default['default'](uiWidgets.NavButton, {
+                      label: model.label,
+                      icon: "fal fa-chevron-left nl2",
+                      classes: joinClasses(["dim", theme().uiNavButton]),
+                      onclick: onReturn
+                  }),
+                  readonly ? null : m__default['default'](uiWidgets.NavButton, {
+                      label: "Edit",
+                      classes: joinClasses(["dim", theme().uiNavButton]),
+                      onclick: onEdit
+                  })
+              ],
+              content: m__default['default'](".flex-auto.overflow-x-hidden.overflow-y-auto.pa2.safari-bug", {
+                  class: joinClasses([theme().uiItemViewWrapper])
+              }, [
+                  m__default['default'](".pv2.flex.flex-row.bb.b--black-20", {
+                      class: joinClasses([theme().uiItemViewRowWrapper])
+                  }, [
+                      m__default['default'](Icon, { classes: theme().uiItemViewIcon, icon: model.icon }),
+                      m__default['default']("span.truncate", { class: joinClasses([theme().uiItemViewField]) }, extractFields(item, model.heading, model.category))
+                  ]),
+                  // Present widgets
+                  lodash__default['default'].map(this.widgetList, function (_a) {
+                      var component = _a.component, attrs = _a.attrs;
+                      return m__default['default'](component, attrs);
+                  }),
+                  // Custom components
+                  item.post ? m__default['default']("div", { class: joinClasses([theme().uiPostContentWrapper]) }, buildComponentList(item.post)) : null
+              ])
+          });
+      };
+      return ItemView;
+  }());
+
+  function itemViewRoute(items, qry, layoutAttrs) {
+      return {
+          onmatch: function (_a) {
+              var itemGuid = _a.itemGuid;
+              routeString(BrandingRoute.view);
+              return items.initialLoad()
+                  .then(function () { return qry.selectItem(itemGuid); });
+          },
+          render: function () { return m__default['default'](Layout, layoutAttrs, m__default['default'](ItemView, {
+              modelList: items.model()(),
+              itemList: items.data(),
+              model: qry.getModel(),
+              item: qry.getItem(),
+              readonly: qry.isReadonly(),
+              onReturn: back,
+              onEdit: function () { return editItem(qry.getItem()); }
+          })); }
+      };
+  }
+
+  function signatureHelper(field, _a) {
+      var x1 = _a.x1, x2 = _a.x2, y1 = _a.y1, y2 = _a.y2;
+      return lodash__default['default'].extend({}, field, {
+          // Remove any set widget theme classes
+          uiClass: {
+              wrapper: "ma0 pa0 bn",
+              merge: false
+          },
+          // Calculate rectangle height as percentage of width
+          heightPct: 100 * (y2 - y1) / (x2 - x1)
+      });
+  }
+  // Build a form using an overlay list
+  function buildOverlayFields(overlayList) {
+      var overlayForm = lodash__default['default'].map(overlayList, function (_a) {
+          var _id = _a._id, field = _a.field, fileValue = _a.fileValue, computed = _a.computed, page = _a.page, rect = _a.rect, preText = _a.preText, postText = _a.postText;
+          return {
+              key: _id,
+              input: field.type === "sign" /* sign */
+                  ? signatureHelper(field, rect)
+                  : field,
+              fileValue: fileValue,
+              computed: computed,
+              data: {
+                  page: page,
+                  rect: rect,
+                  preText: preText,
+                  postText: postText
+              }
+          };
+      });
+      return buildFormFields(overlayForm);
+  }
+  function serialiseOverlay(_a) {
+      var fields = _a.fields;
+      return lodash__default['default'].reduce(fields, function (prev, field) {
+          var key = field.key, type = field.type, value = field.value, files = field.files;
+          if (type === 1 /* Prop */ && value) {
+              prev[key] = value();
+          }
+          else if (type === 2 /* File */ && files) {
+              var firstFile = lodash__default['default'].head(files());
+              if (firstFile && firstFile.file) {
+                  prev[key] = firstFile.dataUrl;
+                  prev[key + "-ts"] = new Date(firstFile.file.lastModified).toISOString();
+              }
+          }
+          return prev;
+      }, {});
+  }
+
+  var PageOverlay = /** @class */ (function () {
+      function PageOverlay() {
+      }
+      // Transform overlay elements from pdf co-ordinates ([0, 0] at bottom-left)
+      // To DOM positions ([0, 0] at top-right)
+      PageOverlay.prototype.view = function (_a) {
+          var _b = _a.attrs, overlay = _b.overlay, height = _b.height, scalar = _b.scalar;
+          return m__default['default'](".relative.doc-overlay", lodash__default['default'].map(overlay, function (field) {
+              if (!field.data || !field.input) {
+                  return null;
+              }
+              var input = field.input, _a = field.data.rect, x1 = _a.x1, y1 = _a.y1, x2 = _a.x2, y2 = _a.y2;
+              var interactive = canEdit(input);
+              // Apply scaling to prop fields
+              var scale = field.type === 1 /* Prop */;
+              return m__default['default'](".absolute", {
+                  // Always position element with scaled co-ordinates
+                  style: lodash__default['default'].extend({
+                      left: x1 * scalar + "px",
+                      top: height - (y2 * scalar) + "px"
+                  }, scale
+                      ? {
+                          // Scale element with CSS transform
+                          "width": x2 - x1 + "px",
+                          "height": y2 - y1 + "px",
+                          "font-size": (y2 - y1) * 0.52 + "px",
+                          "transform": "scale(" + scalar + ")",
+                          "transform-origin": "top left"
+                      }
+                      : {
+                          // Scale element container, use default size
+                          width: (x2 - x1) * scalar + "px",
+                          height: (y2 - y1) * scalar + "px"
+                      })
+              }, assembleFormField(field, {
+                  label: "",
+                  readonly: true,
+                  // TODO Disable widget theme set classes
+                  uiClass: {
+                      wrapper: "pa0 ma0 bn h-100 w-100",
+                      inputWrapper: "h-100 w-100",
+                      input: "fw2 h-100 w-100 " + (interactive ? theme().uiPdfFieldOverlay : "arrow"),
+                      merge: false
+                  }
+              }));
+          }));
+      };
+      return PageOverlay;
+  }());
+
+  var PdfPage = /** @class */ (function () {
+      function PdfPage() {
+          this.rendering = false;
+      }
+      PdfPage.prototype.oncreate = function (_a) {
+          var dom = _a.dom, _b = _a.attrs, page = _b.page, viewport = _b.viewport;
+          this.renderPage(page, dom, viewport);
+      };
+      // Only render when scale changes
+      PdfPage.prototype.onbeforeupdate = function (_a, _b) {
+          var height = _a.attrs.viewport.height;
+          var oldHeight = _b.attrs.viewport.height;
+          return height !== oldHeight;
+      };
+      PdfPage.prototype.onupdate = function (_a) {
+          var dom = _a.dom, _b = _a.attrs, page = _b.page, viewport = _b.viewport;
+          this.renderPage(page, dom, viewport);
+      };
+      PdfPage.prototype.view = function () {
+          return m__default['default']("canvas.w-100.h-100");
+      };
+      PdfPage.prototype.onbeforeremove = function () {
+          if (this.rendering && this.renderTask) {
+              this.renderTask.cancel();
+          }
+      };
+      PdfPage.prototype.renderPage = function (page, canvas, viewport) {
+          var _this = this;
+          var canvasContext = canvas.getContext("2d");
+          // TODO Buffer task if rendering is set true
+          if (canvasContext && !this.rendering) {
+              // Scale canvas to fill container
+              canvas.width = viewport.width;
+              canvas.height = viewport.height;
+              // Render page
+              this.rendering = true;
+              this.renderTask = page.render({
+                  canvasContext: canvasContext,
+                  viewport: viewport
+              });
+              this.renderTask.promise.then(function () {
+                  _this.rendering = false;
+              });
+          }
+      };
+      return PdfPage;
+  }());
+
+  var PageManager = /** @class */ (function () {
+      function PageManager() {
+          this.pageBuffer = [];
+          // Use small buffer on smaller devices
+          this.pageBufferSize = tinyDevice() ? 2 : 3;
+          this.scrollPct = 0;
+          this.containerWidth = 0;
+          this.containerHeight = 0;
+          this.pageHeight = 1;
+          this.leftMargin = 0;
+          this.scalar = 1;
+      }
+      PageManager.prototype.oncreate = function (_a) {
+          var _this = this;
+          var dom = _a.dom, _b = _a.attrs, pdf = _b.pdf, overlayForm = _b.overlayForm, scale = _b.scale, jumpTo = _b.jumpTo, zoom = _b.zoom;
+          var container = dom;
+          this.onResize = size.map(function () {
+              _this.containerWidth = container.clientWidth;
+              _this.containerHeight = container.clientHeight;
+              // Update relative scroll position (minor delay to help mobile device rotation)
+              lodash__default['default'].delay(function () {
+                  container.scrollTop = _this.scrollPct * (pdf.numPages * _this.pageHeight);
+              }, 32);
+          });
+          // Load pages as user scrolls (with suitable delay)
+          this.scrollHandler = lodash__default['default'].throttle(function (scroll) {
+              _this.scroll(pdf, overlayForm, scroll);
+          }, 333, { leading: false });
+          // Clamp pageBufferSize for smaller documents
+          this.pageBufferSize = Math.min(this.pageBufferSize, pdf.numPages);
+          // Populate pageBuffer
+          this.getPage(pdf, overlayForm, 1).then(function (page) {
+              // Store first page for scaling use
+              _this.firstPage = page;
+              _this.applyScaling(scale, zoom);
+          }).then(function () { return _this.scroll(pdf, overlayForm, 0); });
+          // Support jumping to an arbitrary overlay
+          jumpTo === null || jumpTo === void 0 ? void 0 : jumpTo.map(function (field) {
+              var _a;
+              // Don't scroll to widgets on page 0 (invisible widget special case)
+              if (field && field.input && ((_a = field.data) === null || _a === void 0 ? void 0 : _a.page)) {
+                  var id_1 = field.input.id, page = field.data.page;
+                  var scrollTo_1 = (page - 1) * _this.pageHeight;
+                  _this.scroll(pdf, overlayForm, scrollTo_1);
+                  // Focus input (or navigate to page)
+                  _this.jumpDelay = lodash__default['default'].delay(function () {
+                      var input = document.getElementById(id_1);
+                      if (input) {
+                          if (smallDevice()) {
+                              // Help keep widget visible with mobile keyboard (+ small margin)
+                              input.scrollIntoView({ block: "end", inline: "center" });
+                              container.scrollTop += 15;
+                          }
+                          else {
+                              input.scrollIntoView({ block: "center" });
+                          }
+                      }
+                      else {
+                          container.scrollTop = scrollTo_1;
+                      }
+                  }, 125);
+              }
+          });
+      };
+      PageManager.prototype.onremove = function () {
+          this.onResize.end(true);
+          this.scrollHandler.cancel();
+          if (this.jumpDelay) {
+              clearTimeout(this.jumpDelay);
+          }
+      };
+      PageManager.prototype.onbeforeupdate = function (_a) {
+          var _b = _a.attrs, scale = _b.scale, zoom = _b.zoom;
+          this.applyScaling(scale, zoom);
+      };
+      PageManager.prototype.view = function (_a) {
+          var _this = this;
+          var _b = _a.attrs, pdf = _b.pdf, onSelect = _b.onSelect;
+          return m__default['default'](".flex-auto.overflow-x-auto.overflow-y-scroll.bg-gray.safari-bug", {
+              onclick: function (_a) {
+                  var target = _a.target;
+                  if (target && target.id) {
+                      onSelect(target.id);
+                  }
+              },
+              onscroll: function (evt) {
+                  evt.redraw = false;
+                  if (evt.target && _this.scrollHandler) {
+                      _this.scrollHandler(evt.target.scrollTop);
+                  }
+              },
+          }, 
+          // "Document-sized" page container
+          m__default['default'](".relative", {
+              style: {
+                  height: pdf.numPages * this.pageHeight + "px"
+              }
+          }, lodash__default['default'].map(this.pageBuffer, (function (_a) {
+              var page = _a.page, overlay = _a.overlay;
+              // Positioned visible page subset
+              var viewport = page.getViewport({
+                  scale: _this.scalar
+              });
+              return m__default['default'](".absolute.bg-near-white.shadow-5", {
+                  key: page.pageNumber,
+                  style: {
+                      width: viewport.width + "px",
+                      height: viewport.height + "px",
+                      transform: "translate(" + _this.leftMargin + "px, " + (page.pageNumber - 1) * _this.pageHeight + "px)"
+                  }
+              }, [
+                  // TODO Page components overlay (Any page/specific page)
+                  // m(PageComponents, {
+                  // 	height: viewport.height,
+                  // 	scalar: this.scalar
+                  // }),
+                  m__default['default'](PageOverlay, {
+                      overlay: overlay,
+                      height: viewport.height,
+                      scalar: _this.scalar
+                  }),
+                  m__default['default'](PdfPage, {
+                      page: page,
+                      // Render page scaled with respect to device DPI
+                      viewport: page.getViewport({
+                          scale: _this.scalar * (window.devicePixelRatio || 1)
+                      })
+                  })
+              ]);
+          }))));
+      };
+      // Set pages scaling under assumption all pages are the same height
+      PageManager.prototype.applyScaling = function (scaling, zoom) {
+          if (this.firstPage) {
+              var _a = this.firstPage.page.getViewport({ scale: 1 }), width = _a.width, height = _a.height;
+              switch (scaling) {
+                  case 0 /* FitWidth */:
+                      this.scalar = this.containerWidth / width;
+                      break;
+                  case 1 /* FitHeight */:
+                      this.scalar = this.containerHeight / height;
+                      break;
+                  // PageScale.Pct100
+                  default:
+                      this.scalar = 1.5;
+              }
+              // Apply zoom factor
+              this.scalar *= zoom;
+              this.applyPageScale();
+          }
+      };
+      PageManager.prototype.applyPageScale = function () {
+          if (this.firstPage) {
+              var _a = this.firstPage.page.getViewport({ scale: 1 }), width = _a.width, height = _a.height;
+              // Apply page margin to height
+              this.pageHeight = height * this.scalar + PageManager.margin;
+              // Calculate margin to centre pages that are smaller than the viewport
+              var pageWidth = width * this.scalar;
+              if (pageWidth < this.containerWidth) {
+                  this.leftMargin = 0.5 * (this.containerWidth - pageWidth);
+              }
+              else {
+                  this.leftMargin = 0;
+              }
+          }
+      };
+      // Ensure pages are loaded and rendered based on the viewport scroll position
+      PageManager.prototype.scroll = function (pdf, overlayForm, scroll) {
+          var _this = this;
+          // Store scroll as a percentage relative to document size
+          this.scrollPct = scroll / (pdf.numPages * this.pageHeight);
+          // Determine where page buffer should "start" relative to scroll
+          var pos = scroll + 0.5 * this.pageHeight;
+          var startPos = pos - (this.pageBufferSize - 1) * 0.33 * this.pageHeight;
+          // Clamp buffer start page within document limits
+          var start = Math.min(Math.max(1, Math.round(startPos / this.pageHeight)), pdf.numPages - this.pageBufferSize + 1);
+          // Load pages from pdf or reuse from pageBuffer
+          var shouldRedraw = false;
+          Promise.all(lodash__default['default'].map(new Array(this.pageBufferSize), function (_, idx) {
+              var num = start + idx;
+              var existing = lodash__default['default'].find(_this.pageBuffer, { page: { pageNumber: num } });
+              if (existing) {
+                  return Promise.resolve(existing);
+              }
+              else {
+                  shouldRedraw = true;
+                  return _this.getPage(pdf, overlayForm, num);
+              }
+          })).then(function (pageList) {
+              _this.pageBuffer = pageList;
+              if (shouldRedraw) {
+                  m__default['default'].redraw();
+              }
+          });
+      };
+      // Get pdf page and respective overlay list
+      PageManager.prototype.getPage = function (pdf, overlayForm, num) {
+          return new Promise(function (resolve) { return pdf.getPage(num).then(function (page) { return resolve({
+              page: page,
+              overlay: lodash__default['default'].filter(overlayForm.fields, function (field) { return Boolean(field.data && field.data.page === num); })
+          }); }); });
+      };
+      PageManager.margin = 10;
+      return PageManager;
+  }());
+
+  var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+      function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+      return new (P || (P = Promise))(function (resolve, reject) {
+          function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+          function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+          function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+          step((generator = generator.apply(thisArg, _arguments || [])).next());
+      });
+  };
+  var __generator = (this && this.__generator) || function (thisArg, body) {
+      var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+      return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+      function verb(n) { return function (v) { return step([n, v]); }; }
+      function step(op) {
+          if (f) throw new TypeError("Generator is already executing.");
+          while (_) try {
+              if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+              if (y = 0, t) op = [op[0] & 2, t.value];
+              switch (op[0]) {
+                  case 0: case 1: t = op; break;
+                  case 4: _.label++; return { value: op[1], done: false };
+                  case 5: _.label++; y = op[1]; op = [0]; continue;
+                  case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                  default:
+                      if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                      if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                      if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                      if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                      if (t[2]) _.ops.pop();
+                      _.trys.pop(); continue;
+              }
+              op = body.call(thisArg, _);
+          } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+          if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+      }
+  };
+  var PdfViewer = /** @class */ (function () {
+      function PdfViewer() {
+      }
+      PdfViewer.prototype.init = function (source) {
+          var _this = this;
+          return new Promise(function (resolve, reject) {
+              pdfjsDist.getDocument(source).promise.then(function (pdf) {
+                  _this.pdf = pdf;
+                  resolve();
+              }, function (errMsg) {
+                  // Basic tests for common 4xx response codes
+                  if (/server response \(440\)/g.test(errMsg)) {
+                      // Session expired, reload page to login again
+                      reject(440 /* LoginTimeOut */);
+                  }
+                  else if (/server response \(403\)/g.test(errMsg)) {
+                      reject(403 /* Forbidden */);
+                  }
+                  else if (/Missing PDF/g.test(errMsg)) {
+                      reject(404 /* NotFound */);
+                  }
+                  else {
+                      reject(400 /* BadRequest */);
+                  }
+              });
+          });
+      };
+      PdfViewer.prototype.destroy = function () {
+          this.pdf.destroy();
+      };
+      return PdfViewer;
+  }());
+  function pdfViewerFactory(source) {
+      return __awaiter(this, void 0, void 0, function () {
+          var viewer;
+          return __generator(this, function (_a) {
+              switch (_a.label) {
+                  case 0:
+                      viewer = new PdfViewer();
+                      return [4 /*yield*/, viewer.init(source)];
+                  case 1:
+                      _a.sent();
+                      return [2 /*return*/, viewer];
+              }
+          });
+      });
+  }
+
+  /**
+   * Smooth step through PDF zoom multipliers
+   * @param input - Scale value (negative for zoom out, positive to zoom in)
+   * @returns Smoothed value (0.25 - 4 for input between -2 and 2)
+   */
+  function scaleSmoothStep(input) {
+      return Math.pow(2, input);
+  }
+  var Pdf = /** @class */ (function () {
+      function Pdf() {
+          this.statusText = "Loading...";
+          this.pageScale = smallDevice() ? 0 /* FitWidth */ : 2 /* Pct100 */;
+          this.zoom = stream__default['default'](0 /* Default */);
+          this.smoothZoom = this.zoom.map(scaleSmoothStep);
+          this.activeField = stream__default['default']();
+          // TODO Convert to streams?
+          this.editList = [];
+          this.actionCount = stream__default['default'](0);
+          this.state = stream__default['default'](0 /* view */);
+      }
+      Pdf.prototype.oninit = function (_a) {
+          var _this = this;
+          var _b = _a.attrs, _c = _b.item, _id = _c._id, files = _c.files, actions = _c.actions, uploadDelay = _b.uploadDelay;
+          // Get pdf path from first file
+          var fileObj = lodash__default['default'].head(files);
+          if (fileObj && fileObj.remoteUrl) {
+              this.fileObj = fileObj;
+              this.pdfPath = fileObj.remoteUrl;
+          }
+          else {
+              this.statusText = "No File Present";
+          }
+          // Get overlay actions
+          this.formAction = lodash__default['default'].head(filterByProperty(actions, { type: "form" /* form */ }));
+          var fieldList = filterByProperty(actions, { type: "overlay" /* overlay */ });
+          this.overlayForm = buildOverlayFields(fieldList);
+          // Limit list to unique widgets that can be modified
+          this.editList = lodash__default['default'](this.overlayForm.fields)
+              .filter(function (_a) {
+              var input = _a.input;
+              return input ? canEdit(input) : false;
+          })
+              .uniqBy(function (_a) {
+              var input = _a.input;
+              return input === null || input === void 0 ? void 0 : input.id;
+          })
+              .value();
+          // Display count of unpopulated required overlay fields
+          this.actionCount = stream__default['default'].merge(lodash__default['default'](this.editList)
+              .map(function (_a) {
+              var input = _a.input, value = _a.value;
+              return input && input.required ? value : null;
+          })
+              .compact()
+              .value()).map(function (values) { return lodash__default['default']
+              // Count widgets that don't have values set
+              .reduce(values, function (acc, value) { return hasValue(value) ? acc : acc + 1; }, 0); });
+          if (this.formAction) {
+              this.state(1 /* call */);
+              // Submit when there are no remaining actions
+              // TODO Revise submission when document has mix of required/optional inputs
+              stream__default['default'].lift(function (newState, newCount) {
+                  if (newState === 2 /* edit */ && newCount === 0) {
+                      // Mark form as complete if there is no next empty widget
+                      _this.state(3 /* complete */);
+                  }
+                  if (newState === 3 /* complete */) {
+                      if (_this.formAction && _this.fileObj) {
+                          var formData_1 = new FormData();
+                          // Add item and file ids
+                          formData_1.append("item_id", _id);
+                          formData_1.append("file_id", _this.fileObj._id);
+                          // Write overlay values
+                          lodash__default['default'].forEach(_this.serialise(), function (value, key) {
+                              formData_1.append(key, String(value));
+                          });
+                          var uploadUrl_1 = _this.formAction.url;
+                          lodash__default['default'].delay(function () { return sdxRequest({
+                              method: "POST",
+                              url: uploadUrl_1,
+                              body: formData_1
+                          }); }, uploadDelay);
+                      }
+                  }
+              }, this.state, this.actionCount);
+          }
+      };
+      Pdf.prototype.oncreate = function () {
+          var _this = this;
+          if (this.pdfPath) {
+              pdfViewerFactory(this.pdfPath)
+                  .then(function (viewer) { return _this.viewer = viewer; })
+                  .catch(function (code) {
+                  var _a, _b, _c;
+                  if (code === 440 /* LoginTimeOut */) {
+                      // Session expired, reload page to login again
+                      reload();
+                  }
+                  else if (code === 403 /* Forbidden */) {
+                      _this.statusText = "Unable to access " + ((_a = _this.fileObj) === null || _a === void 0 ? void 0 : _a.name);
+                  }
+                  else if (code === 404 /* NotFound */) {
+                      _this.statusText = ((_b = _this.fileObj) === null || _b === void 0 ? void 0 : _b.name) + " not found";
+                  }
+                  else {
+                      _this.statusText = "Error loading " + ((_c = _this.fileObj) === null || _c === void 0 ? void 0 : _c.name);
+                  }
+              })
+                  .then(m__default['default'].redraw);
+          }
+      };
+      Pdf.prototype.onremove = function () {
+          if (this.viewer) {
+              this.viewer.destroy();
+          }
+      };
+      Pdf.prototype.view = function () {
+          var _this = this;
+          var _a, _b, _c, _d;
+          var active = this.activeField();
+          return m__default['default'](Panel, {
+              header: [
+                  noreturn() ? m__default['default']("div") : m__default['default'](uiWidgets.NavButton, {
+                      icon: "fal fa-times nl2",
+                      title: "Back",
+                      classes: joinClasses(["f3 dim", theme().uiNavButton, theme().uiPdfBackButton]),
+                      onclick: back
+                  }),
+                  m__default['default']("div.flex.w-50.w-35-m.w-20-l.justify-around", [
+                      m__default['default'](uiWidgets.NavButton, {
+                          icon: "fal fa-search-plus fa-fw",
+                          title: "Zoom In",
+                          classes: joinClasses(["f3 dim fw4", theme().uiNavButton, theme().uiPdfZoomInButton]),
+                          disabled: this.zoom() >= 2 /* Max */,
+                          onclick: function () { return _this.adjustZoom(0.5 /* Increment */); }
+                      }),
+                      m__default['default'](uiWidgets.NavButton, {
+                          icon: "fal fa-search-minus fa-fw",
+                          title: "Zoom Out",
+                          classes: joinClasses(["f3 dim", theme().uiNavButton, theme().uiPdfZoomOutButton]),
+                          disabled: this.zoom() <= -2 /* Min */,
+                          onclick: function () { return _this.adjustZoom(-0.5 /* Decrement */); }
+                      }),
+                  ]),
+                  this.pdfPath ? m__default['default'](uiWidgets.NavLink, {
+                      icon: "fal fa-arrow-to-bottom",
+                      title: "Download",
+                      classes: joinClasses(["f3 dim", theme().uiNavButton, theme().uiPdfDownloadButton]),
+                      href: this.pdfPath
+                  }) : null,
+              ],
+              headerClass: joinClasses(["h2.5", theme().uiPdfTopBar]),
+              // Pop-out menu
+              subheaderClass: "relative",
+              content: this.viewer
+                  ? m__default['default'](PageManager, {
+                      pdf: this.viewer.pdf,
+                      overlayForm: this.overlayForm,
+                      scale: this.pageScale,
+                      zoom: this.smoothZoom(),
+                      jumpTo: this.activeField,
+                      onSelect: function (id) { return _this.setWidget(id); }
+                  })
+                  // Status indicator (loading/error)
+                  : m__default['default'](".flex-auto.self-stretch", {
+                      class: joinClasses([theme().uiPdfPanel])
+                  }, m__default['default']("span.ma3.db.truncate", {
+                      class: joinClasses([theme().uiPdfSubheader])
+                  }, this.statusText)),
+              // Bottom toolbar area
+              // TODO Consider moving out into own component
+              footer: this.state() !== 0 /* view */ ? m__default['default'](".relative.flex.flex-column.justify-around.items-center.pa1.shadow-2.flex-shrink-0", {
+                  style: { "min-height": "6rem" },
+                  class: joinClasses([theme().uiPdfBottomBar])
+              }, active && active.data ? [
+                  // Active widget
+                  active.data.preText ? m__default['default']("p.ma1.f5.tc", active.data.preText) : null,
+                  m__default['default']("form.w-100.mw5.ma1", {
+                      onsubmit: function () {
+                          _this.setNextWidget();
+                          return false;
+                      }
+                  }, assembleFormField(active, { id: "overlay-assist" })),
+                  active.data.postText ? m__default['default']("p.ma1.f5.tc", active.data.postText) : null
+              ] : this.state() === 1 /* call */ ? [
+                  // Document fill intro section
+                  m__default['default'](uiWidgets.NavButton, {
+                      title: "Start",
+                      icon: ((_a = this.formAction) === null || _a === void 0 ? void 0 : _a.icon) || "fal fa-chevron-down",
+                      classes: joinClasses([
+                          "absolute f2 f1-ns top-0 nt4 br-100 shadow-4 pulse",
+                          theme().uiPdfStartButton
+                      ]),
+                      // Activate next unset widget
+                      onclick: function () { return _this.setActive(_this.nextEmptyWidget()); }
+                  }),
+                  m__default['default'](".w-100.flex-auto.flex.flex-column-reverse.items-center.pointer.ma3", {
+                      onclick: function () { return _this.setActive(_this.nextEmptyWidget()); }
+                  }, 
+                  // Form action text
+                  m__default['default']("p.mv2.f5.tc", (_b = this.formAction) === null || _b === void 0 ? void 0 : _b.label))
+              ] : this.state() === 3 /* complete */ ? m__default['default']("p.self-center.mv0.fw3.tc", {
+                  class: colors().default.color
+              }, [
+                  // Document complete notification
+                  ((_c = this.formAction) === null || _c === void 0 ? void 0 : _c.completeIcon) ? m__default['default']("i.mr2", {
+                      class: this.formAction.completeIcon
+                  }) : null,
+                  (_d = this.formAction) === null || _d === void 0 ? void 0 : _d.complete
+              ]) : null) : null
+          });
+      };
+      Pdf.prototype.activeWidgetIdx = function () {
+          var active = this.activeField();
+          if (active && active.input) {
+              return lodash__default['default'].findIndex(this.editList, lodash__default['default'].matches({ input: { id: active.input.id } }));
+          }
+          else {
+              return undefined;
+          }
+      };
+      Pdf.prototype.setActive = function (field) {
+          this.state(2 /* edit */);
+          if (field) {
+              this.activeField(field);
+              this.focusWidget();
+          }
+      };
+      Pdf.prototype.nextEmptyWidget = function () {
+          return lodash__default['default'].find(this.editList, function (_a) {
+              var value = _a.value;
+              return value ? !hasValue(value()) : true;
+          });
+      };
+      // Find and activate widget by id
+      Pdf.prototype.setWidget = function (id) {
+          this.setActive(lodash__default['default'].find(this.editList, lodash__default['default'].matches({ input: { id: id } })));
+      };
+      // Find and set next/previous editable widget
+      Pdf.prototype.setNextWidget = function (direction) {
+          if (direction === void 0) { direction = 1; }
+          var newIdx = this.activeWidgetIdx();
+          if (newIdx !== undefined) {
+              newIdx += direction;
+              if (newIdx >= 0 && newIdx < this.editList.length) {
+                  this.setActive(this.editList[newIdx]);
+              }
+          }
+      };
+      Pdf.prototype.focusWidget = function () {
+          lodash__default['default'].delay(function () {
+              var widgetInput = document.getElementById("overlay-assist");
+              if (widgetInput) {
+                  widgetInput.focus();
+              }
+          }, 32);
+      };
+      Pdf.prototype.adjustZoom = function (delta) {
+          // Clamp zoom value
+          this.zoom(Math.max(-2 /* Min */, Math.min(this.zoom() + delta, 2 /* Max */)));
+          window.dispatchEvent(new Event("resize"));
+      };
+      Pdf.prototype.serialise = function () {
+          this.activeField(undefined);
+          return serialiseOverlay(this.overlayForm);
+      };
+      return Pdf;
+  }());
+
+  function pdfViewRoute(items, qry, layoutAttrs, uploadDelay) {
+      return {
+          onmatch: function (_a) {
+              var itemGuid = _a.itemGuid;
+              routeString(BrandingRoute.pdf);
+              return items.initialLoad()
+                  .then(function () { return qry.selectItem(itemGuid); });
+          },
+          render: function () { return m__default['default'](Layout, layoutAttrs, m__default['default'](Pdf, {
+              item: qry.getItem(),
+              uploadDelay: uploadDelay
+          })); }
+      };
+  }
+
+  /**
+   * Create vault application, loading/saving data, and performing routing via history states
+   */
+  function vault(appConf) {
+      return bootstrap(appConf).then(function (_a) {
+          var application = _a.application, pusher = _a.pusher;
+          var uploadDelay = application.vault && application.vault.fileDelay ? application.vault.fileDelay : 2500;
+          var files = new Files(application.vault);
+          var items = new Items(application.vault);
+          var qry = new ItemSelect(items.model(), items.data());
+          var vaultModel = new Vault(files, items, qry);
+          // Reload application/user-level data on socket messages
+          pusher.applicationChannel.bind("reloadapplication" /* reloadApplication */, function () { return items.loadApplication().then(m__default['default'].redraw); });
+          pusher.applicationUserChannel.bind("reloaditems" /* reloadItems */, function () { return items.loadUser().then(m__default['default'].redraw); });
+          // Load new assets added by given sjr
+          // TODO Enforce interface to event data including direction (sent/received) or full message
+          pusher.applicationUserChannel.bind("newassets" /* updateAssets */, function (params) {
+              items.updateAssets(params).then(function (count) {
+                  dialog({
+                      message: "We have sent " + count + " new documents",
+                      context: "default" /* default */
+                  });
+                  m__default['default'].redraw();
+              }).catch(errNotification);
+          });
+          // Merge new documents into assets
+          pusher.applicationUserChannel.bind("document" /* addAssets */, function (assetList) {
+              if (assetList.length) {
+                  var count = items.addAssets(assetList);
+                  var direction = assetList[0].origin === "customer" ? "received" : "sent";
+                  dialog({
+                      message: "We have " + direction + " " + count + " new documents",
+                      context: "default" /* default */
+                  });
+                  m__default['default'].redraw();
+              }
+          });
+          // Mark viewed assets
+          pusher.applicationUserChannel.bind("viewed" /* viewed */, function (asset) {
+              items.viewAsset(asset);
+              m__default['default'].redraw();
+          });
+          // Setters
+          function updateItem(item, fileList) {
+              return vaultModel.upsertItem(item, fileList)
+                  // Apply final delay
+                  .then(function () { return new Promise(function (resolve) { return setTimeout(resolve, uploadDelay); }); })
+                  .catch(errNotification);
+          }
+          function removeItem(item) {
+              return vaultModel.removeItem(item).catch(errNotification);
+          }
+          // Attributes common to layout component
+          var layoutAttrs = {
+              saving: vaultModel.saving,
+              progress: files.getPercent()
+          };
+          var layoutAttrsNoHeader = lodash__default['default'].extend({
+              responsiveHeader: true
+          }, layoutAttrs);
+          var layoutAttrsMinimal = lodash__default['default'].extend({
+              responsiveHeader: true,
+              responsiveFooter: true
+          }, layoutAttrs);
+          // Default page to listing items tagged "home"
+          m.route(document.getElementById("page"), homeRoute, {
+              // TODO Assemble route keys with ActionType enum (requires ES6 support)
+              // Display category content
+              "/:itemGuid/list": itemListRoute(items, qry, layoutAttrs, files.canUploadAssets()
+                  ? function (fileList) { return vaultModel.uploadAssets(qry.getItem(), fileList)
+                      .catch(errNotification); }
+                  : undefined),
+              // Direct access to item in "single entry" categories
+              "/:itemGuid/single": categorySingleRoute(items, qry, layoutAttrsNoHeader, function (item, fileList) { return updateItem(item, fileList).then(back).catch(errNotification); }, removeItem),
+              // New instance of model
+              "/:modelGuid/new": itemNewRoute(items, qry, layoutAttrsNoHeader, function (item, fileList) { return updateItem(item, fileList)
+                  // Go to default item action
+                  .then(function () { return selectItem(qry.getModel(), item, {
+                  replace: true
+              }); })
+                  .catch(errNotification); }, removeItem),
+              // IDataItem suitable actions
+              "/:itemGuid/view": itemViewRoute(items, qry, layoutAttrsNoHeader),
+              "/:itemGuid/edit": itemEditRoute(items, qry, layoutAttrsNoHeader, function (item, fileList) { return updateItem(item, fileList).then(back).catch(errNotification); }, function (item) { return removeItem(item).then(home).catch(errNotification); }),
+              // Custom component container
+              "/:itemGuid/comp": customDefaultRoute(items, qry, layoutAttrs),
+              "/:itemGuid/comp/:actionGuid": customRoute(items, qry, layoutAttrs),
+              // PDF Viewer + input overlay
+              "/:itemGuid/pdf": pdfViewRoute(items, qry, layoutAttrsMinimal, uploadDelay),
+          });
+          return {
+              application: application,
+              pusher: pusher
+          };
+      });
+  }
+
+  exports.application = application;
+  exports.assembleFormField = assembleFormField;
+  exports.branding = branding;
+  exports.buildComponent = buildComponent;
+  exports.buildComponentList = buildComponentList;
+  exports.buildFormFields = buildFormFields;
+  exports.colors = colors;
+  exports.createResponsiveClass = createResponsiveClass;
+  exports.dialog = dialog;
+  exports.joinClasses = joinClasses;
+  exports.profile = profile;
+  exports.registerComponent = registerComponent;
+  exports.registerFileMapFn = registerFileMapFn;
+  exports.registerMapFn = registerMapFn;
+  exports.registerMergeFn = registerMergeFn;
+  exports.sdxRequest = sdxRequest;
+  exports.size = size;
+  exports.theme = theme;
+  exports.vault = vault;
+
+  Object.defineProperty(exports, '__esModule', { value: true });
+
+})));
