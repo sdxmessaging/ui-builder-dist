@@ -1,4 +1,7 @@
 /* Browser style overrides */
+.link:hover, .link:active, .link:focus, a:hover, a:active, a:focus  {
+	outline: 0 !important;
+ }
 
 input:focus, textarea:focus, select:focus {
 	outline: none;
