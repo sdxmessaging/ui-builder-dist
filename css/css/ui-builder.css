@@ -1,0 +1,122 @@
+/* Hide scrollbars for Carousel */
+[class*=uiCarouselWrapper]::-webkit-scrollbar {
+	display: none;
+}
+
+[class*=uiCarouselWrapper] {
+	-ms-overflow-style: none;  /* IE and Edge */
+  	scrollbar-width: none;  /* Firefox */
+}
+
+/* Browser style overrides */
+.link:hover, .link:active, .link:focus, a:hover, a:active, a:focus  {
+	outline: 0 !important;
+ }
+
+input:focus, textarea:focus, select:focus {
+	outline: none;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+}
+
+.hide-input-clear::-ms-clear {
+	display: none;
+	width: 0;
+	height: 0;
+}
+
+.hide-input-clear::-webkit-search-cancel-button {
+	display: none;
+}
+
+/* ui-builder helper classes */
+
+/* Prevent Safari "optimising" display of vault page lists */
+.safari-bug {
+	-webkit-transform: translate3d(0, 0, 0);
+	transform: translate3d(0, 0, 0);
+}
+
+/* Simple button click ripple effect */
+.ripple {
+	position: relative !important;
+	overflow: hidden !important;
+	transform: translate3d(0, 0, 0);
+}
+.ripple:after {
+	content: "";
+	display: block;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	pointer-events: none;
+	background-image: radial-gradient(circle, rgb(173, 173, 173) 10%, transparent 10.01%);
+	background-repeat: no-repeat;
+	background-position: 50%;
+	transform: scale(10, 10);
+	opacity: 0;
+	transition: transform .5s, opacity 1s;
+}
+.ripple:active:after {
+	transform: scale(0, 0);
+	opacity: 0.3;
+	transition: 0s;
+}
+
+.doc-overlay input {
+	border: none;
+}
+
+/* Simple pulsate animation */
+.pulse {
+	-moz-osx-font-smoothing: grayscale;
+	backface-visibility: hidden;
+	transform: scale(1);
+	animation: 1.2s ease-in-out 0s infinite normal none running pulse-animation;
+}
+@keyframes pulse-animation {
+	from { transform: scale(1); }
+	60% { transform: scale(1.1); }
+	to { transform: scale(1); }
+}
+
+.shake { animation: 0.1s ease-in-out shake-left; }
+@keyframes shake-left { from { left: -0.25rem; } to { left: 0.25rem; } }
+
+/* Fade in/out animations */
+.fade-in { animation: 0.2s linear opacity-in; }
+@keyframes opacity-in { from { opacity: 0 } to { opacity: 1; } }
+.fade-out { animation: 0.2s linear opacity-out; }
+@keyframes opacity-out { from { opacity: 1 } to { opacity: 0; } }
+
+/* Dialog sliding animations */
+.notify-top-in { animation: 0.2s linear top-in; }
+@keyframes top-in { from { transform: translateY(-100%); } to { transform: translateY(0%); } }
+.notify-top-out { animation: 0.2s linear top-out; }
+@keyframes top-out { from { transform: translateY(0%); } to { transform: translateY(-100%); } }
+
+.notify-right-in { animation: 0.2s linear right-in; }
+@keyframes right-in { from { transform: translateX(100%); } to { transform: translateX(0%); } }
+.notify-right-out { animation: 0.2s linear right-out; }
+@keyframes right-out { from { transform: translateX(0%); } to { transform: translateX(100%); } }
+
+.notify-bottom-in { animation: 0.2s linear bottom-in; }
+@keyframes bottom-in { from { transform: translateY(100%); } to { transform: translateY(0%); } }
+.notify-bottom-out { animation: 0.2s linear bottom-out; }
+@keyframes bottom-out { from { transform: translateY(0%); } to { transform: translateY(100%); }}
+
+.notify-left-in { animation: 0.2s linear left-in; }
+@keyframes left-in { from { transform: translateX(-100%); } to { transform: translateX(0%); } }
+.notify-left-out { animation: 0.2s linear left-out; }
+@keyframes left-out { from { transform: translateX(0%); } to { transform: translateX(-100%); } }
+
+/* Utility classes not present in Tachyons.css */
+.arrow:hover {
+	cursor: default;
+}
+
+.sticky {
+	position: sticky;
+}
