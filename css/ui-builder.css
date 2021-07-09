@@ -2,7 +2,9 @@
 [class*=uiCarouselWrapper]::-webkit-scrollbar {
 	display: none;
 }
-
+[class*=uiDialogFeedbackWrapper]::-webkit-scrollbar {
+	display: none;
+}
 [class*=uiCarouselWrapper] {
 	-ms-overflow-style: none;  /* IE and Edge */
   	scrollbar-width: none;  /* Firefox */
