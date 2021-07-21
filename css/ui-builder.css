@@ -7,13 +7,13 @@
 }
 [class*=uiCarouselWrapper] {
 	-ms-overflow-style: none;  /* IE and Edge */
-  	scrollbar-width: none;  /* Firefox */
+	scrollbar-width: none;  /* Firefox */
 }
 
 /* Browser style overrides */
 .link:hover, .link:active, .link:focus, a:hover, a:active, a:focus  {
 	outline: 0 !important;
- }
+}
 
 input:focus, textarea:focus, select:focus {
 	outline: none;
@@ -121,4 +121,51 @@ input:focus, textarea:focus, select:focus {
 
 .sticky {
 	position: sticky;
+}
+
+/* User typeing elipsis animation  */
+.user-typing-dots {
+	height: 100%;
+	border-radius: 10px;
+	pointer-events: none;
+}
+
+.user-typing-dots>:first-child {
+	margin-left: 6px
+}
+.user-typing-dots>:nth-child(2) {
+	animation-delay: 0.15s;
+}
+.user-typing-dots>:nth-child(3) {
+	animation-delay: 0.3s;
+}
+
+.user-typing-dot {
+	animation-timing-function: ease-in;
+	animation-iteration-count: infinite;
+	animation-name: dot-scale;
+	animation-duration: 1s;
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	margin-left: 3px;
+	border-radius: 50%;
+	background-color: #444;
+	transform: scale(0.65);
+}
+
+@media screen and (max-width: 440px) {
+	.user-typing-dot {
+		width: 5px;
+		height: 5px;
+		margin-left: 1px;
+	}
+	.user-typing-dots>:first-child {
+		margin-left: 2px
+	}
+}
+
+@keyframes dot-scale {
+	0%, 70% { transform: scale(0.8); }
+	35% { transform: scale(1); }
 }
