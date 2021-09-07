@@ -212,3 +212,13 @@ input:focus, textarea:focus, select:focus {
 		padding: 0;
 	} 
 }
+
+/* AG Grid */
+
+.uiTooltip {
+	transition:opacity .15s ease-in;
+}
+
+.uiTooltip.ag-tooltip-hiding {
+	opacity: 0;
+}
