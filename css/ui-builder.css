@@ -33,6 +33,10 @@ input:focus, textarea:focus, select:focus {
 
 /* ui-builder helper classes */
 
+.mt-auto {
+	margin-top: auto;
+}
+
 /* Prevent Safari "optimising" display of vault page lists */
 .safari-bug {
 	-webkit-transform: translate3d(0, 0, 0);
