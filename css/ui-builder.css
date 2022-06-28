@@ -275,6 +275,11 @@ select:focus {
 	position: sticky;
 }
 
+.pointer-events-none {
+	pointer-events: none;
+	cursor: default;
+}
+
 /* User typeing elipsis animation  */
 .user-typing-dots {
 	height: 100%;
