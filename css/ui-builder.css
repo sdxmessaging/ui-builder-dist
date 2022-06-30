@@ -42,6 +42,16 @@ select:focus {
 	display: none;
 }
 
+/* ui-builder layout */
+
+body {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
 /* ui-builder helper classes */
 
 .mt-auto {
@@ -279,6 +289,18 @@ select:focus {
 	pointer-events: none;
 	cursor: default;
 }
+
+.touch-action-none {
+	touch-action: none;
+}
+
+/* .modal--opened {
+	position: fixed;
+	left: 0;
+	right: 0;
+	scroll-behavior: unset;
+
+} */
 
 /* User typeing elipsis animation  */
 .user-typing-dots {
