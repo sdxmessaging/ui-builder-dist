@@ -294,18 +294,6 @@ body {
 	touch-action: none;
 }
 
-.touch-action-x-y {
-	touch-action: pan-x pan-y !important;
-}
-
-/* .modal--opened {
-	position: fixed;
-	left: 0;
-	right: 0;
-	scroll-behavior: unset;
-
-} */
-
 /* User typeing elipsis animation  */
 .user-typing-dots {
 	height: 100%;
