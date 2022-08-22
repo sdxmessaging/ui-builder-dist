@@ -1,15 +1,28 @@
-:root {	
+:root {
 	--ui-builder-accent: #6db0ec;
 	--ui-builder-accent-lighter: #9bc6ec;
 	--ui-builder-accent-darker: #3372bc;
 	--ui-builder-text: #333333;
 	--ui-builder-warn: #ff925c;
 	--ui-builder-error: #ED5d5d;
-	--ui-builder-user1:	#3276F5;
-	--ui-builder-user2:	#EB8DC7;
-	--ui-builder-user3:	#EBAA3B;
-	--ui-builder-user4:	#75EB6A;
-	--ui-builder-user5:	#94BCEB;
+	--ui-builder-user1: #3276F5;
+	--ui-builder-user2: #EB8DC7;
+	--ui-builder-user3: #EBAA3B;
+	--ui-builder-user4: #75EB6A;
+	--ui-builder-user5: #94BCEB;
+}
+
+.odometer {
+	height: 1em;
+	display: inline-block;
+}
+
+.digit-container {
+	display: inline-block;
+	height: 1em;
+	width: 1em;
+	overflow: hidden;
+	padding: 0 0.2em;
 }
 
 /* Hide scrollbars for Carousel */
