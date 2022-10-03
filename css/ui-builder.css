@@ -468,6 +468,11 @@ body {
 	opacity: 0;
 }
 
+.uiGridCellReset {
+	padding-left: 0 !important;
+	padding-right: 0 !important;
+}
+
 /* CSS grid - loosely based on Bootstrap 5.1 */
 .grid { display: grid; }
 
