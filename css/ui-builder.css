@@ -3,6 +3,7 @@
 	--ui-builder-accent-light: #9bc6ec;
 	--ui-builder-accent-dark: #3372bc;
 	--ui-builder-accent-invert: #f4f4f4;
+	--ui-builder-panel: #ECEDF0;
 	--ui-builder-text: #333333;
 	--ui-builder-text-invert: #f4f4f4;
 	--ui-builder-warn: #ff925c;
@@ -23,6 +24,8 @@
 .bg-ui-builder-accent-light { background-color: var(--ui-builder-accent-light); }
 .ui-builder-accent-invert { color: var(--ui-builder-accent-invert); }
 .bg-ui-builder-accent-invert { background-color: var(--ui-builder-accent-invert); }
+.ui-builder-panel { color: var(--ui-builder-panel); }
+.bg-ui-builder-panel { background-color: var(--ui-builder-panel); }
 .ui-builder-text { color: var(--ui-builder-text); }
 .bg-ui-builder-text { background-color: var(--ui-builder-text); }
 .ui-builder-text-invert { color: var(--ui-builder-text-invert); }
@@ -349,6 +352,9 @@ body {
 
 .pointer-events-none {
 	pointer-events: none;
+}
+
+.cursor-default {
 	cursor: default;
 }
 
