@@ -1,11 +1,11 @@
 :root {
-	--ui-builder-accent: #6db0ec;
-	--ui-builder-accent-light: #9bc6ec;
+	--ui-builder-accent: #0078b4;
+	--ui-builder-accent-light: #bad0db;
 	--ui-builder-accent-dark: #3372bc;
-	--ui-builder-accent-invert: #f4f4f4;
+	--ui-builder-accent-invert: #fdfdfd;
 	--ui-builder-card: #ECEDF0;
-	--ui-builder-text: #333333;
-	--ui-builder-text-invert: #f4f4f4;
+	--ui-builder-text: #596581;
+	--ui-builder-text-invert: #fdfdfd;
 	--ui-builder-warn: #ff925c;
 	--ui-builder-danger: #ED5d5d;
 	--ui-builder-user1: #3276F5;
