@@ -381,19 +381,23 @@ body {
 	position: sticky;
 }
 
-.pointer-events-none {
-	pointer-events: none;
-}
-
 .cursor-default {
 	cursor: default;
+}
+
+.pointer-events-none {
+	pointer-events: none;
 }
 
 .touch-action-none {
 	touch-action: none;
 }
 
-/* User typeing elipsis animation  */
+.user-select-none {
+	user-select: none;
+}
+
+/* User typeing elipsis animation */
 .user-typing-dots {
 	height: 100%;
 	border-radius: 10px;
