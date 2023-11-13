@@ -55,6 +55,13 @@
 .ui-builder-user5 { color: var(--ui-builder-user5); }
 .bg-ui-builder-user5 { background-color: var(--ui-builder-user5); }
 
+.scrollbar-hidden::-webkit-scrollbar {
+	visibility: hidden;
+}
+.scrollbar-hidden {
+	scrollbar-color: transparent transparent;
+}
+
 .odometer {
 	height: 1em;
 	display: inline-block;
