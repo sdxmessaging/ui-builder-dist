@@ -135,6 +135,10 @@ body {
 	margin-top: auto;
 }
 
+.mb-auto {
+	margin-bottom: auto;
+}
+
 .mw-unset {
 	max-width: unset;
 }
