@@ -156,7 +156,7 @@ body {
 	transform: translate3d(0, 0, 0);
 }
 
-.ripple:after {
+.ripple:not(:disabled):after {
 	content: "";
 	display: block;
 	position: absolute;
