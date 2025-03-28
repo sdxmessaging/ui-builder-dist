@@ -109,6 +109,12 @@ select:focus {
 	box-shadow: none;
 }
 
+.hide-input-clear::-ms-reveal {
+	display: none;
+	width: 0;
+	height: 0;
+}
+
 .hide-input-clear::-ms-clear {
 	display: none;
 	width: 0;
